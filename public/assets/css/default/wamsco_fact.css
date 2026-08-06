@@ -1,0 +1,876 @@
+* {
+    box-sizing: border-box;
+}
+.largeur{
+    /* background: #62d807; */
+    max-width: 1024px;
+}
+
+.logowamsco {
+    margin-top: -13px;
+}
+
+.menutop {
+    background-color: #000;
+    box-shadow: 0px -2px 2px 2px #a49696;
+}
+
+.conteneur {
+    margin-top: 50px;
+}
+
+.textdefilente {
+    color: white;
+    font-family: 'Times New Roman';
+    font-size: 16px;
+    font-weight: 600;
+    margin-top: -6px;
+}
+
+h1.page-title.entetefilariane {
+    font-weight: 700;
+    color: #7fffd4;
+}
+
+body.imgfond_connexion {
+    font-family: 'Hind', sans-serif;
+    background: url(../images/resto2.jpeg)no-repeat center;
+    background-size: cover;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    -ms-background-size: cover;
+    background-attachment: fixed;
+    text-align: center;
+    width: auto;
+}
+
+.login-form {
+    background: #2c2f2fbf;
+    margin: 3em 25px 10px 25px;
+    padding: 1em 10px 15px 5px;
+    border-radius: 50px;
+    width: 60%;
+    display: -webkit-inline-box;
+}
+
+.panel.panel-primary.spacer.panelconnexion {
+    background: #fff0;
+    width: 65%;
+    margin-left: 19%;
+    border-radius: 25px;
+    border: 1px;
+}
+
+h1.agileits-title {
+    font-size: 5em;
+    color: #fff;
+    text-transform: capitalize;
+    margin: 0.5em 0 0;
+    font-family: 'Times New Roman', Times, serif;
+}
+
+h2.sub-head-w3-agileits {
+    color: #fff;
+    text-transform: capitalize;
+    font-size: 27px;
+    letter-spacing: 1px;
+    margin: 0.5em 0;
+    font-family: Georgia, 'Times New Roman', Times, serif;
+}
+
+.col-md-offset-2.col-md-8.col-xs-12.colonne_connexion {
+    width: 100%;
+    margin-left: auto;
+}
+
+p.copyrigth_connexion {
+    color: #fff;
+    font-size: 16px;
+    font-family: Georgia, 'Times New Roman', Times, serif;
+}
+
+label.control-label.label_connexion {
+    font-weight: bold;
+    float: left;
+    color: #faebd7b0;
+    font-size: 15px;
+}
+
+.input_connexion {
+    color: #fff;
+    background-color: #222;
+    background-image: none;
+    border: 1px solid #ccc;
+    border-radius: 26px;
+}
+
+.btn_connexion {
+    color: #fff;
+    background-color: #222;
+    border-color: #ccc;
+}
+
+p.erreur_connexion {
+    color: #0ff;
+}
+
+.login-form_user {
+    background: #2c2f2fbf;
+    margin: 2px 7px 4px 7px;
+    padding: 1em 10px 15px 5px;
+    border-radius: 15px;
+}
+
+.conteneur.cont_user {
+    margin-top: 0px;
+}
+
+p.img_profil {
+    padding: 8px 5px 8px 5px;
+    color: #fff;
+    margin: 0px 0px;
+    text-align: center;
+}
+
+img.profil_img {
+    max-width: 106px;
+    max-height: 145px;
+    border-radius: 50%;
+    box-shadow: 0px 0px 4px #f5f0f0;
+}
+
+input.form-control.input_user {
+    color: #efff00;
+    background-color: #222;
+    background-image: none;
+    border: 1px solid #555656;
+    border-radius: 10px;
+}
+
+select.form-control.input_user {
+    background: #222;
+    color: #fff;
+    border-radius: 10px;
+    border: 1px solid #555656;
+}
+
+img.profil_img_bonjour {
+    max-width: 33px;
+    max-height: 24px;
+    border-radius: 50%;
+    box-shadow: 0px 0px 4px #f5f0f0;
+    margin-top: -10px;
+}
+
+tr.entete_table {
+    color: #fff;
+}
+
+tr.corps_table {
+    color: #7fffd4;
+}
+
+.bloc_pagination {
+    text-align: center;
+    margin-top: -26px;
+    margin-bottom: -18px;
+}
+
+.sidebar-nav.menu_vertical_principal {
+    position: fixed;
+}
+
+a.dropdown-toggle.corps_table {
+    color: #fd5555;
+    font-weight: 600;
+    position: relative;
+    top: -12px;
+    padding-left: 20px;
+}
+
+span.btn_action {
+    position: relative;
+    right: 16px;
+}
+
+li.dropdown.action {
+    margin-bottom: -15px;
+}
+
+a.glyphicon.glyphicon-user.action_modif {
+    text-align: left;
+}
+
+a.glyphicon.glyphicon-trash.action_modif {
+    text-align: left;
+}
+
+ul.dropdown-menu.bloc_action {
+    min-width: 2px;
+}
+
+.table-hover>tbody>tr:hover>td,
+.table-hover>tbody>tr:hover>th>.corps_table {
+    background-color: #fff;
+    color: #000;
+}
+
+
+/* utilisateur modif */
+
+input.form-control.input_usermodif {
+    color: #7fffd4;
+    background-color: #222;
+    background-image: none;
+    border: 1px solid #555656;
+    border-radius: 10px;
+}
+
+select.form-control.input_usermodif {
+    background: #222;
+    color: #7fffd4;
+    border-radius: 10px;
+}
+
+.infos_hotel {
+    color: #7fffd4;
+}
+
+
+/* client */
+
+input.form-control.input_client {
+    background: #222;
+    color: #7fffd4;
+    border-radius: 10px;
+    border: 1px solid #555656;
+}
+
+select.form-control.input_client {
+    background: #222;
+    color: #7fffd4;
+    border-radius: 10px;
+    border: 1px solid #555656;
+}
+
+input.form-control.input_clientmttc {
+    background: #222;
+    color: #f00;
+    border-radius: 10px;
+    border: 1px solid #555656;
+    font-weight: 600;
+    font-size: 15px;
+}
+
+.col-md-6.col-xs-12.colonne_clientselect {
+    border: solid 1px #fff3;
+    margin-top: 29px;
+    padding-top: 1px;
+    padding-bottom: 2px;
+    color: #fff;
+}
+
+.col-md-6.col-xs-12.colonne_donne_hotel {
+    padding: 3px;
+}
+
+tr.corps_table_client {
+    color: #5cb85c;
+}
+
+.dropdown-menu>li>a:hover,
+.dropdown-menu>li>a:focus>action_modif {
+    color: #fff;
+    text-decoration: none;
+    background-color: #f55252;
+}
+
+.dropdown-menu>li>a.action_modif {
+    display: block;
+    padding: 3px 4px;
+    clear: both;
+    font-weight: normal;
+    line-height: 1.42857143;
+    white-space: nowrap;
+}
+
+.message_acceuil {
+    text-align: center;
+}
+
+
+/* Accueil: rond */
+
+h3.text-muted.text-center.rond_accueil {
+    margin-top: -40px;
+    margin-top: -40px;
+    font-size: 14px;
+    color: #767474;
+}
+
+h6.entitehotel {
+    float: right;
+    margin-top: 0px;
+    color: #5cb85c;
+    font-weight: 600;
+}
+
+h2.label_entitehotel {
+    font-weight: bold;
+    color: #faebd7b0;
+    font-size: 16px;
+}
+
+span.detail_entitehotel {
+    color: #92a3c2;
+}
+
+tr.lignehead_table {
+    background: #3a3a3a;
+    color: #d0cdcd;
+}
+
+option.client_ordinaire {
+    color: #7fffd4;
+}
+
+option.client_ordinaire2 {
+    color: #ff5656;
+}
+
+.accesuser {
+    border: 1px solid #555656;
+    border-radius: 10px;
+    color: #7fffd4;
+    height: 32px;
+    background: #222222;
+    padding-left: 13px;
+    padding-top: 4px;
+}
+
+input.form-control.input_cmd {
+    background: #222;
+    color: #d9534f;
+    border-radius: 10px;
+    border: 1px solid #555656;
+    font-size: 15px;
+}
+
+tbody.tablo {
+    border-bottom: 2px solid #4e4e4e;
+}
+
+.row.login-form_listecmd {
+    background: #131313;
+    margin: 2px 7px 4px 7px;
+    padding: 1em 10px 15px 5px;
+    border-radius: 15px;
+}
+
+.col-md-12.col-xs-12.colonne_listecmd {
+    padding-left: 1px;
+    padding-right: 1px;
+}
+
+a.glyphicon.glyphicon-plus-sign.action_modif {
+    text-align: left;
+}
+
+a.glyphicon.glyphicon-align-justify.action_modif {
+    text-align: left;
+}
+
+a.glyphicon.glyphicon-list-alt.action_modif {
+    text-align: left;
+}
+
+a.glyphicon.glyphicon-fire.action_modif {
+    text-align: left;
+}
+
+a.glyphicon.glyphicon-align-center.action_modif {
+    text-align: left;
+}
+
+
+/* Details commande  */
+
+span.input-group-addon.cmd_details {
+    background: #2a2c2c;
+    border: 1px solid #555656;
+    color: #adadad;
+}
+
+
+/* ************* */
+
+span.label.label-warning.tabloacceuil {
+    background: #e94e4e;
+}
+
+a.filarian {
+    color: #fff;
+}
+
+a.filarian:hover {
+    color: #ffff55;
+}
+
+a.filarian2 {
+    color: #fff;
+}
+
+a.filarian2:hover {
+    color: #f0ad4e;
+}
+
+
+/* ***********  Factre ********** */
+
+body.facture {
+    background: #fff;
+}
+
+.panel-heading_droite {
+    text-align: right;
+    position: relative;
+    top: -115px;
+    line-height: 1.5;
+    font-weight: 600;
+}
+
+.panel-heading_gauche {
+    height: 50px;
+    margin-bottom: 8px;
+}
+
+.panel-heading_gauche2 {
+    height: 50px;
+    line-height: 1;
+}
+
+img.logo_facture {    
+    padding-top: 5px;
+    max-width: 130px;
+    max-height: 130px;
+    margin-top: -76px;
+}
+
+.col-md-6.gauche {
+    float: right;
+}
+
+.col-md-6.droite {
+    float: right;
+}
+
+.panel-heading_neu {
+    padding-top: 18px;
+    line-height: 0.2;
+    font-weight: 600;
+}
+
+.panel-heading_droite.titre {
+    font-weight: 800;
+    color: #274085;
+}
+
+table.table.facture {
+    margin-top: -81px;
+}
+
+tr.footfact {
+    font-size: 16px;
+    color: #efff00;
+}
+
+tr.footfact2 {
+    font-size: 13px;
+    color: #274085;
+    border: 0px solid #ff000000 !important;
+}
+th.montantremise {
+    color: #f69522;
+}
+
+.panel-heading.cmd_details {
+    font-size: 17px;
+    font-weight: 600;
+    color: #274085;
+    text-align: center;
+    padding-top: 1px;
+    text-decoration: underline;
+}
+
+td.fact_detail {
+    font-size: 13px;
+    text-align: right;
+}
+
+th.tete_fact {
+    text-align: right;    
+}
+
+td.fact_detail1 {
+    font-weight: 600;
+}
+
+td.fact_detail2 {
+    font-size: 12px;
+    color: #00f;
+    font-weight: 700;
+}
+
+th.fact_entete {
+    font-size: 13px;
+    font-weight: 700;
+}
+
+th.fact_entete2 {
+    font-size: 11px;
+    font-weight: 700;
+}
+
+th.fact_totaux {
+    font-size: 13px;
+}
+
+p.img_logo {
+    padding: 16px 5px 16px 5px;
+    color: #fff;
+    margin: 0px 0px;
+    text-align: center;
+}
+
+img.logo_img {
+    max-width: 248px;
+    max-height: 248px;
+    border-radius: 5%;
+    /* box-shadow: 0px 0px 4px #f5f0f0;     */
+}
+
+td.ancien_chahmbre {
+    background: #393350;
+    color: #bfbdbd;
+}
+
+td.montantttc {
+    background: #286b33;
+    color: #fff;
+}
+
+td.paiement {
+    background: #1d1d27;
+    color: #bfbebe;
+}
+
+td.changerchambre {
+    color: #d06c31;
+}
+
+td.codechambre {
+    color: #3fff00;
+}
+
+td.prixchambre {
+    color: #00d0ff;
+}
+
+.col-md-12.factur {
+    margin-bottom: -172px;
+}
+
+.panel-heading_neugau.titre {
+    font-size: 20px;
+    font-weight: 800;
+    color: #274085;
+    text-align: center;
+}
+
+.panel-heading_neug {
+    padding-top: 18px;
+    line-height: 10px;
+    font-weight: 600;
+    text-align: left;
+}
+
+hr.ligne {
+    margin-top: 5px;
+    margin-bottom: 1px;
+    border: 1px solid #000000;
+}
+
+th.montantotal {
+    color: #ff5500;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+tr.fact_detail {
+    border-bottom: 2px solid white;
+}
+
+tr.fact_detail2 {
+    border-top: 3px solid red;
+    border-bottom: 1px dotted;
+}
+
+.table>thead>tr>th,
+.table>tbody>tr>th,
+.table>tfoot>tr>th,
+.table>thead>tr>td,
+.table>tbody>tr>td,
+.table>tfoot>tr>td {
+    padding: 4px;
+    line-height: 1.2;
+    vertical-align: top;
+    /* border-top: 1px solid #ddd; */
+}
+
+.merci {
+    /* text-align: center; */
+    font-weight: 600;
+}
+
+span.merci1 {
+    margin-left: 93px;
+}
+
+span.merci2 {
+    margin-left: 126px;
+}
+
+th.tetes {
+    text-align: right;
+}
+
+th.gauche {
+    text-align: left;
+}
+
+table.table.wamsco {
+    margin-bottom: -2px;
+}
+
+.panel-heading.cmd_details.wamco {
+    font-size: 30px;
+    font-weight: 600;
+}
+
+span.directeur {
+    margin-left: 40px;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+span.caisse {
+    margin-left: 203px;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+span.beneficiaire {
+    margin-left: 166px;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.panel-heading_neug.montant {
+    color: #0018ff;
+    font-weight: 600;
+}
+
+.beetwen_date {
+    text-align: center;
+    font-weight: 600;
+    margin-top: 0px;
+}
+
+th.pieds {
+    font-size: 12px;
+    text-align: right;
+    font-weight: 800;
+}
+
+th.pieds.min {
+    font-size: 15px;
+}
+
+th.pas {
+    font-size: 12px;
+}
+
+.recap {
+    text-align: right;
+    margin-right: 52px;
+}
+
+.mont_autre {
+    font-size: 17px;
+    margin-top: -8px;
+}
+
+.mont_ttc {
+    font-size: 17px;
+    font-weight: 600;
+    margin-top: -6px;
+}
+
+span.remise {
+    color: #0000ff;
+    font-weight: bold;
+}
+
+.text-nowrap {
+    white-space: nowrap !important;
+}
+
+.date_fact {
+    text-align: center;
+    line-height: 0;
+    margin-bottom: 18px;
+    margin-top: 12px;
+}
+.droite{
+    text-align: right;
+}
+.noir{
+    font-size: 16px;
+    color: #000000;
+    border: 0px solid #ff000000 !important;
+}
+.bientot {
+    text-align: center;
+}
+.mini{
+    font-size: 13px;    
+}
+
+.bloc_entite {
+    margin-top: 52px;
+}
+
+/* ********* New Facture ****/
+img.logo_facture_new {
+    padding-top: 5px;
+    max-width: 145px;
+    max-height: 130px;
+    margin-top: -76px;
+    /* border: 1px solid #d9d9d9; */
+    padding: 5px;
+}
+.bloc_logoEntit {
+    position: relative;
+    top: 38px;
+    left: 61px;
+}
+.bloc_clientFact {
+    margin-top: -106px;
+}
+.bloc_numFact {
+    text-align: center;
+    position: relative;
+    top: -119px;
+    left: 173px;
+    line-height: 1.5;
+    font-weight: 600;
+}
+span.fact {
+    font-weight: bold;
+}
+span.donnees {
+    font-weight: 500;
+}
+span.fact_num {
+    font-weight: bold;
+    font-size: 18px;
+    color: #274085;
+}
+.bloc_table {
+    position: relative;
+    top: -83px;
+}
+tbody, td, tfoot, th, thead, tr {
+    border-color: inherit;
+    border-style: none;
+    border-width: 0;
+}
+hr.ligne_horizon {
+    width: 301px;
+    position: relative;
+    left: 501px;
+    margin-top: -5px;
+    margin-bottom: 10px;
+    border: 1px solid black;
+}
+.msg_important {
+    position: relative;
+    top: -88px;
+}
+.ligne_horizon_new{
+    width: 245px;
+    position: relative;
+    left: 130px;
+    margin-top: -5px;
+    margin-bottom: 10px;
+    border: 1px solid black;
+}
+
+/* Facture Mini */
+.bloc_facture_mini{
+    max-width: 300px;
+    padding: 5px 10px;
+    border: 1px dotted;
+    margin: 5px;
+}
+.titre_fact_mini{
+    font-weight: 700;
+    font-size: 13px;
+    line-height: 14px;
+    text-align: left;
+}
+.entete_fact_mini{
+    font-weight: 700;
+    font-size: 13px;
+    line-height: 14px;
+    text-align: center;
+}
+.data_fact_mini{
+    font-weight: 400;
+}
+
+/************************ mobile ********************************************************/
+@media all and (max-device-width: 480px) {
+
+    .bloc_numFact {
+        text-align: center;
+        position: relative;
+        top: -104px;
+        left: 180px !important;
+        line-height: 1.5;
+        font-weight: 600;
+    }
+
+}
+
+
+/************************ Tablette ********************************************************/
+@media all and (max-device-width: 1180px) {
+    .bloc_numFact {
+        text-align: center;
+        position: relative;
+        top: -104px;
+        left: 64px !important;
+        line-height: 1.5;
+        font-weight: 600;
+    }
+    hr.ligne_horizon {
+        width: 0px;
+        position: relative;
+        left: 501px;
+        margin-top: -5px;
+        margin-bottom: 10px;
+        border: 1px solid black;
+    }
+}

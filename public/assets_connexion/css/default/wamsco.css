@@ -1,0 +1,1738 @@
+*{
+    box-sizing: border-box;
+}
+
+div#content {
+    margin-top: 0px;
+}
+.logo_wamsco {
+    align-items: center;
+    max-width: 155px;
+    transition: opacity .2s;
+}
+.new_color{
+background: #20252a !important;
+}
+.wamsco_color {
+    color: #e04a4d;
+}
+.fond_commun {
+    /* padding: 10px; */
+    /* background: #2d353c; */
+    background: #20252a;
+}
+.h-250px {
+    height: 175px!important;
+}
+.app-sidebar .menu .menu-item.active>.menu-link {
+    position: relative;
+    z-index: 10;
+    color: #fff;
+    background-color: #000000;
+}
+.custom-select {
+    display: inline-block;
+    width: 100%;
+    height: calc(2.25rem + 2px);
+    padding: 0.375rem 1.75rem 0.375rem 0.75rem;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #495057;
+    vertical-align: middle;
+    background: #fff url(data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'%3E%3Cpath fill='%23343a40' d='M2 0L0 2h4zm0 5L0 3h4z'/%3E%3C/svg%3E) no-repeat right 0.75rem center/8px 10px;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+    box-shadow: inset 0 1px 2px rgb(0 0 0 / 8%);
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: auto;
+}
+.par_page {
+    height: 32px !important;
+    padding-top: 2px !important;
+    margin-top: 0px !important;
+    background: #20252a !important;
+    color: #ffffff !important;
+    border: 1px solid #ffffff33 !important;
+    font-size: 12px;
+}
+.nbr_cmd {
+    background-color: #ffffff14;
+    border: 1px solid #ffffff33;
+    border-radius: 20px;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    margin-left: 0.4em;
+    padding: 0 10px;
+}
+.titre {
+    font-size: 13px;
+}
+.list_achat {
+    margin: 1px -5px !important;
+    /* width: 342px; */
+    -webkit-box-flex: 1;
+    -webkit-flex: 1 1 auto;
+    flex: 1 1 auto;
+    border: 1px solid #bfbfbf54 !important;
+}
+.reference {
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 0;
+    margin-top: 0px;
+    color: #ffffff;
+}
+.nombre_cmd {
+    white-space: nowrap;
+    float: right;
+    color: #33ff00ab;
+    font-size: 13px;
+    font-weight: 600;
+}
+.date_achat {
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 0;
+    margin-top: 0px;
+    color: #959595; 
+}
+.montant_achat {
+    white-space: nowrap;
+    float: right;
+    color: #d5ffca94;
+    font-weight: bold;
+    font-size: 12px;
+}
+.paiement {
+    white-space: nowrap;
+    float: right;
+    color: #5e5cb1;
+    font-size: 12px;
+}
+.text-collins {
+    color: #d2d2d2 !important;
+}
+/* cette partie pour faire clignoter (Blink est la class) */
+    
+@keyframes blink {
+    50% {
+        opacity: 0.0;
+    }
+}
+
+@-webkit-keyframes blink {
+    50% {
+        opacity: 0.0;
+    }
+}
+
+.blink {
+    animation: blink 1s step-start 0s infinite;
+    -webkit-animation: blink 1s step-start 0s infinite;
+    /* color: #dc3545 !important; */
+}
+/* Fin clignoter */
+.text-green{
+   color: #08a316 !important;
+}
+.modal_wamsco_moyen {
+    background: #000000bf !important;
+    max-width: 910px !important;
+    position: relative !important;
+    top: -27px;
+}
+.modal_wamsco_user {
+    background: #000000bf !important;
+    max-width: 750px !important;
+    position: relative !important;
+    top: -27px;
+}
+.modal_wamsco_moyen_substitut {
+    background: #000000bf !important;
+    width: 1031px !important;
+    position: absolute !important;
+    top: -28px;
+    left: -169px;
+}
+.modal_tete {
+    background: #fff;
+    padding-top: 12px !important;
+    padding-bottom: 7px !important;
+}
+.modal_peids {
+    overflow: hidden;
+    z-index: 99;
+    padding: 15px;
+    background: #fff;
+    text-align: left;
+    flex-flow: row-reverse;
+}
+.nom_desig {
+    margin-bottom: -7px;
+}
+.label_modif{
+    padding: 12px;
+    border-radius: 0;
+}
+.label_pvs {
+    padding: 10px;
+    border-radius: 0;
+    /* margin-left: 5px; */
+}
+.hauteur {
+    font-size: 12px;
+    height: 38px;
+}
+.bordure{
+    border: 1px solid #505d68;
+}
+.img_produit {
+    max-width: 33px;
+    max-height: 43px;
+    object-fit: contain;
+    border-radius: 10%;
+    border: 1px solid #ffffff14;
+    margin-top: -5px;
+    margin-bottom: -5px;
+    cursor: pointer;
+}
+.mod_titre {
+    font-size: 17px !important;
+    color: rgba(0,0,0,.5) !important;
+    font-family: Helvetica Neue,Helvetica,Arial,sans-serif !important;
+}
+.position_logo_enseigne {
+    max-width: 72px;
+    margin-top: -19px;
+    position: absolute;
+    right: -125px;
+    border-radius: 50%;
+}
+.body_titre {
+    margin-bottom: 14px;
+    padding-top: 8px;
+    padding-bottom: 1px;
+}
+.titre_enseigne {
+    width: 570px;
+}
+.center.achat {
+    border-top: 0px solid #dddddd !important;
+    border-right: 0px solid #dddddd !important;
+    border-bottom: 0 !important;
+    color: #b8b8b8;
+}
+.btn_delete {
+    background: #ffffff !important;
+    color: #000000 !important;
+    border: 1px solid #5f5f5f !important;
+}
+.btn_delete:hover {
+    background: #fbadad !important;
+    color: #000000 !important;
+    border: 1px solid #5f5f5f !important;
+}
+.ti_enseigne {
+    width: 534px;
+}
+.text-indigo{
+    color: indigo !important;
+}
+.bg-rouge {
+    background-color: #ff8b96 !important;
+    font-style: normal !important;
+    font-size: 12px !important;
+    color: rgb(0, 0, 0);
+    font-family: "Gill Sans", sans-serif !important;
+}
+.fond_stat {
+    background: #ffffffeb !important;
+}
+.float-right {
+    float: right !important;
+}
+.espace {
+    margin-right: 10px;
+}
+.users {
+    position: relative;
+    display: flex;
+    align-items: center;
+    line-height: 100px;
+    font-size: 11px;
+    margin: 3px !important;
+    width: 100%;
+    height: 268px;
+    overflow: hidden;
+    cursor: pointer;
+}
+.users-img {
+    position: relative;
+    width: 350px;
+    height: 320px;
+    text-align: center;
+}
+.users .users-img img {
+    max-height: 270px;
+    max-width: 250px;
+    width: 100%;
+    vertical-align: middle;
+    position: relative;
+    top: 10px;
+    border: 1px solid #e2e2e2;
+    border-radius: 50% !important;
+    border-bottom-width: 3px;
+}
+.clair {
+    color: #7a7a7a;
+}
+.text-collins {
+    color: #33ff0069 !important;
+}
+.text-verte{
+    color: #60FE5D;
+}
+.titre_profil {
+    line-height: 29px;
+    font-size: 13px;
+}
+.bloc_bouton {
+    text-align: center;
+    padding-bottom: 15px;
+}
+.wamsco {
+    background: #0b0b2a;
+}
+.titre_fourni {
+    font-size: 20px;
+    color: #ffffff;
+    margin-top: 7px;
+}
+.titre_img {
+    font-size: 15px;
+    padding-bottom: 20px;
+}
+.doc_lien {
+    color: #ffffff !important;
+    text-decoration: none;
+    background-color: transparent;
+    font-weight: 700;
+    font-size: 12px;
+}
+.doc_lien:hover {
+    color: #ff9696 !important;    
+}
+.fond_bleu {
+    background: #82b7ff0d  !important;
+    color: #ededed !important;
+    font-weight: 600 !important;
+}
+.badge-danger {
+    color: #fff;
+    background-color: #dc3545;
+}
+.badge-success {
+    color: #fff;
+    background-color: #28a745;
+}
+.taille_icon {
+    font-size: 9px;
+    cursor: pointer;
+}
+.taille_icon:hover {
+    color: #ff9696 !important;  
+}
+.bloc_pagination {
+    margin-top: 7px;
+    margin-bottom: 0px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.bg-white {
+    background-color: #fff !important;
+}
+.bloc2 {
+    margin-bottom: -7px !important;
+    padding: 0 !important;
+}
+.largeur_tier{
+    max-width: 787px !important;
+}
+.ajuster{
+    padding-bottom: 10px;
+}
+.largeur_appro {
+    max-width: 1150px !important;
+    margin-left: 7% !important;
+}
+.pointer{
+    cursor: pointer;
+}
+.badge-dark {
+    color: #343a40;
+    background-color: #fff;
+}
+.gras {
+    font-weight: 600 !important;
+}
+.badge-warning {
+    color: #1f2d3d;
+    background-color: #ffc107;
+}
+.page-item.active .page-link {
+    z-index: 3;
+    color: var(--app-component-active-color);
+    background-color: #ff5b57;
+    border-color: #ff5b57;
+}
+.bg-noir {
+    background: #1b1f24 !important;
+}
+.nav-tabs .nav-item.show .nav-link, .nav-tabs .nav-link.active {
+    color: var(--app-component-color);
+    /* background-color: #23262b; */
+    border-color: transparent;
+}
+.nav-tabs .nav-link {
+    margin-bottom: 0;
+    background: #23262b;
+    border: 0 solid transparent;
+    border-top-left-radius: 0px;
+    border-top-right-radius: 0px;
+}
+.droite {
+    position: absolute;
+    top: -52px;
+    left: 345px;
+}
+.change:hover {
+    box-shadow: 0 0 1px rgb(0 0 0 / 13%), 0 1px 3px rgb(0 0 0 / 20%);
+    border: 1px solid red;
+}
+.espace {
+    margin-right: 10px;
+}
+.float-left {
+    float: left !important;
+}
+.text-vert {
+    color: #28a745;
+}
+.bloc_achatprod {
+    width: auto;
+    height: 561px;
+    border: 1px solid #484f56;
+    margin-top: 0px;
+    margin-bottom: 0px;
+    margin-left: 0px;
+    margin-right: -4px;
+    border-radius: 5px;
+    box-shadow: 0 0 1px rgb(0 0 0 / 13%), 0 1px 3px rgb(0 0 0 / 20%);
+}
+.bloc_achatprod_substitut {
+    width: 405px;
+    height: 340px;
+    border: 1px solid #484f56;
+    margin-top: 0px;
+    margin-bottom: 0px;
+    margin-left: 0px;
+    margin-right: -4px;
+    border-radius: 5px;
+    box-shadow: 0 0 1px rgb(0 0 0 / 13%), 0 1px 3px rgb(0 0 0 / 20%);
+}
+.bloc_transfertprod {
+    width: auto;
+    height: 596px; 
+    border: 1px solid #484f56;
+    margin-top: 0px;
+    margin-bottom: 0px;
+    margin-left: 0px;
+    margin-right: -4px;
+    border-radius: 5px;
+    box-shadow: 0 0 1px rgb(0 0 0 / 13%), 0 1px 3px rgb(0 0 0 / 20%);
+}
+.bloc_affiprod{
+    margin: -8px 10px;
+}
+.bloc_Bcmd {
+    width: 340px;
+    height: 574px;
+    border: 1px solid #484f56;
+    margin-top: 0px;
+    margin-bottom: 0px;
+    margin-left: 0px;
+    margin-right: -4px;
+    box-shadow: 0 0 1px rgb(0 0 0 / 13%), 0 1px 3px rgb(0 0 0 / 20%);
+}
+.petit {
+    max-width: 30px !important;
+    object-fit: contain;
+}
+.responsives {
+    overflow: auto;
+}
+.taille {
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 12px;
+}
+.label_qte {
+    padding-left: 6px;
+    padding-top: 8px;
+}
+.haut_achatprod {
+    height: 339px;
+}
+.img_droite {
+    position: absolute;
+    top: -9px;
+    left: 164px;
+}
+.img_droite_emplace {
+    position: absolute;
+    top: -18px;
+    left: 25px;
+}
+.img_detailachat {
+    position: absolute;
+    top: 0px;
+    left: 105px;
+}
+.modal_wamsco_small {
+    background: #000000bf !important;
+    max-width: 650px !important;
+    top: -28px;
+}
+.modal_wamsco_catg {        
+    top: -28px;
+}
+.taille_16{
+    font-size: 16px;
+}
+.taille_14{
+    font-size: 14px;
+}
+.label_pv {
+    padding: 5px 0px;
+    border-radius: 0;
+    font-size: 12px;
+}
+.selection_pv{
+    font-size: 14px;
+    border: 1px solid #444b52;
+    color: #bbbbbb;
+}
+.ml-2, .mx-2 {
+    margin-left: 0.5rem !important;
+}
+.mr-2, .mx-2 {
+    margin-right: 0.5rem !important;
+}
+.ml-1, .mx-1 {
+    margin-left: 0.25rem !important;
+}
+.text-warning{
+    color: #ffc107 !important;
+    font-weight: 600;
+}
+.ligne_horiz {
+    border-bottom: 1px solid #3b4249;
+    padding-bottom: 6px;
+}
+.product {
+    position: relative;
+    vertical-align: top;
+    display: inline-block;
+    line-height: 100px;
+    font-size: 11px;
+    margin: 1px 0px !important;
+    width: 122px;
+    height: 115px;
+    background: #fff;
+    /* border: 1px solid #e2e2e2;
+    border-radius: 3px; */
+    border-bottom-width: 3px;
+    overflow: hidden;
+    cursor: pointer;
+}
+.product-img {
+    position: relative;
+    width: 120px;
+    height: 100px;
+    background: white;
+    text-align: center;
+}
+.product .product-img img {
+    max-height: 100px;
+    max-width: 120px;
+    vertical-align: middle;
+}
+.product .price-tag {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    vertical-align: top;
+    color: white;
+    line-height: 13px;
+    /* background: #7f82ac; */
+    background: #232644;
+    padding: 2px 5px;
+    border-radius: 2px;
+}
+.product .quantite-tag {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    vertical-align: top;
+    color: white;
+    line-height: 13px;
+    /* background: #7f82ac; */
+    padding: 2px 5px;
+    border-radius: 2px;
+    font-size: 10px;
+}
+.badge-info {
+    color: #fff;
+    background-color: #17a2b8;
+}
+.product .product-name {
+    position: absolute;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+    box-sizing: border-box;
+    bottom: 0;
+    top: auto;
+    line-height: 14px;
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    background: -webkit-linear-gradient(-90deg,rgba(255,255,255,0),rgba(255,255,255,1), rgba(255,255,255,1));
+    background: -moz-linear-gradient(-90deg,rgba(255,255,255,0),rgba(255,255,255,1), rgba(255,255,255,1));
+    background: -ms-linear-gradient(-90deg,rgba(255,255,255,0),rgba(255,255,255,1), rgba(255,255,255,1));
+    padding: 3px;
+    padding-top: 15px;
+    color: #6e6e6e;
+    font-weight: 600;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+}
+.supprimer:hover {
+    color: #ff9696 !important;
+}
+.impression {
+    position: absolute;
+    right: 177px;
+}
+.min_fact {
+    position: absolute;
+    right: 75px;   
+    color: #161a1d  !important;
+}
+.min_fact2 {
+    position: absolute;
+    right: 240px;
+    color: #161a1d  !important;
+}
+.confirm {
+    position: absolute;
+    right: 11px;    
+}
+.envoimail {
+    position: absolute;
+    right: 159px;
+    color: #0a0a59 !important;
+}
+.text-orange {
+    color: #fb6b04 !important;
+}
+.text-bleu{
+    color: #51ccef;
+}
+.text-gris{
+    color: #a9a9c3;
+}
+.modal_detail_vente {
+    width: 817px !important;
+    position: absolute !important;
+    top: -28px;
+    left: -110px;
+}
+.modal_detail_fature {
+    max-width: 817px !important;
+    margin: 0 auto;
+}
+.modal-dialog.modal_composant {
+    max-width: 800px;
+    margin: 1.75rem auto;
+    position: relative;
+    top: -28px;
+}
+.modal_create_produit{
+    max-width: 586px;
+    margin: 1.75rem auto;
+    position: relative;
+    top: 17px;
+}
+.montant_op {
+    background-color: #e2e2f1 !important;
+    padding-left: 10px !important;
+    color: #000000 !important;
+    font-weight: 600 !important;
+    font-size: 19px !important;
+}
+.long {
+    max-width: 453px !important;
+}
+.bas {
+    margin-bottom: -21px !important;
+    padding-top: 4px !important;
+    padding-bottom: 2px !important;
+}
+.print_col {
+    color: #6c757d;
+    font-size: 22px;
+    padding-top: 6px;
+}
+.print_col:hover {
+    color: #a5a8ab;    
+}
+.badge-secondary {
+    color: #fff;
+    background-color: #6c757d;
+}
+.bordure_rose_stat {
+    border-top: 6px solid #d94e4a;
+    border-radius: 15px;
+    padding-top: 20px;
+}
+.fond_statistik {
+    background: #161a1d !important;
+}
+.select_stat{
+    background: #262d33;
+    border: 1px solid #2d353c;
+    margin-top: -5px;
+    color: #a8a8a8;
+    font-size: 13px;
+    height: 33px;
+}
+.bloc {
+    margin-top: -20px !important;
+    padding: 0 !important;
+}
+.droit {
+    text-align: right;
+}
+.text-vert_citron{
+    color: #b6ff5569;
+}
+.rouge{
+    color: #f05552 !important;
+}
+.modal_wamsco {
+    background: #000000bf !important;
+    width: 1050px !important;
+    position: absolute !important;
+    top: -28px;
+    left: -231px;
+}
+.roles {
+    height: 340px;
+}
+.bloc_role {
+    height: 401px;
+    margin-top: 4px;
+    margin-bottom: 4px;
+    border: 1px solid #474e55 !important;
+}
+
+.bloc_partiel_role {
+    margin-top: 2px;
+    margin-bottom: 8px;
+    margin-left: 5px;
+    margin-right: 5px;
+}
+.titre_role {
+    margin-top: -4px;
+    margin-bottom: -14px;
+    margin-left: 11px;
+    color: #787878;
+    font-size: 13px;
+}
+.trait {
+    width: 85%;
+    margin-left: 13px;
+    margin-bottom: 5px;
+}
+.nom_wamsco {
+    color: #fd4e50;
+}
+.date_expira {
+    font-weight: 700;
+    color: #7e7e7e;
+}
+.expirat {
+    color: #e1e1e1;
+}
+.bloc_mod {
+    color: #ffffff;
+    text-decoration: none;
+}
+.bloc_mod:hover {
+    color: #bcbcbc;
+    background: #ffffff;
+    box-shadow: 0px 0px 8px 1px #ffffff;
+}
+.bloc_img_text{
+    display: flex;
+}
+.part_img{
+    width: 30%;
+}
+.part_text{
+    width: 70%;
+    padding: 8px 4px;
+    color: #222222;
+    font-size: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+.img_mod{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    padding:4px;
+}
+.text-clair{
+    color: #d8d5d5;
+}
+.logo_wams {
+    margin-left: 6px;
+}
+.modal_opdetail{
+    width: 600px; 
+    position: absolute !important;
+    top: -28px;
+}
+.bordure_bas {
+    border-bottom: 1px solid #3f474d;
+    padding-bottom: 2px;
+    width: 95%;
+    margin-left: 0px;
+}
+.bloc_imprime {
+    position: relative;
+    top: -32px;
+}
+.bt_val_bcmd {
+    position: relative;
+    left: 83px;
+    top: 9px;
+    width: 75%;
+    border-radius: 0;
+}
+.paie_bcmd {
+    position: relative;
+    top: -44px;
+    left: 125px;
+}
+.label_btn {
+    margin-top: 42px;
+}
+.bloc_pvprod {
+    /* height: 59vh; */
+    overflow: overlay;
+    height: 525px;
+}
+.affichTotauxPv { 
+    position: sticky;
+    bottom: 0;
+    border-top: 1px solid #adb5bd;
+    padding: 6.5px 22px;
+    background: #2d353c;
+    box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+}
+.prixPv {
+    font-size: 16px;
+    font-weight: 700;
+    color:#7a7a7a;
+}
+.montPV {
+    font-size: 16px;
+    color:#7a7a7a;
+}
+.col.table>:not(caption)>*>* {
+    border-bottom-width: 0px !important;
+}
+span.img_favi {
+    font-size: 50px;
+    position: relative;
+    top: 47px;
+    color: #ffffff36;
+}
+span.titre_cmd_vide {
+    font-size: 16px;
+    font-weight: 600;
+    position: relative;
+    top: 45px;
+    color: #ffffff36;
+}
+.table-hover>tbody>tr.retire:hover>* {
+    --bs-table-accent-bg: #21262b  !important;
+}
+.montant_nets {
+    font-size: 14px;
+    padding-left: 55px;
+}
+.coller {
+    position: relative;
+    left: -11px;
+    top: -1px;
+}
+.bouton_exporter {
+    position: relative;
+    left: -11px;
+    margin-bottom: 0;
+}
+.bouton_importer {
+    font-size: .75rem;
+    margin: 0;
+    line-height: 1.35;
+    flex: 3;
+}
+.bouton_telecharg {
+    font-size: .75rem;
+    margin: 0;
+    line-height: 1.35;
+    position: absolute;
+    left: 478px;
+}
+.msg_importer {
+    font-size: 13px;
+    font-weight: bold;
+    text-align: center;
+}
+.bloc_imprimer {
+    margin-right: 41px;
+    margin-bottom: -8px;
+    margin-top: -8px;
+}
+.equilibre {
+    display: flex;
+    flex-direction: row;
+    margin-right: 10px;
+    gap: 8px;
+}
+.largeur_recher{
+    width: 30%;
+}
+.largeur_recherprod{
+    width: 10%;
+}
+.secund_line{
+    color: beige;
+}
+.nbr_attente{
+    position: absolute;
+    top: -1px;
+    left: 20px;
+    display: block;
+    background: var(--app-theme);
+    line-height: 10px;
+    font-weight: 600;
+    color: var(--app-theme-color);
+    padding: 3px 6px;
+    font-size: 8px;
+    border-radius: 30px;
+    z-index: 10;   
+}
+.nbr_attente_new{
+    position: absolute;
+    top: -1px;
+    /* left: 20px; */
+    display: block;
+    background: var(--app-theme);
+    line-height: 10px;
+    font-weight: 600;
+    color: var(--app-theme-color);
+    padding: 3px 6px;
+    font-size: 8px;
+    border-radius: 30px;
+    z-index: 10;   
+}
+.img_charge {
+    display: flex;
+    justify-content: center;
+    padding-bottom: 13px;
+}
+.spinner-grow-wams {
+    display: inline-block;
+    width: 1rem;
+    height: 1rem;
+    vertical-align: -.125em;
+    background-color: currentColor;
+    border-radius: 50%;
+    opacity: 0;
+    -webkit-animation: .75s linear infinite spinner-grow;
+    animation: .75s linear infinite spinner-grow;
+}
+.bloc_totaux{
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+    margin-bottom: 4px;
+    flex-direction: row;
+    justify-content: center;
+    width: 100%;
+}
+.first_bloc_totaux {
+    width: 45%;
+}
+.second_bloc_totaux {
+    width: 45%;
+}
+.bloc_btn_option{
+    display: flex; 
+    justify-content: space-between;
+    margin-right: 100px;
+}
+.btn_option_valider{
+    display: flex; gap: 10px;
+}
+.btn_option_impression{
+    display: flex; gap: 5px;
+}
+.align_textarea {
+    margin-left: 8px;
+}
+.bloc_paie_facturation{
+    border: 6px solid #495057;
+    padding: 9px 0px;
+    margin: -6px;
+}
+.bloc_paie_facturation :hover{
+    background: #24272a;
+}
+/*  */
+.ribbon-top-right {
+    margin-top: -49px;
+    right: -16px;
+    top: -11px;
+}
+.ribbon {
+    width: 130px;
+    height: 130px;
+    overflow: hidden;
+    position: absolute;
+}
+.ribbon-top-right::before {
+    top: 0;
+    left: 0;
+}
+.ribbon-top-right::before, .ribbon-top-right::after {
+    border-top-color: black;
+    border-right-color: black;
+}
+.ribbon::before, .ribbon::after {
+    position: absolute;
+    z-index: -1;
+    content: '';
+    display: block;
+    border: 5px solid #2980b9;
+}
+.ribbon-top-right span {
+    left: -15px;
+    top: 30px;
+    transform: rotate(45deg);
+}
+.ribbon span {
+    z-index: 1;
+    position: absolute;
+    display: grid;
+    align-items: center;
+    width: 225px;
+    height: 48px;
+    padding: 0 44px;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+    color: #fff;
+    font: 700 13px/1 'Lato', sans-serif;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+    text-transform: uppercase;
+    text-align: center;
+    overflow: hidden;
+    user-select: none;
+}
+.bg-success, .o_status.o_status_green {
+    --bg-opacity: 1 !important;
+    background: #28a745 !important;
+}
+.bg-brouillon, .o_status.o_status_green {
+    --bg-opacity: 1 !important;
+    background: #7f7f7f !important;
+}
+.bg-non_paye, .o_status.o_status_green {
+    --bg-opacity: 1 !important;
+    background: #fe5959 !important;
+}
+.bg-partiel, .o_status.o_status_green {
+    --bg-opacity: 1 !important;
+    background: #ffc107 !important;
+}
+.bg-avoir, .o_status.o_status_green {
+    --bg-opacity: 1 !important;
+    background: #17a2b8 !important;
+}
+.bloc_btn_validat {
+    margin-bottom: 0;
+}
+.imprim{
+    display: flex;
+    gap:10px;
+    justify-content: flex-end;
+}
+.bloc_search_client{
+    overflow:auto; 
+    background: #161a1d;
+    position: absolute;
+    z-index: 1;
+    width: 23%;
+}
+.bloc_search_client_detail{
+    overflow:auto; 
+    background: #161a1d;
+    position: absolute;
+    z-index: 1;
+    width: 39%;
+}
+.chargement{
+    position: fixed;
+    top: -5px;
+    left: 0;
+    right: 0;
+    z-index: 10000;
+    text-align: center;
+}
+.charger_stat_pv{
+    position: fixed;
+    top: 67px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    z-index: 10000;
+}
+.payer_le{
+    margin-bottom: 5px;
+    border-bottom: 1px dotted #85858540;
+    padding: 5px 40px;
+}
+.bloc_pie_chart{
+    width: 80%;
+    padding: 20px;
+    text-align: center;
+}
+.bloc_entete_caisse{
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+.part_bienvenue{
+    display: flex;
+    gap: 10px;
+}
+.part_print_rech{
+    display: flex;
+    gap: 10px;
+}
+.part_journal{
+    display: flex;
+    gap: 10px;
+}
+.valider_prod{
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+.valorisation_stock{
+    display: flex;
+    gap: 10px;
+}
+.bloc_select_prod{
+    margin-right: -10px;
+    overflow: overlay; 
+    height: 581px;
+    margin-top: 5px;border: 1px solid #323a41; 
+    box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;background: #20252a;
+}
+/* pour calendrier */
+.fc .fc-daygrid-day.fc-day-today {
+    background-color: rgba(255,220,40,.15);
+    background-color: rgb(255 91 87) !important;
+}
+.fc .fc-daygrid-day-number {
+    position: relative;
+    z-index: 4;
+    padding: 4px;
+    color: #ffffff;
+}
+.fc .fc-view {
+    background: #161a1d82;   
+    border-top: 1px solid #495057; 
+}
+.fc .fc-view .fc-event:not(.fc-h-event):hover {
+    background-color: #08a316 !important;
+    border-color: rgba(var(--app-component-color-rgb),.1);
+}
+.fc .fc-scrollgrid-section-body table, .fc .fc-scrollgrid-section-footer table {
+    border-bottom-style: none !important;
+}
+.fc .fc-scrollgrid {
+    border-collapse: separate;
+    border-right-width: 0 !important;
+    border-left-width: 0 !important;
+}
+.fc-theme-standard .fc-scrollgrid {
+    border: 0px solid #495057 !important;
+}
+.add_prod_factura{
+    overflow:auto; 
+    background: #161a1d;
+    position: absolute;
+    width: 47%;
+}
+.plan_pdv {
+    color: #fc787d;
+}
+.plan_pressing {
+    color: #1bb6f9;
+}
+
+/************************ mobile ********************************************************/
+
+@media all and (max-device-width: 480px) {
+    .btn_option_impression {
+        display: flex;
+        gap: 5px;
+        align-items: flex-end;
+    }
+    .add_prod_factura{
+        overflow:auto; 
+        background: #161a1d;
+        position: absolute;
+        width: 95%;
+    }
+    .bloc_select_prod{
+        margin-right: -10px;
+        overflow: overlay; 
+        height: auto;
+        margin-top: 5px;border: 1px solid #323a41; 
+        box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;background: #20252a;
+    }
+    .bloc_pvprod {
+        height: auto;
+        overflow: overlay;
+    }
+    span.img_favi {
+        font-size: 50px;
+        position: relative;
+        top: 15px;
+        color: #ffffff36;
+    }
+    span.titre_cmd_vide {
+        font-size: 16px;
+        font-weight: 600;
+        position: relative;
+        top: 14px;
+        color: #ffffff36;
+    }
+    .valorisation_stock {
+        display: flex;
+        gap: 5px;
+        flex-direction: column;
+    }
+    .bloc_entete_caisse{
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    .part_bienvenue {
+        display: flex;
+        gap: 10px;
+        flex-direction: column;
+    }
+    .part_print_rech {
+        display: flex;
+        gap: 10px;
+        flex-direction: column;
+    }
+    .part_journal{
+        display: flex;
+        gap: 10px;
+    }
+    .bloc_pie_chart{
+        width: 100%;
+        padding: 20px;
+        text-align: center;
+    }
+    .payer_le{
+        margin-bottom: 5px;
+        border-bottom: 1px dotted #85858540;
+        padding: 5px 0px;
+    }
+    .chargement{
+        position: fixed;
+        top: -8px;
+        left: 0;
+        right: 0;
+        text-align: center;
+    }    
+    .bloc_search_client{
+        overflow:auto; 
+        background: #161a1d;
+        position: absolute;
+        z-index: 1;
+        width: 92%;
+    }
+    .bloc_search_client_detail{
+        overflow:auto; 
+        background: #161a1d;
+        position: absolute;
+        z-index: 1;
+        width: 93%;
+    }
+    .inp_mobile{
+        margin-top: 33px;
+    }
+    .btn_mob{
+        margin-top: 9px;
+    }
+    .imprim{
+        display: flex;
+        justify-content: flex-start;
+        padding-top: 11px;
+    }
+    .nbr_attente_new{
+        position: absolute;
+        /* top: 44px; */
+        display: block;
+        background: var(--app-theme);
+        line-height: 10px;
+        font-weight: 600;
+        color: var(--app-theme-color);
+        padding: 3px 6px;
+        font-size: 8px;
+        border-radius: 30px;
+        z-index: 10;   
+    }
+    .bloc_btn_validat{
+        display: flex;
+        flex-direction: row;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+    .align_textarea {
+        margin-left: 0px;
+    }
+    .bloc_btn_option {
+        display: flex;
+        flex-direction: column;
+        gap: 11px;
+    }
+    .bloc_achatprod {
+        width: auto;
+        height: 303px;        
+    }
+    .haut_achatprod {
+        height: auto;
+    }   
+    .modal_wamsco {
+        background: #000000bf !important;
+        width: 370px !important;
+        position: absolute !important;
+        top: 0px;
+        left: 0px;
+    }
+    .nombre_cmd {
+        white-space: nowrap;
+        float: right;
+        color: #3e8f0a;
+        font-size: 13px;
+        font-weight: 600;
+        margin-top: -27px;
+    }
+    .paiement {
+        white-space: nowrap;
+        float: right;        
+        font-size: 13px;
+        margin-top: -29px;
+    }
+    .montant_achat {
+        white-space: nowrap;
+        float: right;
+        font-weight: bold;
+        font-size: 14px;
+        margin-top: -30px;
+    }
+    .input_wamsco.fw-bold {
+        margin-bottom: -21px;
+        margin-top: 10px;
+    }
+    button.btn.btn-default.valider {
+        /* margin-top: -22px;
+        margin-bottom: 19px; */
+        margin-top: 0px;
+        margin-bottom: 0px;
+    }
+    .largeur_appro {
+        margin-left: 0% !important;
+        margin-top: 7px !important;
+    }
+    .bloc_affiprod {
+        margin-top: 8px !important;
+        padding-left: 0px !important;
+    }
+    .btn.btn-lg.btn-default {
+        margin-top: 9px;
+    }
+    .modal_wamsco_moyen {
+        background: #000000bf !important;
+        width: 343px !important;
+        position: absolute !important;
+        top: 5px;
+        left: 8px;
+    }
+    .titre_enseigne {
+        width: 314px;
+    }
+    .ti_enseigne {
+        width: 290px;
+    }
+    .label_modif {
+        padding: 12px;
+        border-radius: 0;
+        margin-left: 0px;
+    }
+    .modal_wamsco_small {
+        background: #000000bf !important;
+        width: 360px !important;
+        position: absolute !important;
+        top: 5px;
+    }
+    .modal_detail_vente {
+        width: 359px !important;
+        position: absolute !important;
+        top: 0px;
+        left: 0px;
+    }
+    .modal_opdetail {
+        width: 356px;
+        position: absolute !important;
+        top: 0px;
+    }
+    .position_logo_enseigne {
+        max-width: 44px;
+        margin-top: -6px;
+        position: absolute;
+        right: 236px;
+    }
+    .selection_pv {        
+        margin-bottom: 5px;
+        padding-top: 5px;
+    }
+    .bloc_imprime {
+        position: relative;
+        top: 2px;
+        margin-bottom: 47px;
+        margin-top: 8px;
+        left: -8px;
+    }
+    .bt_val_bcmd {
+        position: relative;
+        left: 73px;
+        top: 9px;
+        width: 75%;
+        border-radius: 0;
+        margin-bottom: 11px;
+    }
+    .bloc_Bcmd {
+        width: 302px;        
+    }
+    .img_droite {
+        position: absolute;
+        top: -186px;
+        left: 161px;
+    }
+    .bouton_telecharg {        
+        position: absolute;
+        left: 91px;
+        top: 31px;
+    }
+    .bouton_importer {       
+        line-height: 1.35;
+        flex: 1;
+        margin-left: -10px;
+        position: relative;
+        top: -16px;
+        left: 22px;
+    }
+    .bouton_export{
+        position: relative;
+        top: 10px;
+    }
+    .bouton_exporter {
+        position: relative;
+        top: -27px;
+        left: 6px;
+        margin-bottom: 0;
+    }
+    .bouton_supprimer {
+        margin: -81px;
+        position: relative;
+        top: 13px;
+        left: 14px;
+    }
+    #calendar-container {
+        position: absolute;
+        top: 34px !important;
+        left: 0px !important;
+        right: 0;
+        bottom: 0;
+    }
+    .bloc_imprimer {
+        margin-top: -8px;
+        margin-left: 16px;
+        margin-right: 0px;
+        margin-bottom: 0px;
+    }
+    .impres {
+        margin-bottom: 9px;
+    }
+    .entet_date {
+        display: block !important;
+        line-height: 2;
+    }
+    .espacer{
+        margin-bottom: -25px;
+        margin-top: 10px;
+    }    
+    .grand{
+        width: 100%;
+    }
+    .grander{
+        width: 100%;
+        margin-top: 12px !important;
+    }
+    .grandiose{
+        width: 100%;
+        margin-top: -32px !important;
+    }
+    .par_espace {        
+        margin-bottom: 8px !important;
+        height: 32px !important;
+        padding-top: 2px !important;
+        margin-top: 0px !important;
+        background: #20252a !important;
+        color: #ffffff !important;
+        border: 1px solid #ffffff33 !important;
+        font-size: 12px;
+    }
+    .enhaut{
+        margin-bottom: 14px !important;
+    }
+    .btn_form{
+        margin-top: 13px;
+        margin-bottom: 14px;
+    }
+    .print_col {
+        font-size: 30px !important;
+    }
+    
+    .select_stat {
+        background: #262d33;
+        border: 1px solid #2d353c;
+        margin-top: 5px;
+        margin-bottom: 5px;
+        color: #a8a8a8;
+        font-size: 13px;
+        height: 34px;
+    }
+    .montant_nets {
+        font-size: 13px;
+        padding-left: 0px;
+    }
+    .nom_desig {
+        margin-bottom: 10px;
+    }
+    .equilibre {
+        display: flex;
+        margin-top: 10px;
+        margin-bottom: 5px;
+        gap: 8px;
+    }
+    .ecart{
+        margin-top: 6px;
+        margin-bottom: 6px;
+    }
+    .bloc_transfertprod {
+        width: auto;
+        height: auto;    
+    }
+    .enseigne_roles{
+        display: contents;
+    }
+    .ecarter {
+        margin-top: 7px !important;
+    }
+    .mini {
+        margin-left: -23px;
+    }
+    .modal_wamsco_moyen_substitut {
+        background: #000000bf !important;
+        width: 100% !important;
+        position: unset !important;
+        top: 0;
+        left: 0;
+    }
+    .bloc_achatprod_substitut {
+        width: auto;
+        height: 321px;
+    }
+    .largeur_max{
+        width: 100%
+    }
+    .long {
+        max-width: 280px !important;
+    }
+    .fermer_btn{
+        position: relative;
+        top: -49px;
+        left: 200px;
+    }
+    .mobil{
+        width: 95%;
+        margin-left: 10px;
+    }
+    .mobil2{
+        width: 97%;
+        margin-left: 2px;
+    }
+    .mobil3 {
+        width: 97%;
+        margin-left: 10px;
+    }
+    .mobil4{
+        margin: 5px 0;
+    }
+    .largeur_recher {
+        width: unset;
+    }
+    .profil_infos{
+        margin-left: -7px;
+        margin-top: 7px;
+        padding: 0 4px;
+    }
+    .bloc_totaux{
+        display: flex;
+        gap: 5px;        
+        flex-direction: column;
+        width: 100%;
+    }
+    .first_bloc_totaux {
+        width: 100%;
+    }
+    .second_bloc_totaux {
+        width: 100%;
+    }
+    #calendar-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+    }
+    .fc .fc-daygrid-day.fc-day-today {
+        background-color: rgba(255,220,40,.15);
+        background-color: rgb(255 91 87);
+    }
+    .fc .fc-daygrid-day-number {
+        position: relative;
+        z-index: 4;
+        padding: 4px;
+        color: #ffffff;
+    }
+
+
+
+    
+}
+
+/************************ Tablette ********************************************************/
+@media all and (max-device-width: 1180px) {
+    .valorisation_stock {
+        display: flex;
+        gap: 5px;
+        flex-direction: column;
+    }
+    .bloc_entete_caisse{
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    .part_bienvenue {
+        display: flex;
+        gap: 10px;
+        flex-direction: column;
+    }
+    .part_print_rech {
+        display: flex;
+        gap: 10px;
+        flex-direction: column;
+    }
+    .part_journal{
+        display: flex;
+        gap: 10px;
+    }
+    
+    .bt_val_acha {
+        font-size: 9px;
+        height: 37px;
+    }
+    .selection_pv {        
+        margin-bottom: 5px;
+        padding-top: 5px;
+    }
+    .bloc_imprime {
+        position: relative;
+        top: 2px;
+        margin-bottom: 47px;
+        margin-top: 8px;
+        left: -8px;
+    }   
+    .bt_val_bcmd {
+        position: relative;
+        left: 54px;
+        top: 9px;
+        width: 75%;
+        border-radius: 0;
+    }
+    #calendar {
+        margin: 10px auto;
+        padding: 10px;
+        max-width: 921px;
+        height: 700px;
+    }
+    #calendar-container {
+        position: absolute;
+        top: 0;
+        left: 217px;
+        right: 0;
+        bottom: 0;
+    }
+
+}

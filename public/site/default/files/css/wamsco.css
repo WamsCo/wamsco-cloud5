@@ -1,0 +1,220 @@
+*{
+    box-sizing: border-box;
+}
+.faire_don {
+    width: 85px;
+    height: 18px;
+    box-shadow: 1px 1px 3px 0px #151515;
+    border-radius: 4px;
+}
+.icon_prod {
+    margin-inline-end: 16px;
+    width: 72px;
+    height: 72px;
+    position: absolute;
+    font-size: 48px;
+}
+.img_group{
+    width: 48px;
+    height: 48px;
+    position: absolute;
+    margin-inline-start: auto !important;
+}
+.icon_group {
+    margin-inline-end: 16px;
+    width: 72px;
+    height: 72px;
+    position: absolute;
+    font-size: 40px;
+}
+div#block-socialsinfooter {
+    margin-top: -97px;
+}
+.pied_page{
+    margin-top: -93px !important;
+    margin-bottom: 42px !important;
+}
+.icon_prix{
+    margin-inline-end: 1px;
+    width: 40px;
+    font-size: 35px;
+    color: #646469;
+}
+.icon_foction {
+    font-size: 18px;
+    padding: 7px 0 0 0;
+    margin: 0 0 8px;
+    margin-left: -23px;
+}
+.violet{
+    color: #4225a1;   
+}
+.vert{
+    color: #1da71d;   
+}
+.rouge{
+    color: #ff5555;   
+}
+.orange{
+    color: #c76400;   
+}
+.lang_select{
+    width: 125px;
+    border: 1px solid #e5e5e5;
+    color: #1f1f1f;
+    font-weight: bold;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    background: #eeeeee;
+    cursor: pointer;
+}
+.lang_select:hover{    
+    color: #fe5d5d;
+}
+/* bloc modules */
+.part_text2{
+    width: 70%;
+    padding: 4px 4px;
+    color: #222222;
+    font-size: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+.block_parent{
+   display: flex;
+   justify-content: center;
+   gap: 30px;
+   max-width: 1312px;
+}
+.cardor {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    word-wrap: break-word;
+    background-color: var(--app-component-bg);
+    background-clip: border-box;
+    border: 1px solid rgba(var(--app-component-color-rgb),.1);
+    border-radius: 4px
+}
+.bloc_img_text{
+    display: flex;
+}
+.part_img{
+   width: 30%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 31px;
+}
+.img_mod {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    padding: 4px;
+}
+.taille_titre_mod{
+     font-size: 16px !important;
+}
+/* Fin bloc modules */
+
+
+
+/************************ mobile ********************************************************/
+@media all and (max-device-width: 480px) {
+    
+    .hp_empowering_imgs {
+        display: flex !important;       
+        flex-direction: column;
+        gap: 10px !important;
+    }
+    div#block-socialsinfooter {
+        margin-top: -97px !important;
+        padding-bottom: 0px !important;
+    }
+    .lang_select {
+        width: 100%;
+        border: 0px solid #d1d1d1;
+        color: #1f1f1f;
+        font-weight: bold;
+        padding-top: 3px;
+        padding-bottom: 3px;
+        background: #f7f7f7;
+        cursor: pointer;
+        padding-left: 10px;
+    }
+    .icon_group {
+        position: relative;
+        font-size: 32px;
+        top: -22px;
+        left: 15px;
+    }
+    .part_text2{
+        width: 100%;
+        padding: 4px 4px;
+        color: #222222;
+        font-size: 12px;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+}
+
+
+/************************ Tablette ********************************************************/
+@media (max-width: 768px) {
+    
+    .part_text2{
+        width: 96%;
+        padding: 4px 4px;
+        color: #222222;
+        font-size: 12px;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+  
+  
+}
+@media all and (max-device-width: 960px) {
+    div#block-socialsinfooter {
+        margin-top: -13px;
+        padding-bottom: 60px;
+    }
+    .lang_select{
+        width: 100%;
+        border: 1px solid #e5e5e5;
+        color: #1f1f1f;
+        font-weight: bold;
+        padding-top: 3px;
+        padding-bottom: 3px;
+        background: #eeeeee;
+        cursor: pointer;
+        padding-left: 8px;
+    }
+    .block_video_youtube {
+        display: flex;
+        justify-content: center !important;
+        flex-wrap: wrap !important;
+        gap: 10px;
+        max-width: 1312px;
+        margin: auto;
+        padding-top: 13px;
+        flex-direction: row;
+    }
+    
+}
+@media screen and (max-width: 1168px) {
+    .block_video_youtube {
+        display: flex;
+        justify-content: center !important;
+        flex-wrap: wrap !important;
+        gap: 10px;
+        max-width: 1312px;
+        margin: auto;
+        padding-top: 13px;
+        flex-direction: row;
+    }
+}
