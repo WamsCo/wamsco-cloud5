@@ -12,6 +12,7 @@ use App\Models\Role;
 use App\Models\Utilisateur;
 use App\Models\Entite;
 use App\Models\DeviseTva;
+use App\Models\Opportunite;
 
 class Tiers extends Component
 {
@@ -352,19 +353,32 @@ class Tiers extends Component
             $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->supprimer_tier;
             if($autoriser == 1){   
-                if($id){                    
-                    Tier::where('id',$id)->delete();                    
-                    $id_activite = $id;
-                    $page = 'Tiers';
-                    LogActivity::addToLog('Tier supprimé', $id_activite, $page);
-                    $this->dispatch('alert',                    
-                        title:'Suppression effectuée!',
-                        timer:3000,
-                        icon:'success',
-                        toast:true,
-                        showConfirmButton: false,
-                        position:'top-end',
-                    );  
+                if($id){  
+                    $test_opport = Opportunite::where('societe',auth()->user()->societe)->where('id_client',$id)->count();
+                    if($test_opport == 0){
+                        Tier::where('id',$id)->delete();                    
+                        $id_activite = $id;
+                        $page = 'Tiers';
+                        LogActivity::addToLog('Tier supprimé', $id_activite, $page);
+                        $this->dispatch('alert',                    
+                            title:'Suppression effectuée!',
+                            timer:3000,
+                            icon:'success',
+                            toast:true,
+                            showConfirmButton: false,
+                            position:'top-end',
+                        );  
+                    }
+                    else{                        
+                        $this->dispatch('alert',                    
+                            title:'Désolé, vous ne pouvez pas supprimer un tier lié à une opportunité!',
+                            timer:5000,
+                            icon:'error',
+                            toast:true,
+                            showConfirmButton: false,
+                            position:'top-end',
+                        );       
+                    } 
                 }
             } 
             else{                 
