@@ -2,7 +2,7 @@
     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
     <div class="modal-content">
         <div class="modal-header py-2" style="background-color: #56585d; color:#ffffff;">
-        <h5 class="modal-title" id="exampleModalCenteredScrollableTitle"><i class="fas fa-user-circle"></i> Création Tier » <span class="text-danger">Prospect, Client, Fournisseur</span> </h5>
+        <h5 class="modal-title" id="exampleModalCenteredScrollableTitle"><i class="fa fa-user-plus text-vert"></i> Création Tier » <span class="text-vert">Client, Fournisseur, Prospect</span> </h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body py-0 px-0">

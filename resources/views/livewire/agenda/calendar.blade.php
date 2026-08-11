@@ -33,7 +33,7 @@
 
     document.addEventListener('livewire:load', function () {
         const Calendar = FullCalendar.Calendar;
-        const calendarEl = document.getElementById('calendar');
+        const calendarEl = document.getElementById('calendar'); 
         const calendar = new Calendar(calendarEl, {
         headerToolbar: {
             left: 'prev,next today',

@@ -173,6 +173,7 @@ class Pos extends Component
         }  
         $this->lieu_conso = 'Sur place';    
         $this->date_conso = date('Y-m-d H:i'); 
+        $this->type_tiers = 'Client';
     }      
     public function render(){        
         
@@ -264,7 +265,8 @@ class Pos extends Component
                     $this->reglementClientCount = 0;
                 }
                 
-                $tier = Tier::where('societe',auth()->user()->societe)->where('etat',1)->where('nom','like','%'.$this->chercher.'%')->where('type_tiers','!=','Fournisseur')->orderBy($this->orderField, $this->orderDirection)->paginate($this->parPage);                    
+                // $tier = Tier::where('societe',auth()->user()->societe)->where('etat',1)->where('nom','like','%'.$this->chercher.'%')->where('type_tiers','!=','Fournisseur')->orderBy($this->orderField, $this->orderDirection)->paginate($this->parPage);                    
+                $tier = Tier::where('societe',auth()->user()->societe)->where('etat',1)->where('nom','like','%'.$this->chercher.'%')->orderBy($this->orderField, $this->orderDirection)->paginate($this->parPage);                    
                 $tiersCount = $tier->count();  
                 $banque = CompteBancaire :: where('societe',auth()->user()->societe)->where('etat',1)->orderBy('nom_compte_bancaire','asc')->get();
 
@@ -2756,7 +2758,7 @@ class Pos extends Component
             'telephone'=>'required',                           
             // 'email'=>'required',                           
             // 'pays'=>'required',                           
-            // 'ville'=>'required',                           
+            'ville'=>'required',                           
             // 'adresse'=>'required',                           
             // 'code_postal'=>'required',                           
             // 'site_web'=>'required',                           
@@ -2780,7 +2782,8 @@ class Pos extends Component
                 else{
                     $objectif_point = 0;
                 }
-                Tier::create(['nom'=>$this->nom,'raison_sociale'=>$this->raison_sociale,'type_tiers'=>$this->type_tiers,'etat'=>$this->statut,'telephone'=>$this->telephone,
+                $solde = 0;
+                Tier::create(['nom'=>$this->nom,'raison_sociale'=>$this->raison_sociale,'solde'=>$solde,'type_tiers'=>$this->type_tiers,'etat'=>$this->statut,'telephone'=>$this->telephone,
                     'adresse'=>$this->adresse,'code_postal'=>$this->code_postal,'ville'=>$this->ville,'pays'=>$this->pays,'email'=>$this->email,'site_web'=>$this->site_web,
                     'validation'=>$validation,'paiement'=>$paiement,'commercial_charge'=>$this->commercial_charge,'sexe'=>$this->sexe,'objectif_point'=>$objectif_point,
                     'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);  

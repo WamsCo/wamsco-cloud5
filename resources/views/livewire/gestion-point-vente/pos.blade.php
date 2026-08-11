@@ -15,7 +15,7 @@
                 @if($verifieSession > 0)
                     <a href="#" class="btn btn-sm btn-white" data-bs-toggle="modal" data-bs-target="#selectEmplacementModal" wire:click.prevent="charge()" title="Cliquez pour mettre la commande en attente ou clôturer" data-toggle="tooltip"><i class="fa fa-navicon"></i> Commandes @if($cmdAttenteCount > 0)<span class="blink nbr_attente_new">{{$cmdAttenteCount}}</span>@endif</a>
                 @endif
-                {{-- <a href="#" class="btn btn-sm btn-secondary" data-bs-toggle="modal" data-bs-target="#afficheReservationModal" wire:click.prevent="charge()" title="Cliquez pour voir les réservations" data-toggle="tooltip"><i class="fa fa-handshake"></i> Réservation</a> --}}
+                <a href="detail_pos_session?id={{$this->id_session}}&ref={{$this->ref_session}}&active=5&champ=1-1" class="btn btn-sm btn-white" wire:navigate title="Cliquez pour retourner à la session {{$this->ref_session}}" data-toggle="tooltip"><i class="fa fa-refresh"></i> Backend</a>
             </div>       
             {{-- <div class="pos-centerheader d-none d-lg-flex position-absolute top-50 start-50 translate-middle w-auto z-1 gap-2 fw-bold">
                 <span class="border-0 text-bleu" title="Nom du Serveur-se"><i class="fa fa-user-circle"></i> {{Str::limit(auth()->user()->name, 20)}}</span> /
