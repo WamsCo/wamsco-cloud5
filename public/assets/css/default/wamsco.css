@@ -2750,8 +2750,7 @@ button:not(:hover, .o-mail-ChatWindow-header .o-mail-ActionList-group:focus-visi
 @media (max-width: 400px) {
 
     .pos-cart-header-right {
-
-        display: none;
+        display: block;
     }
 
 
@@ -2999,7 +2998,14 @@ button:not(:hover, .o-mail-ChatWindow-header .o-mail-ActionList-group:focus-visi
     .rightpane {
         width: 100%;
         max-width: 100% !important;
-    }  
+    } 
+    .pos-search-input {
+        height: 28px;
+        font-size: 12px;
+    } 
+    .pos-cart-section {
+       margin-top: 11px;
+    }
 
 
 }
