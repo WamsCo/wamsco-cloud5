@@ -152,7 +152,8 @@
                                                                                 <span class="description_cat">{{Str::limit($categories->description, 14)}}</span>                        
                                                                             </div>
                                                                             <div class="col-md-8 col-sm-8 col-xs-8 mb-2"> 
-                                                                                <span class="date_achat">{{date('d-m-Y H:i:s', strtotime($categories->created_at))}} <i class="fa fa-calendar-alt light"></i> <i class="fa fa-check-circle @if($categories->restaurant == "Oui") text-vert @else text-secondary @endif"title="Pour restaurant @if($categories->restaurant == "Oui") » Oui @else » Non @endif"></i></span>
+                                                                                <span class="date_achat">{{date('d-m-Y H:i:s', strtotime($categories->created_at))}} <i class="fa fa-calendar-alt light"></i> 
+                                                                                    <i class="@if($categories->restaurant == "Oui") fa fa-check-circle text-vert @elseif($categories->restaurant == "Non") fa fa-check-circle text-secondary @else fa fa-times-circle text-danger blink @endif"title="Pour restaurant @if($categories->restaurant == "Oui") » Oui @else » Non @endif"></i></span>
                                                                             </div>
                                                                             <div class="col-md-4 col-sm-4 col-xs-4 mb-2">
                                                                                 <span class="entite_cat truncate_ok" title="{{$categories->nom_user}}">{{Str::limit($categories->nom_user, 11)}}</span>

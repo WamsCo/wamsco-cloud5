@@ -134,6 +134,7 @@ class ImporterExcelToutController extends Controller
 
 						[
 							'description' => trim($row['categorie']),
+							'restaurant'      => 'Non',
 							'nom_user'    => auth()->user()->name,
 							'user_id'     => auth()->id(),
 						]

@@ -223,8 +223,7 @@ class Pos extends Component
                     $this->activer_fidelite = 0;
                     $this->activer_ecran_cuisine = 0;                
                     $this->nomEntrepot = '';                
-                }
-            
+                }            
 
                 if($this->recherchePar == 'nom'){
                     $stockProd = Stock::where('societe',auth()->user()->societe)->where('etat',1)->where('id_entrepot', $id_entrepot)->where('nom_produit','like','%'.$this->query.'%')->where('categorie','like','%'.$this->filtre.'%')->where('nature_produit','!=','Matière première')->where('type_produit','Produit')->orderBy('nom_produit','asc')->get();

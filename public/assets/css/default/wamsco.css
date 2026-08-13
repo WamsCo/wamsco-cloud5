@@ -1299,6 +1299,1585 @@ button:not(:hover, .o-mail-ChatWindow-header .o-mail-ActionList-group:focus-visi
     transition: width .6s ease;
 }
 
+/* =========================================================
+   CONTENEUR PRINCIPAL
+========================================================= */
+
+.choix_catg {
+    width: 100%;
+    overflow: hidden;
+}
+/* =========================================================
+   WRAPPER
+========================================================= */
+.categories-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    min-width: 0;
+    gap: 6px;
+}
+/* =========================================================
+   ZONE DE DÉFILEMENT
+========================================================= */
+.categories-container {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex: 1;
+    min-width: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-behavior: smooth;
+    white-space: nowrap;
+    padding: 2px 0;
+    /* Masquer la scrollbar */
+    scrollbar-width: none;
+}
+.categories-container::-webkit-scrollbar {
+    display: none;
+}
+/* =========================================================
+   BOUTONS CATÉGORIES
+========================================================= */
+.categorie-btn {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 28px;
+    padding: 5px 5px;
+    white-space: nowrap;
+    border-radius: 5px;
+    transition:
+        transform 0.15s ease,
+        background-color 0.15s ease;
+}
+.categorie-btn:hover {
+    transform: translateY(-1px);
+}
+.categorie-btn i {
+    font-size: 12px;
+}
+/* =========================================================
+   BOUTONS ← →
+========================================================= */
+.category-nav {
+    flex: 0 0 34px;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: none;
+    border-radius: 5px;
+    background: #212529;
+    color: #fff;
+    cursor: pointer;
+    z-index: 5;
+    transition:
+        background-color 0.2s ease,
+        transform 0.15s ease;
+}
+.category-nav:hover {
+    background: #000;
+}
+.category-nav:active {
+    transform: scale(0.92);
+}
+.category-nav i {
+    font-size: 12px;
+}
+/* =========================================================
+   MOBILE
+========================================================= */
+@media (max-width: 576px) {
+    .choix_catg {
+        padding: 5px !important;
+    }
+    .categories-wrapper {
+        gap: 4px;
+    }
+    .category-nav {
+        flex: 0 0 30px;
+        width: 30px;
+        height: 30px;
+    }
+    .category-nav i {
+        font-size: 10px;
+    }
+    .categorie-btn {
+        min-height: 30px;
+        padding: 4px 8px;
+        font-size: 12px;
+    }
+    .categorie-btn i {
+        font-size: 10px;
+    }
+}
+/* =========================================================
+   POS HEADER
+========================================================= */
+.pos-topheader {
+    width: 100%;
+    min-height: 47px;
+    display: grid;
+    grid-template-columns: auto minmax(200px, 1fr) auto;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 10px;
+    position: relative;
+    z-index: 20;
+}
+/* =========================================================
+   GAUCHE
+========================================================= */
+
+.pos-leftheader {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    min-width: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+}
+.pos-leftheader::-webkit-scrollbar {
+    display: none;
+}
+/* =========================================================
+   BOUTONS
+========================================================= */
+.pos-action-btn {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    white-space: nowrap;
+    min-height: 28px;
+}
+/* =========================================================
+   CENTRE
+========================================================= */
+.pos-centerheader {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    font-size: 13px;
+    font-weight: 600;
+}
+.pos-user {
+    color: #286090;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 180px;
+}
+.pos-products {
+    color: #555;
+}
+.pos-products strong {
+    color: #198754;
+}
+.pos-entrepot {
+    max-width: 220px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.pos-separator,
+.pos-info-separator {
+    color: #999;
+}
+/* =========================================================
+   DROITE
+========================================================= */
+.pos-rightheader {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 5px;
+    min-width: 0;
+}
+.pos-search-type {
+    width: 135px;
+    min-width: 135px;
+    height: 34px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+}
+/* =========================================================
+   RECHERCHE
+========================================================= */
+.pos-search {
+    position: relative;
+    width: 230px;
+    min-width: 150px;
+}
+.pos-search-input {
+    width: 100%;
+    height: 34px;
+    padding-left: 32px;
+    border-radius: 5px;
+}
+.pos-search-icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #888;
+    z-index: 2;
+    pointer-events: none;
+}
+/* =========================================================
+   BADGE COMMANDES
+========================================================= */
+
+.nbr_attente_new {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    margin-left: 2px;
+    border-radius: 50%;
+    background: #dc3545;
+    color: #fff;
+    font-size: 10px;
+    font-weight: bold;
+}
+/* =========================================================
+   TABLETTES
+========================================================= */
+@media (max-width: 1200px) {
+    .pos-topheader {
+        grid-template-columns: minmax(250px, 1fr) auto;
+    }
+    .pos-centerheader {
+        display: none;
+    }
+    .pos-search {
+        width: 220px;
+    }
+}
+/* =========================================================
+   MOBILE
+========================================================= */
+@media (max-width: 767px) {
+    .pos-topheader {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 6px;
+        padding: 6px;
+    }
+    /* Ligne supérieure */
+    .pos-leftheader {
+        flex: 1;
+        width: auto;
+        min-width: 0;
+        order: 1;
+    }
+    /* Recherche */
+    .pos-rightheader {
+        width: 100%;
+        order: 2;
+        display: flex;
+        gap: 5px;
+    }
+    .pos-search {
+        flex: 1;
+        width: 100%;
+        min-width: 0;
+    }
+    .pos-search-input {
+        height: 38px;
+        font-size: 14px;
+    }
+    .pos-action-btn {
+        min-width: 34px;
+        width: 34px;
+        height: 34px;
+        padding: 0;
+    }
+    .pos-action-btn i {
+        margin: 0;
+        font-size: 13px;
+    }
+}
+/* =========================================================
+   PETITS TÉLÉPHONES
+========================================================= */
+@media (max-width: 400px) {
+    .pos-topheader {
+        padding: 5px;
+    }
+    .pos-leftheader {
+        gap: 3px;
+    }
+    .pos-action-btn {
+        width: 32px;
+        min-width: 32px;
+        height: 32px;
+    }
+    .pos-action-btn i {
+        font-size: 12px;
+    }
+    .pos-search-input {
+        height: 36px;
+        font-size: 13px;
+    }
+}
+/* parti totaux et bouton paiement */
+
+/* ==========================================================
+   RESET LOCAL
+========================================================== */
+
+.pos-cart-layout,
+.pos-cart-layout * {
+    box-sizing: border-box;
+}
+
+
+/* ==========================================================
+   CONTENEUR PRINCIPAL
+========================================================== */
+
+.pos-cart-layout {
+
+    width: 100%;
+    height: 93%;
+
+    min-width: 0;
+    min-height: 0;
+
+    display: flex;
+    flex-direction: column;
+
+    overflow: hidden;
+
+    background: #ffffff;
+}
+
+
+/* ==========================================================
+   PANIER
+========================================================== */
+
+.pos-cart-section {
+
+    flex: 1 1 auto;
+
+    min-height: 0;
+    min-width: 0;
+
+    display: flex;
+    flex-direction: column;
+
+    overflow: hidden;
+
+    background: #ffffff;
+}
+
+
+/* ==========================================================
+   HEADER PANIER
+========================================================== */
+
+.pos-cart-header {
+
+    flex: 0 0 auto;
+
+    min-height: 42px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 10px;
+
+    padding: 7px 12px;
+
+    background: #ffffff;
+
+    border-bottom: 1px solid #e5e5e5;
+
+    box-shadow: 0 1px 3px rgba(0,0,0,.06);
+
+    z-index: 3;
+}
+
+
+.pos-cart-title {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 7px;
+
+    font-size: 13px;
+
+    font-weight: 700;
+
+    color: #222;
+}
+
+
+.pos-cart-title i {
+
+    color: #555;
+
+    font-size: 14px;
+}
+
+
+.pos-cart-count {
+
+    min-width: 20px;
+    height: 20px;
+
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 0 5px;
+
+    border-radius: 20px;
+
+    background: #343a40;
+
+    color: #fff;
+
+    font-size: 10px;
+}
+
+
+.pos-cart-header-right {
+
+    font-size: 11px;
+
+    color: #888;
+
+    white-space: nowrap;
+}
+
+
+/* ==========================================================
+   LISTE PRODUITS
+========================================================== */
+
+.pos-products-list {
+
+    flex: 1 1 auto;
+
+    min-height: 0;
+
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    padding: 5px;
+
+    scrollbar-width: thin;
+}
+
+
+/* ==========================================================
+   CARTE PRODUIT
+========================================================== */
+
+.pos-product-card {
+
+    width: 100%;
+
+    min-width: 0;
+
+    display: grid;
+
+    grid-template-columns: minmax(0, 1fr) auto auto;
+
+    align-items: center;
+
+    gap: 10px;
+
+    padding: 10px;
+
+    margin-bottom: 5px;
+
+    border: 1px solid #e8e8e8;
+
+    border-radius: 7px;
+
+    background: #fff;
+
+    transition: background .15s ease,
+                border-color .15s ease,
+                box-shadow .15s ease;
+}
+
+
+.pos-product-card:hover {
+
+    background: #fafafa;
+
+    border-color: #d8d8d8;
+
+    box-shadow: 0 2px 7px rgba(0,0,0,.05);
+}
+
+
+/* ==========================================================
+   INFORMATIONS PRODUIT
+========================================================== */
+
+.pos-product-main {
+
+    min-width: 0;
+
+    cursor: pointer;
+}
+
+
+.pos-product-title {
+
+    font-size: 13px;
+
+    line-height: 1.35;
+
+    font-weight: 700;
+
+    color: #202124;
+
+    overflow-wrap: anywhere;
+}
+
+
+.pos-product-reference {
+
+    margin-top: 2px;
+
+    font-size: 10px;
+
+    color: #8a8a8a;
+
+    overflow-wrap: anywhere;
+}
+
+
+.pos-product-meta {
+
+    display: flex;
+
+    align-items: center;
+
+    flex-wrap: wrap;
+
+    gap: 5px;
+
+    margin-top: 5px;
+
+    font-size: 11px;
+
+    color: #555;
+}
+
+
+.pos-qty {
+
+    min-width: 25px;
+
+    padding: 2px 6px;
+
+    border-radius: 4px;
+
+    background: #e9f7ef;
+
+    color: #198754;
+
+    font-weight: 700;
+
+    text-align: center;
+}
+
+
+.pos-product-detail {
+
+    margin-top: 3px;
+
+    font-size: 10px;
+
+    color: #777;
+
+    overflow-wrap: anywhere;
+}
+
+
+.pos-product-detail i {
+
+    width: 15px;
+
+    color: #999;
+}
+
+
+.pos-product-note {
+
+    margin-top: 6px;
+
+    padding: 5px 7px;
+
+    border-left: 3px solid #ffc107;
+
+    border-radius: 3px;
+
+    background: #fffaf0;
+
+    color: #666;
+
+    font-size: 10px;
+
+    line-height: 1.4;
+
+    white-space: normal;
+
+    overflow-wrap: anywhere;
+}
+
+
+/* ==========================================================
+   TOTAL PRODUIT
+========================================================== */
+
+.pos-product-total {
+
+    min-width: 100px;
+
+    text-align: right;
+
+    white-space: nowrap;
+
+    cursor: pointer;
+
+    color: #222;
+
+    font-size: 13px;
+}
+
+
+.pos-product-total strong {
+
+    font-size: 13px;
+
+    font-weight: 700;
+}
+
+
+.pos-product-total small {
+
+    font-size: 9px;
+
+    color: #777;
+}
+
+
+.pos-free-product {
+
+    color: #dc3545;
+
+    font-weight: 700;
+
+    font-size: 12px;
+}
+
+
+/* ==========================================================
+   ACTIONS PRODUIT
+========================================================== */
+
+.pos-product-actions {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 3px;
+}
+
+
+.pos-edit-btn,
+.pos-delete-btn,
+.pos-confirm-delete {
+
+    width: 32px;
+    height: 32px;
+
+    flex: 0 0 32px;
+
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 0;
+
+    border: 0;
+
+    border-radius: 5px;
+
+    background: transparent;
+
+    cursor: pointer;
+
+    transition: .15s ease;
+}
+
+
+.pos-edit-btn {
+
+    color: #555;
+}
+
+
+.pos-edit-btn:hover {
+
+    background: #eeeeee;
+
+    color: #111;
+}
+
+
+.pos-delete-btn {
+
+    color: #dc3545;
+}
+
+
+.pos-delete-btn:hover {
+
+    background: #fff0f0;
+}
+
+
+.pos-confirm-delete {
+
+    background: #dc3545;
+
+    color: #fff;
+
+    font-size: 11px;
+}
+
+
+/* ==========================================================
+   EDITION PRODUIT
+========================================================== */
+
+.pos-product-edit {
+
+    margin: 0 5px 6px;
+
+    padding: 10px;
+
+    border: 1px solid #e5e5e5;
+
+    border-radius: 6px;
+
+    background: #fafafa;
+}
+
+
+/* ==========================================================
+   PANIER VIDE
+========================================================== */
+
+.pos-empty {
+
+    height: 100%;
+
+    min-height: 240px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 30px;
+
+    text-align: center;
+}
+
+
+.pos-empty-icon {
+
+    width: 65px;
+    height: 65px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    margin-bottom: 12px;
+
+    border-radius: 50%;
+
+    background: #f4f5f6;
+
+    color: #adb5bd;
+
+    font-size: 27px;
+}
+
+
+.pos-empty h4 {
+
+    margin: 0;
+
+    font-size: 16px;
+
+    font-weight: 700;
+
+    color: #555;
+}
+
+
+.pos-empty p {
+
+    margin: 5px 0 0;
+
+    font-size: 11px;
+
+    color: #999;
+}
+
+
+/* ==========================================================
+   BAS
+========================================================== */
+
+.pos-bottom-section {
+
+    flex: 0 0 auto;
+
+    width: 100%;
+
+    border-top: 1px solid #ddd;
+
+    background: #fff;
+}
+
+
+/* ==========================================================
+   PAIEMENTS
+========================================================== */
+
+.pos-payments {
+
+    max-height: 110px;
+
+    overflow-y: auto;
+
+    border-bottom: 1px solid #eee;
+}
+
+
+.pos-section-label {
+
+    padding: 5px 10px;
+
+    font-size: 10px;
+
+    font-weight: 700;
+
+    text-transform: uppercase;
+
+    color: #888;
+}
+
+
+.pos-payment {
+
+    min-width: 0;
+
+    display: grid;
+
+    grid-template-columns: minmax(0,1fr) auto auto;
+
+    align-items: center;
+
+    gap: 8px;
+
+    padding: 5px 10px;
+
+    border-top: 1px solid #f1f1f1;
+}
+
+
+.pos-payment-left {
+
+    min-width: 0;
+}
+
+
+.pos-payment-date {
+
+    font-size: 10px;
+
+    color: #888;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+}
+
+
+.pos-payment-mode {
+
+    margin-top: 1px;
+
+    font-size: 10px;
+
+    font-weight: 600;
+
+    color: #555;
+}
+
+
+.pos-payment-amount {
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+    color: #555;
+
+    white-space: nowrap;
+}
+
+
+/* ==========================================================
+   RÉSUMÉ
+========================================================== */
+
+.pos-summary {
+
+    padding: 7px 12px;
+
+    border-bottom: 1px solid #eee;
+}
+
+
+.pos-summary-line {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 10px;
+
+    min-height: 24px;
+
+    font-size: 12px;
+
+    color: #666;
+}
+
+
+.pos-summary-line strong {
+
+    color: #333;
+
+    white-space: nowrap;
+}
+
+
+.pos-total-line {
+
+    margin-top: 3px;
+
+    padding-top: 5px;
+
+    border-top: 1px dashed #ddd;
+
+    font-size: 14px;
+}
+
+
+.pos-total-line strong {
+
+    color: #198754;
+
+    font-size: 15px;
+}
+
+
+.pos-due-line {
+
+    margin-top: 2px;
+
+    font-size: 16px;
+
+    font-weight: 700;
+}
+
+
+.pos-due-line strong {
+
+    color: #dc3545;
+
+    font-size: 17px;
+}
+
+
+.pos-summary-line small {
+
+    font-size: 9px;
+
+    font-weight: 600;
+}
+
+
+/* ==========================================================
+   OUTILS
+========================================================== */
+
+.pos-tools {
+
+    width: 100%;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 6px;
+
+    overflow-x: auto;
+
+    padding: 7px 8px;
+
+    scrollbar-width: none;
+}
+
+
+.pos-tools::-webkit-scrollbar {
+
+    display: none;
+}
+
+
+.pos-tool {
+
+    flex: 0 0 auto;
+    min-height: 30px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding: 5px 11px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background: #f8f9fa;
+    color: #333;
+    font-size: 11px;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+
+.pos-tool:hover {
+
+    background: #eeeeee;
+
+    color: #111;
+}
+
+
+.pos-location {
+
+    max-width: 180px;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+}
+
+
+/* ==========================================================
+   BOUTON PAIEMENT
+========================================================== */
+
+.pos-payment-button {
+
+    padding: 0 8px 8px;
+}
+
+
+.pos-primary-action {
+
+    width: 100%;
+
+    min-height: 52px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 8px;
+
+    padding: 8px 15px;
+
+    border: 0;
+
+    border-radius: 7px;
+
+    background: #343a40;
+
+    color: #fff;
+
+    font-size: 15px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition: .15s ease;
+}
+
+
+.pos-primary-action:hover {
+
+    background: #212529;
+
+}
+
+
+.pos-primary-action:active {
+
+    transform: scale(.99);
+}
+
+
+/* ==========================================================
+   TABLETTE
+========================================================== */
+
+@media (max-width: 1199px) {
+
+    .pos-product-card {
+
+        grid-template-columns:
+            minmax(0,1fr)
+            auto
+            auto;
+
+        padding: 8px;
+    }
+
+
+    .pos-product-total {
+
+        min-width: 90px;
+    }
+
+}
+
+
+/* ==========================================================
+   MOBILE
+========================================================== */
+
+@media (max-width: 767px) {
+
+    .pos-cart-header {
+
+        min-height: 38px;
+
+        padding: 6px 8px;
+    }
+
+
+    .pos-cart-title {
+
+        font-size: 12px;
+    }
+
+
+    .pos-cart-header-right {
+
+        font-size: 10px;
+    }
+
+
+    .pos-products-list {
+
+        padding: 4px;
+    }
+
+
+    /* Produit mobile */
+
+    .pos-product-card {
+
+        grid-template-columns:
+            minmax(0,1fr)
+            auto;
+
+        grid-template-areas:
+            "product total"
+            "product actions";
+
+        align-items: start;
+
+        gap: 6px;
+
+        padding: 8px;
+
+        border-radius: 6px;
+    }
+
+
+    .pos-product-main {
+
+        grid-area: product;
+
+    }
+
+
+    .pos-product-total {
+
+        grid-area: total;
+
+        min-width: 82px;
+
+        padding-top: 1px;
+
+        font-size: 11px;
+    }
+
+
+    .pos-product-total strong {
+
+        font-size: 12px;
+    }
+
+
+    .pos-product-actions {
+
+        grid-area: actions;
+
+        justify-content: flex-end;
+
+        margin-top: 3px;
+    }
+
+
+    .pos-edit-btn,
+    .pos-delete-btn,
+    .pos-confirm-delete {
+
+        width: 30px;
+        height: 30px;
+
+        flex-basis: 30px;
+    }
+
+
+    .pos-product-title {
+
+        font-size: 12px;
+
+        line-height: 1.35;
+    }
+
+
+    .pos-product-reference {
+
+        font-size: 9px;
+    }
+
+
+    .pos-product-meta {
+
+        margin-top: 4px;
+
+        font-size: 10px;
+    }
+
+
+    .pos-product-detail {
+
+        font-size: 9px;
+    }
+
+
+    .pos-product-note {
+
+        font-size: 9px;
+
+        margin-top: 5px;
+    }
+
+
+    /* Paiements */
+
+    .pos-payments {
+
+        max-height: 90px;
+    }
+
+
+    .pos-payment {
+
+        grid-template-columns:
+            minmax(0,1fr)
+            auto
+            auto;
+
+        gap: 5px;
+
+        padding: 5px 7px;
+    }
+
+
+    .pos-payment-amount {
+
+        font-size: 10px;
+    }
+
+
+    /* Résumé */
+
+    .pos-summary {
+
+        padding: 6px 8px;
+    }
+
+
+    .pos-summary-line {
+
+        min-height: 22px;
+
+        font-size: 11px;
+    }
+
+
+    .pos-total-line {
+
+        font-size: 13px;
+    }
+
+
+    .pos-total-line strong {
+
+        font-size: 14px;
+    }
+
+
+    .pos-due-line {
+
+        font-size: 14px;
+    }
+
+
+    .pos-due-line strong {
+
+        font-size: 15px;
+    }
+
+
+    /* Outils */
+
+    .pos-tools {
+
+        padding: 6px;
+
+        gap: 5px;
+    }
+
+
+    .pos-tool {
+
+        min-height: 36px;
+
+        padding: 5px 9px;
+
+        font-size: 10px;
+    }
+
+
+    /* Paiement */
+
+    .pos-payment-button {
+
+        padding: 0 6px 6px;
+    }
+
+
+    .pos-primary-action {
+
+        min-height: 48px;
+
+        font-size: 14px;
+    }
+
+}
+
+
+/* ==========================================================
+   PETITS TÉLÉPHONES
+========================================================== */
+
+@media (max-width: 400px) {
+
+    .pos-cart-header-right {
+
+        display: none;
+    }
+
+
+    .pos-product-card {
+
+        padding: 7px;
+
+        gap: 4px;
+    }
+
+
+    .pos-product-total {
+
+        min-width: 72px;
+
+        font-size: 10px;
+    }
+
+
+    .pos-product-total strong {
+
+        font-size: 11px;
+    }
+
+
+    .pos-product-title {
+
+        font-size: 11px;
+    }
+
+
+    .pos-product-meta {
+
+        font-size: 9px;
+    }
+
+
+    .pos-product-detail {
+
+        font-size: 8px;
+    }
+
+
+    .pos-product-note {
+
+        font-size: 8px;
+    }
+
+
+    .pos-edit-btn,
+    .pos-delete-btn,
+    .pos-confirm-delete {
+
+        width: 27px;
+        height: 27px;
+
+        flex-basis: 27px;
+
+        font-size: 10px;
+    }
+
+
+    .pos-summary-line {
+
+        font-size: 10px;
+    }
+
+
+    .pos-total-line strong {
+
+        font-size: 13px;
+    }
+
+
+    .pos-due-line strong {
+
+        font-size: 14px;
+    }
+
+
+    .pos-primary-action {
+
+        min-height: 46px;
+
+        font-size: 13px;
+    }
+
+}
+
+
+/* ==========================================================
+   TRÈS PETITS ÉCRANS
+========================================================== */
+
+@media (max-width: 340px) {
+
+    .pos-product-total {
+
+        min-width: 65px;
+    }
+
+
+    .pos-product-title {
+
+        font-size: 10px;
+    }
+
+
+    .pos-product-meta {
+
+        font-size: 8px;
+    }
+
+
+    .pos-tool {
+
+        padding: 4px 7px;
+
+        font-size: 9px;
+    }
+
+}
+
+
+
+/* fin */
 
 
 @media all and (max-device-width: 480px) {   
@@ -1416,8 +2995,11 @@ button:not(:hover, .o-mail-ChatWindow-header .o-mail-ActionList-group:focus-visi
         height: 70vh; 
         min-height: 50vh;
         overflow:auto;
-    }
-    
+    } 
+    .rightpane {
+        width: 100%;
+        max-width: 100% !important;
+    }  
 
 
 }
