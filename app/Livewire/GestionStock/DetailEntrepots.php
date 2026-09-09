@@ -62,9 +62,9 @@ class DetailEntrepots extends Component
     }
     public function mount(){  
        
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->consulter_entrepot;
             if($autoriser == 0){
                 alert()->error('Oups Désolé', 'Vous n\'êtes pas autorisé à ouvrir cette page !!!')->position('center')->autoClose(5000)->background('#fff')->width('460px')->padding('5px');
@@ -82,7 +82,7 @@ class DetailEntrepots extends Component
     public function render(){
     
         $dateJour = date('Y-m-d');            
-        $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();
+        $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();
         $jourValid = $entite_mod[0]->validite_mod; 
         $mod_gestion_stock = $entite_mod[0]->mod_gestion_stock;
         $soldeClient = $entite_mod[0]->solde;
@@ -97,12 +97,12 @@ class DetailEntrepots extends Component
                 $choix = request('choix');    
                 $dateJour = date('Y-m-d');
 
-                $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->count(); 
+                $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->count(); 
                 if($deviseTva == 0){
                     $this->devise = 'FCFA';
                 }
                 else{
-                    $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->get(); 
+                    $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->get(); 
                     $this->devise = $deviseTva[0]->devise;
                 }
 
@@ -111,18 +111,18 @@ class DetailEntrepots extends Component
                 toast()->success('Prêt', '')->position('top-right')->autoClose(1000)->background('#fff')->width('220px')->padding('5px'); 
                 if($this->id){
                     // ceci au chargement de la page
-                    $stock = Stock::where('societe',auth()->user()->societe)->where('id_entrepot',$this->id)->where('type_produit','Produit')->orderBy('nom_produit', 'Asc')->get();  
+                    $stock = Stock::where('societe_id',auth()->user()->societe_id)->where('id_entrepot',$this->id)->where('type_produit','Produit')->orderBy('nom_produit', 'Asc')->get();  
                     $stockCount = $stock->count();
                     $stockPieceCount = $stock->sum('quantite'); 
                     $valorisation_achat_total = $stock->sum('valorisation_achat_total');
                     $valeurVenteTotal = $stock->sum('valeur_vente_total'); 
                     
                     Entrepot::where('id',$this->id)->update(['stock_total'=>$stockPieceCount,'valorisation_achat_total'=>$valorisation_achat_total,'valeur_vente_total'=>$valeurVenteTotal]); // Mise a jour stock_total chaq fois pque la page charge
-                    $entrepot = Entrepot::where('societe',auth()->user()->societe)->where('id',$this->id)->get(); 
+                    $entrepot = Entrepot::where('societe_id',auth()->user()->societe_id)->where('id',$this->id)->get(); 
                     
-                    $mouvement = Mouvement::where('societe',auth()->user()->societe)->where('id_entrepot',$this->id)->orderBy($this->orderField, $this->orderDirection)->limit($this->affiche)->get();  
+                    $mouvement = Mouvement::where('societe_id',auth()->user()->societe_id)->where('id_entrepot',$this->id)->orderBy($this->orderField, $this->orderDirection)->limit($this->affiche)->get();  
                     $mouvCountAfficher = $mouvement->count();
-                    $mouvementCount = Mouvement::where('societe',auth()->user()->societe)->where('id_entrepot',$this->id)->count();
+                    $mouvementCount = Mouvement::where('societe_id',auth()->user()->societe_id)->where('id_entrepot',$this->id)->count();
 
                     // Identifiez les produits qui se trouvent dans plus d'un magasin
                     $ProduitDansPlusieursMag = DB::table('stocks')
@@ -130,7 +130,7 @@ class DetailEntrepots extends Component
                         ->groupBy('id_produit')
                         ->havingRaw('COUNT(DISTINCT id_entrepot) > 0')
                         ->where('type_produit','Produit')
-                        ->where('societe',auth()->user()->societe)
+                        ->where('societe_id',auth()->user()->societe_id)
                         ->pluck('id_produit'); // Récupère seulement les IDs des produits
 
                     // Ensuite, joignez cette liste pour sommer les quantités
@@ -141,23 +141,23 @@ class DetailEntrepots extends Component
                         ->get();
                     
                     $page = 'Entrepot'; // Pour evenement lie
-                    $log = LogActivityModel::where('user_societe',auth()->user()->societe)->where('id_activite', $this->id)->where('page', $page)->limit(50)->orderBy('id','desc')->get();
+                    $log = LogActivityModel::where('societe_id',auth()->user()->societe_id)->where('id_activite', $this->id)->where('page', $page)->limit(50)->orderBy('id','desc')->get();
                     $logCount = $log->count();
                 }
                 else{
                     // ceci quand on click sur ajuster()
-                    $stock = Stock::where('societe',auth()->user()->societe)->where('id_entrepot',$this->id_entrepot)->where('type_produit','Produit')->orderBy('nom_produit', 'Asc')->get();  
+                    $stock = Stock::where('societe_id',auth()->user()->societe_id)->where('id_entrepot',$this->id_entrepot)->where('type_produit','Produit')->orderBy('nom_produit', 'Asc')->get();  
                     $stockCount = $stock->count();
                     $stockPieceCount = $stock->sum('quantite');
                     $valeurVenteTotal = $stock->sum('valeur_vente_total'); 
                     $valorisation_achat_total = $stock->sum('valorisation_achat_total'); 
                     
                     Entrepot::where('id',$this->id_entrepot)->update(['stock_total'=>$stockPieceCount,'valorisation_achat_total'=>$valorisation_achat_total,'valeur_vente_total'=>$valeurVenteTotal]); // Mise a jour stock_total chaq fois pque la page charge
-                    $entrepot = Entrepot::where('societe',auth()->user()->societe)->where('id',$this->id_entrepot)->get(); 
+                    $entrepot = Entrepot::where('societe_id',auth()->user()->societe_id)->where('id',$this->id_entrepot)->get(); 
 
-                    $mouvement = Mouvement::where('societe',auth()->user()->societe)->where('id_entrepot',$this->id_entrepot)->orderBy($this->orderField, $this->orderDirection)->limit($this->affiche)->get(); 
+                    $mouvement = Mouvement::where('societe_id',auth()->user()->societe_id)->where('id_entrepot',$this->id_entrepot)->orderBy($this->orderField, $this->orderDirection)->limit($this->affiche)->get(); 
                     $mouvCountAfficher = $mouvement->count();
-                    $mouvementCount = Mouvement::where('societe',auth()->user()->societe)->where('id_entrepot',$this->id_entrepot)->count();                    
+                    $mouvementCount = Mouvement::where('societe_id',auth()->user()->societe_id)->where('id_entrepot',$this->id_entrepot)->count();                    
 
                     // Identifiez les produits qui se trouvent dans plus d'un magasin
                     $ProduitDansPlusieursMag = DB::table('stocks')
@@ -165,7 +165,7 @@ class DetailEntrepots extends Component
                         ->groupBy('id_produit')
                         ->havingRaw('COUNT(DISTINCT id_entrepot) > 0')
                         ->where('type_produit','Produit')
-                        ->where('societe',auth()->user()->societe)
+                        ->where('societe_id',auth()->user()->societe_id)
                         ->pluck('id_produit'); // Récupère seulement les IDs des produits
 
                     // Ensuite, joignez cette liste pour sommer les quantités
@@ -176,13 +176,13 @@ class DetailEntrepots extends Component
                         ->get();
 
                     $page = 'Entrepot'; // Pour evenement lie
-                    $log = LogActivityModel::where('user_societe',auth()->user()->societe)->where('id_activite', $this->id_entrepot)->where('page', $page)->limit(50)->orderBy('id','desc')->get();
+                    $log = LogActivityModel::where('societe_id',auth()->user()->societe_id)->where('id_activite', $this->id_entrepot)->where('page', $page)->limit(50)->orderBy('id','desc')->get();
                     $logCount = $log->count();
                 }   
-                $produit = Produit::where('societe',auth()->user()->societe)->where('etat',1)->orderBy('nom_produit', 'Asc')->get();                  
-                $entrepo = Entrepot::where('societe',auth()->user()->societe)->get(); // pour select
+                $produit = Produit::where('societe_id',auth()->user()->societe_id)->where('etat',1)->orderBy('nom_produit', 'Asc')->get();                  
+                $entrepo = Entrepot::where('societe_id',auth()->user()->societe_id)->get(); // pour select
 
-                $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get(); 
+                $entite_mod = Entite::where('id',auth()->user()->societe_id)->get(); 
                 $jourValid = $entite_mod[0]->validite_mod; 
                 // ceci pour trouver le nombre de jour restant avant expiration
                 $nbjoursRestant = round((strtotime($jourValid) - strtotime($dateJour))/(60*60*24));
@@ -216,7 +216,7 @@ class DetailEntrepots extends Component
         }
     }
     public function ajuster(int $id){  
-        $entrepo = Entrepot::where('societe',auth()->user()->societe)->where('id',$id)->first();
+        $entrepo = Entrepot::where('societe_id',auth()->user()->societe_id)->where('id',$id)->first();
         $this->id_entrepot = $entrepo->id;
         $this->nom_entrepot = $entrepo->nom;
         $this->libele_mouvement = 'Correction du stock produit ';
@@ -232,12 +232,12 @@ class DetailEntrepots extends Component
              'code_mouvement'=>'max:255',
                
         ]);    
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->correction_stock;
             if($autoriser == 1){                 
-                    $produit = Produit::where('societe',auth()->user()->societe)->where('id',$this->nom_produit)->first();
+                    $produit = Produit::where('societe_id',auth()->user()->societe_id)->where('id',$this->nom_produit)->first();
                     $id_produit = $produit->id;
                     $nom = $produit->nom_produit;
                     $reference = $produit->reference;
@@ -253,9 +253,9 @@ class DetailEntrepots extends Component
 
                     if($this->sens_stock == 'Ajouter'){                    
                         
-                        $test = Stock::where('societe',auth()->user()->societe)->where('id_entrepot',$this->id_entrepot)->where('id_produit',$this->nom_produit)->count(); 
+                        $test = Stock::where('societe_id',auth()->user()->societe_id)->where('id_entrepot',$this->id_entrepot)->where('id_produit',$this->nom_produit)->count(); 
                         if($test > 0){
-                            $stoc = Stock::where('societe',auth()->user()->societe)->where('id_entrepot',$this->id_entrepot)->where('id_produit',$this->nom_produit)->first();                         
+                            $stoc = Stock::where('societe_id',auth()->user()->societe_id)->where('id_entrepot',$this->id_entrepot)->where('id_produit',$this->nom_produit)->first();                         
                             $id_stock = $stoc->id;
                             $quantite_stock = $stoc->quantite;
 
@@ -316,7 +316,7 @@ class DetailEntrepots extends Component
                                 Stock::create(['id_entrepot'=>$this->id_entrepot,'nom_produit'=>$nom,'id_produit'=>$id_produit,'reference'=>$reference,'quantite'=>$this->quantite,'prix_achat_last'=>$this->prix_achat,
                                 'prix_moyen_pondere_achat'=>$prix_moyen_pondere_achat,'categorie'=>$categorie,'image'=>$image,'etat'=>$etat,
                                 'valorisation_achat_total'=>$valorisation_achat_total,'prix_vente_unitaire'=>$prix_vente,'valeur_vente_total'=>$valeur_vente_total,'prix_vente_min'=>$prix_vente_min,'limite_stock_alerte'=>$limite_stock_alerte_bd,
-                                'type_produit'=>$type_produit,'nature_produit'=>$nature_produit,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                                'type_produit'=>$type_produit,'nature_produit'=>$nature_produit,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
 
                                 Produit::where('id',$this->nom_produit)->update(['prix_achat'=>$prix_moyen_pondere_achat]); // Mise a jour Prix achat avec PMP
                             }  
@@ -329,19 +329,19 @@ class DetailEntrepots extends Component
                                 Stock::create(['id_entrepot'=>$this->id_entrepot,'nom_produit'=>$nom,'id_produit'=>$id_produit,'reference'=>$reference,'quantite'=>$this->quantite,'prix_achat_last'=>$prix_achat, 
                                 'prix_moyen_pondere_achat'=>$prix_moyen_pondere_achat,'categorie'=>$categorie,'image'=>$image,'etat'=>$etat,
                                 'valorisation_achat_total'=>$valorisation_achat_total,'prix_vente_unitaire'=>$prix_vente,'valeur_vente_total'=>$valeur_vente_total,'prix_vente_min'=>$prix_vente_min,'limite_stock_alerte'=>$limite_stock_alerte_bd,
-                                'type_produit'=>$type_produit,'nature_produit'=>$nature_produit,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                                'type_produit'=>$type_produit,'nature_produit'=>$nature_produit,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
 
                                 Produit::where('id',$this->nom_produit)->update(['prix_achat'=>$prix_moyen_pondere_achat]); // Mise a jour Prix achat avec PMP
                             } 
                         }                  
                         
                         Mouvement::create(['id_entrepot'=>$this->id_entrepot,'nom_produit'=>$nom,'id_produit'=>$id_produit,'reference'=>$reference,'quantite'=>$this->quantite,'libele_mouvement'=>$this->libele_mouvement,'code_mouvement'=>$this->code_mouvement,'origine'=>$this->origine,
-                                            'entrepot'=>$this->nom_entrepot,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                                            'entrepot'=>$this->nom_entrepot,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
 
                          // Ceci pour mettre a jour les valeur dans l'entrepot
-                         $stockPieceCount = Stock::where('societe',auth()->user()->societe)->where('id_entrepot',$this->id_entrepot)->sum('quantite');
-                         $valorisation_achat_total = Stock::where('societe',auth()->user()->societe)->where('id_entrepot',$this->id_entrepot)->sum('valorisation_achat_total'); 
-                         $valeurVenteTotal = Stock::where('societe',auth()->user()->societe)->where('id_entrepot',$this->id_entrepot)->sum('valeur_vente_total'); 
+                         $stockPieceCount = Stock::where('societe_id',auth()->user()->societe_id)->where('id_entrepot',$this->id_entrepot)->sum('quantite');
+                         $valorisation_achat_total = Stock::where('societe_id',auth()->user()->societe_id)->where('id_entrepot',$this->id_entrepot)->sum('valorisation_achat_total'); 
+                         $valeurVenteTotal = Stock::where('societe_id',auth()->user()->societe_id)->where('id_entrepot',$this->id_entrepot)->sum('valeur_vente_total'); 
 
                          Entrepot::find($this->id_entrepot)->update(['stock_total'=>$stockPieceCount,'valorisation_achat_total'=>$valorisation_achat_total,'valeur_vente_total'=>$valeurVenteTotal,
                         'nom_user'=>auth()->user()->name]);
@@ -366,9 +366,9 @@ class DetailEntrepots extends Component
                     }
                     elseif($this->sens_stock == 'Supprimer'){ 
                         
-                        $test = Stock::where('societe',auth()->user()->societe)->where('id_entrepot',$this->id_entrepot)->where('id_produit',$this->nom_produit)->count(); 
+                        $test = Stock::where('societe_id',auth()->user()->societe_id)->where('id_entrepot',$this->id_entrepot)->where('id_produit',$this->nom_produit)->count(); 
                         if($test > 0){
-                            $stoc = Stock::where('societe',auth()->user()->societe)->where('id_entrepot',$this->id_entrepot)->where('id_produit',$this->nom_produit)->get();                         
+                            $stoc = Stock::where('societe_id',auth()->user()->societe_id)->where('id_entrepot',$this->id_entrepot)->where('id_produit',$this->nom_produit)->get();                         
                             $id_stock = $stoc[0]->id;   
                             $quantite_stock = $stoc[0]->quantite; 
 
@@ -387,12 +387,12 @@ class DetailEntrepots extends Component
                                         'type_produit'=>$type_produit,'nature_produit'=>$nature_produit,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
 
                                 Mouvement::create(['id_entrepot'=>$this->id_entrepot,'nom_produit'=>$nom,'id_produit'=>$id_produit,'reference'=>$reference,'quantite'=>-$this->quantite,'libele_mouvement'=>$this->libele_mouvement,'code_mouvement'=>$this->code_mouvement,'origine'=>$this->origine,
-                                'entrepot'=>$this->nom_entrepot,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
+                                'entrepot'=>$this->nom_entrepot,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
                                 
                                 // Ceci pour mettre a jour les valeurs dans l'entrepot
-                                $stockPieceCount = Stock::where('societe',auth()->user()->societe)->where('id_entrepot',$this->id_entrepot)->sum('quantite');
-                                $valorisation_achat_total = Stock::where('societe',auth()->user()->societe)->where('id_entrepot',$this->id_entrepot)->sum('valorisation_achat_total'); 
-                                $valeurVenteTotal = Stock::where('societe',auth()->user()->societe)->where('id_entrepot',$this->id_entrepot)->sum('valeur_vente_total'); 
+                                $stockPieceCount = Stock::where('societe_id',auth()->user()->societe_id)->where('id_entrepot',$this->id_entrepot)->sum('quantite');
+                                $valorisation_achat_total = Stock::where('societe_id',auth()->user()->societe_id)->where('id_entrepot',$this->id_entrepot)->sum('valorisation_achat_total'); 
+                                $valeurVenteTotal = Stock::where('societe_id',auth()->user()->societe_id)->where('id_entrepot',$this->id_entrepot)->sum('valeur_vente_total'); 
 
                                 Entrepot::find($this->id_entrepot)->update(['stock_total'=>$stockPieceCount,'valorisation_achat_total'=>$valorisation_achat_total,'valeur_vente_total'=>$valeurVenteTotal,
                                'nom_user'=>auth()->user()->name]);
@@ -436,15 +436,15 @@ class DetailEntrepots extends Component
                                             'type_produit'=>$type_produit,'nature_produit'=>$nature_produit,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
 
                                     // Ceci pour mettre a jour les valeurs dans l'entrepot
-                                    $stockPieceCount = Stock::where('societe',auth()->user()->societe)->where('id_entrepot',$this->id_entrepot)->sum('quantite');
-                                    $valorisation_achat_total = Stock::where('societe',auth()->user()->societe)->where('id_entrepot',$this->id_entrepot)->sum('valorisation_achat_total'); 
-                                    $valeurVenteTotal = Stock::where('societe',auth()->user()->societe)->where('id_entrepot',$this->id_entrepot)->sum('valeur_vente_total');                   
+                                    $stockPieceCount = Stock::where('societe_id',auth()->user()->societe_id)->where('id_entrepot',$this->id_entrepot)->sum('quantite');
+                                    $valorisation_achat_total = Stock::where('societe_id',auth()->user()->societe_id)->where('id_entrepot',$this->id_entrepot)->sum('valorisation_achat_total'); 
+                                    $valeurVenteTotal = Stock::where('societe_id',auth()->user()->societe_id)->where('id_entrepot',$this->id_entrepot)->sum('valeur_vente_total');                   
                                     
                                     Entrepot::find($this->id_entrepot)->update(['stock_total'=>$stockPieceCount,'valorisation_achat_total'=>$valorisation_achat_total,'valeur_vente_total'=>$valeurVenteTotal,
                                     'nom_user'=>auth()->user()->name]);
 
                                     Mouvement::create(['id_entrepot'=>$this->id_entrepot,'nom_produit'=>$nom,'id_produit'=>$id_produit,'reference'=>$reference,'quantite'=>-$this->quantite,'libele_mouvement'=>$this->libele_mouvement,'code_mouvement'=>$this->code_mouvement,'origine'=>$this->origine,
-                                    'entrepot'=>$this->nom_entrepot,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);  
+                                    'entrepot'=>$this->nom_entrepot,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);  
                                                                         
                                     $page = 'Produits';
                                     $page2 = 'Entrepot';
@@ -527,9 +527,9 @@ class DetailEntrepots extends Component
         }  
     } 
     public function precedant(int $id){ 
-        $testPrecedant = Entrepot::where('societe',auth()->user()->societe)->where('id','<',$id)->orderBy('id','desc')->count();
+        $testPrecedant = Entrepot::where('societe_id',auth()->user()->societe_id)->where('id','<',$id)->orderBy('id','desc')->count();
         if($testPrecedant > 0){ 
-            $precedant = Entrepot::where('societe',auth()->user()->societe)->where('id','<',$id)->orderBy('id','desc')->first();        
+            $precedant = Entrepot::where('societe_id',auth()->user()->societe_id)->where('id','<',$id)->orderBy('id','desc')->first();        
             $previous = $precedant->id; 
             $this->redirect('/detail_entrepot?id='.$previous.'&active=4&champ=3-1&choix=2', navigate: true);              
         }  
@@ -547,9 +547,9 @@ class DetailEntrepots extends Component
     }    
     public function suivant(int $id){    
         
-        $testSuivant = Entrepot::where('societe',auth()->user()->societe)->where('id','>',$id)->orderBy('id','asc')->count();
+        $testSuivant = Entrepot::where('societe_id',auth()->user()->societe_id)->where('id','>',$id)->orderBy('id','asc')->count();
         if($testSuivant > 0){
-            $suivant = Entrepot::where('societe',auth()->user()->societe)->where('id','>',$id)->orderBy('id','asc')->first();
+            $suivant = Entrepot::where('societe_id',auth()->user()->societe_id)->where('id','>',$id)->orderBy('id','asc')->first();
             $next = $suivant->id;             
             $this->redirect('/detail_entrepot?id='.$next.'&active=4&champ=3-1&choix=2', navigate: true);                     
         }  
@@ -594,9 +594,9 @@ class DetailEntrepots extends Component
             'telephone'=>'nullable|max:255',
             'email'=>'nullable|email|max:255',
         ]);  
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->modifier_entrepot;
             if($autoriser == 1){ 
                 if($this->ids){  

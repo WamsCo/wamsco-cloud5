@@ -108,9 +108,9 @@ class DetailOrdreFabrication extends Component
         }
     }
     public function mount(){
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $this->autoriser = $role[0]->voir_marge;
             $autoriser = $role[0]->creer_ordre_fab;
             if($autoriser == 0){
@@ -128,7 +128,7 @@ class DetailOrdreFabrication extends Component
     public function render(){
     
         $dateJour = date('Y-m-d');            
-        $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();
+        $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();
         $jourValid = $entite_mod[0]->validite_mod;
         $mod_fabrication = $entite_mod[0]->mod_fabrication;
         $soldeClient = $entite_mod[0]->solde; 
@@ -145,15 +145,13 @@ class DetailOrdreFabrication extends Component
                 toast()->success('Prêt', '')->position('top-right')->autoClose(2000)->background('#fff')->width('220px')->padding('5px');
 
                 $id = request('id'); // id Ordre de fabrication composant_id
-                // $listeNomenclatur = Nomenclature::where('societe',auth()->user()->societe)->where('etat',1)->orderBy('libelle')->get();
-                $produit = Produit::where('societe',auth()->user()->societe)->where('nature_produit','!=','Matière première')->where('etat',1)->orderBy('nom_produit')->get();
-                $entrepot = Entrepot::where('societe',auth()->user()->societe)->where('active',1)->orderBy('nom','asc')->get();
-                $stock_entrepot = Stock::where('societe',auth()->user()->societe)->where('id_produit', $this->composant_id)->where('etat',1)->orderBy('nom_produit','asc')->get();
-                // $composant_produit = Produit::where('societe',auth()->user()->societe)->where('nature_produit','Matière première')->where('etat',1)->orderBy('nom_produit')->get();
-                $composant_produit = Produit::where('societe',auth()->user()->societe)->where('nature_produit','!=','Manufacturé')->where('etat',1)->orderBy('nom_produit')->get();
-                $utilisateur = Utilisateur::where('societe',auth()->user()->societe)->orderBy('name','asc')->get();
-                $tier = Tier::where('societe',auth()->user()->societe)->where('etat',1)->orderBy('nom','asc')->get();
-                $detail_conso = MagConsoComposantOf::where('societe',auth()->user()->societe)->where('composant_id', $this->id_ofab)->where('ordre_fabrication', $this->ids)->orderBy('id','asc')->get();
+                $produit = Produit::where('societe_id',auth()->user()->societe_id)->where('nature_produit','!=','Matière première')->where('etat',1)->orderBy('nom_produit')->get();
+                $entrepot = Entrepot::where('societe_id',auth()->user()->societe_id)->where('active',1)->orderBy('nom','asc')->get();
+                $stock_entrepot = Stock::where('societe_id',auth()->user()->societe_id)->where('id_produit', $this->composant_id)->where('etat',1)->orderBy('nom_produit','asc')->get();
+                $composant_produit = Produit::where('societe_id',auth()->user()->societe_id)->where('nature_produit','!=','Manufacturé')->where('etat',1)->orderBy('nom_produit')->get();
+                $utilisateur = Utilisateur::where('societe_id',auth()->user()->societe_id)->orderBy('name','asc')->get();
+                $tier = Tier::where('societe_id',auth()->user()->societe_id)->where('etat',1)->orderBy('nom','asc')->get();
+                $detail_conso = MagConsoComposantOf::where('societe_id',auth()->user()->societe_id)->where('composant_id', $this->id_ofab)->where('ordre_fabrication', $this->ids)->orderBy('id','asc')->get();
                 $detail_consoCount = $detail_conso->count();
                 $detail_consoTotal = $detail_conso->sum('quantite_consommer');
                 // ceci au chargement de la page
@@ -191,31 +189,31 @@ class DetailOrdreFabrication extends Component
                     $this->created_at = $men->created_at;
                     
                 }
-                    $listeComposant = ComposantNomenclatureOrdreFab::where('societe',auth()->user()->societe)->where('ordre_fabrication',$this->ids)->orderBy($this->orderField, $this->orderDirection)->get();
+                    $listeComposant = ComposantNomenclatureOrdreFab::where('societe_id',auth()->user()->societe_id)->where('ordre_fabrication',$this->ids)->orderBy($this->orderField, $this->orderDirection)->get();
                     $coutMTotal = $listeComposant->sum('cout');
                     $coutMTotal = $listeComposant->sum('cout');
                     $this->coutTotalFinal = $coutMTotal; 
                     
-                    $ComposantCount = ComposantNomenclatureOrdreFab::where('societe',auth()->user()->societe)->where('ordre_fabrication',$this->ids)->count();
+                    $ComposantCount = ComposantNomenclatureOrdreFab::where('societe_id',auth()->user()->societe_id)->where('ordre_fabrication',$this->ids)->count();
 
                     // select
-                    $listEntrepot = Entrepot::where('societe',auth()->user()->societe)->orderBy('nom','asc')->where('active',1)->get(); 
-                    $stock = Stock::where('societe',auth()->user()->societe)->where('id_produit',$this->choix_composant)->where('type_produit','Produit')->where('etat',1)->get();  
+                    $listEntrepot = Entrepot::where('societe_id',auth()->user()->societe_id)->orderBy('nom','asc')->where('active',1)->get(); 
+                    $stock = Stock::where('societe_id',auth()->user()->societe_id)->where('id_produit',$this->choix_composant)->where('type_produit','Produit')->where('etat',1)->get();  
                     // Fin select
 
                     $page = 'OrdreFabrication'; // Pour evenement lie
-                    $log = LogActivityModel::where('user_societe',auth()->user()->societe)->where('id_activite', $this->ids)->where('page', $page)->limit(50)->orderBy('id','desc')->get();
+                    $log = LogActivityModel::where('societe_id',auth()->user()->societe_id)->where('id_activite', $this->ids)->where('page', $page)->limit(50)->orderBy('id','desc')->get();
                     $logCount = $log->count();
 
-                    $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->count(); 
+                    $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->count(); 
                     if($deviseTva == 0){
                         $this->devise = 'FCFA';
                     }
                     else{
-                        $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->get(); 
+                        $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->get(); 
                         $this->devise = $deviseTva[0]->devise;
                     }
-                    $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();          
+                    $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();          
                     $jourValid = $entite_mod[0]->validite_mod; 
                     // ceci pour trouver le nombre de jour restant avant expiration
                     $nbjoursRestant = round((strtotime($jourValid) - strtotime($dateJour))/(60*60*24));
@@ -261,20 +259,20 @@ class DetailOrdreFabrication extends Component
             'tiers'=>'max:25',                        
             'note'=>'max:255',                        
         ]);
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->modifier_ordre_fab;
             if($autoriser == 1){ 
 
                 // recuperer id et nom entrepot
-                $entrepo = Entrepot::where('societe',auth()->user()->societe)->where('id',$this->entrepot_fabrication)->where('active',1)->orderBy('nom')->first();
+                $entrepo = Entrepot::where('societe_id',auth()->user()->societe_id)->where('id',$this->entrepot_fabrication)->where('active',1)->orderBy('nom')->first();
                 $entrepo_id =$entrepo->id;
                 $nom_entrepot = $entrepo->nom;
 
-                $test_users = Utilisateur::where('societe',auth()->user()->societe)->where('id',$this->responsable)->where('etat',1)->orderBy('name')->count();
+                $test_users = Utilisateur::where('societe_id',auth()->user()->societe_id)->where('id',$this->responsable)->where('etat',1)->orderBy('name')->count();
                 if($test_users > 0){
-                    $users = Utilisateur::where('societe',auth()->user()->societe)->where('id',$this->responsable)->where('etat',1)->orderBy('name')->first();
+                    $users = Utilisateur::where('societe_id',auth()->user()->societe_id)->where('id',$this->responsable)->where('etat',1)->orderBy('name')->first();
                     $id_respo = $users->id;
                     $nom_respo = $users->name;
                 }
@@ -283,9 +281,9 @@ class DetailOrdreFabrication extends Component
                     $nom_respo = NULL;
                 }
 
-                $test_tier = Tier::where('societe',auth()->user()->societe)->where('id',$this->tiers)->where('etat',1)->orderBy('nom')->count();
+                $test_tier = Tier::where('societe_id',auth()->user()->societe_id)->where('id',$this->tiers)->where('etat',1)->orderBy('nom')->count();
                 if($test_tier > 0){
-                    $tie = Tier::where('societe',auth()->user()->societe)->where('id',$this->tiers)->where('etat',1)->orderBy('nom')->first();
+                    $tie = Tier::where('societe_id',auth()->user()->societe_id)->where('id',$this->tiers)->where('etat',1)->orderBy('nom')->first();
                     $id_tier = $tie->id;
                     $nom_tier = $tie->nom;
                 }
@@ -299,7 +297,7 @@ class DetailOrdreFabrication extends Component
                 OrdreFabrication::find($this->ids)->update(['libelle'=>$this->libelle,'quantite'=>$this->quantite,'quantite_fabrique'=>$quantite_fabrique,
                 'duree'=>$this->duree,'entrepot_fabrication'=>$nom_entrepot,'id_entrepot'=>$entrepo_id,'date_debut'=>$this->date_debut,
                 'date_fin'=>$this->date_fin,'responsable'=>$nom_respo,'responsable_id'=>$id_respo,'tiers'=>$nom_tier,'tiers_id'=>$id_tier,
-                'description'=>$this->note,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                'description'=>$this->note,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
                                                               
                 $id_activite = $this->ids;  
                 $page = 'OrdreFabrication';    
@@ -344,18 +342,18 @@ class DetailOrdreFabrication extends Component
             'quantite_composant'=>'required|numeric',
             'unite'=>'required|max:10',            
         ]);
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->ajouter_composant;
             if($autoriser == 1){       
                
-                $compos = Produit::where('societe',auth()->user()->societe)->where('id',$this->choix_composant)->first();
+                $compos = Produit::where('societe_id',auth()->user()->societe_id)->where('id',$this->choix_composant)->first();
                 $composant_id = $compos->id;                
                 $nom_composant = $compos->nom_produit;                
                 $cout = $compos->prix_achat;
 
-                $mag = Entrepot::where('societe',auth()->user()->societe)->where('id',$this->magasin)->first();
+                $mag = Entrepot::where('societe_id',auth()->user()->societe_id)->where('id',$this->magasin)->first();
                 $id_magasin = $mag->id;                
                 $nom_magasin = $mag->nom;  
 
@@ -363,7 +361,8 @@ class DetailOrdreFabrication extends Component
                     $quantite_consommer = 0;
                     $coutFinal = $cout * $this->quantite_composant;
                     ComposantNomenclatureOrdreFab::create(['ordre_fabrication'=>$this->ids,'ref_ordre'=>$this->ref_ordre,'composant'=>$nom_composant,'composant_id'=>$composant_id,'nomencla_id'=>$this->nomencla_id,'quantite'=>$this->quantite_composant,
-                        'id_entrepot'=>$id_magasin,'nom_entrepot'=>$nom_magasin,'cout'=>$coutFinal,'unite'=>$this->unite,'quantite_consommer'=>$quantite_consommer,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                        'id_entrepot'=>$id_magasin,'nom_entrepot'=>$nom_magasin,'cout'=>$coutFinal,'unite'=>$this->unite,'quantite_consommer'=>$quantite_consommer,'societe'=>auth()->user()->societe,
+                        'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
 
                     $id_activite = $this->ids;  
                     $page = 'OrdreFabrication';    
@@ -416,15 +415,15 @@ class DetailOrdreFabrication extends Component
         $this->confirmer = $id;        
     } 
     public function supprimer(int $id){ 
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){ 
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->supprimer_composant;
             if($autoriser == 1){   
                 if($id){ 
 
                     // Retour quantite                    
-                    $prod = ComposantNomenclatureOrdreFab::where('societe',auth()->user()->societe)->where('id',$id)->first();
+                    $prod = ComposantNomenclatureOrdreFab::where('societe_id',auth()->user()->societe_id)->where('id',$id)->first();
                     $produit_id = $prod->composant_id;
                     $quantite = $prod->quantite_consommer;
                     $id_entrepot = $prod->id_entrepot;
@@ -433,7 +432,7 @@ class DetailOrdreFabrication extends Component
 
                     if($id_entrepot){
                     
-                        $stockAtuel = Stock :: where('societe',auth()->user()->societe)->where('id_entrepot',$id_entrepot)->where('id_produit',$produit_id)->first(); 
+                        $stockAtuel = Stock :: where('societe_id',auth()->user()->societe_id)->where('id_entrepot',$id_entrepot)->where('id_produit',$produit_id)->first(); 
                         $id_stockProd = $stockAtuel->id;
                         $QteStockActuel = $stockAtuel->quantite;
                         $prix_moyen_pondere_achat = $stockAtuel->prix_moyen_pondere_achat;
@@ -446,19 +445,19 @@ class DetailOrdreFabrication extends Component
                         $qteSockFinal = $QteStockActuel + $quantite;
                         $valorisation_achat_total = $prix_moyen_pondere_achat * $qteSockFinal;
                         $valeur_vente_total = $prix_vente_unitaire * $qteSockFinal;
-                        Stock::where('societe',auth()->user()->societe)->where('id',$id_stockProd)->update(['quantite'=>$qteSockFinal,'valorisation_achat_total'=>$valorisation_achat_total,'valeur_vente_total'=>$valeur_vente_total,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);   
+                        Stock::where('societe_id',auth()->user()->societe_id)->where('id',$id_stockProd)->update(['quantite'=>$qteSockFinal,'valorisation_achat_total'=>$valorisation_achat_total,'valeur_vente_total'=>$valeur_vente_total,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);   
                         // Fin retour
 
-                        $entrepo = Entrepot::where('societe',auth()->user()->societe)->where('id',$id_entrepot)->first();                    
+                        $entrepo = Entrepot::where('societe_id',auth()->user()->societe_id)->where('id',$id_entrepot)->first();                    
                         $nom_entrepot = $entrepo->nom; 
                         
                         $libele_mouvement = 'Suppression OrdreFabrication (Composant)';
                         $code_mouvement = date('YmdHis');
                         $statut = 'OF';
                         Mouvement::create(['id_entrepot'=>$id_entrepot,'entrepot'=>$nom_entrepot,'nom_produit'=>$nom_produit,'id_produit'=>$id_produit,'reference'=>$reference,'quantite'=>$quantite,'libele_mouvement'=>$libele_mouvement,
-                        'code_mouvement'=>$code_mouvement,'statut'=>$statut,'origine'=>$ref_ordre,'id_ordre_fab'=>$id_ordre_fabrication,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                        'code_mouvement'=>$code_mouvement,'statut'=>$statut,'origine'=>$ref_ordre,'id_ordre_fab'=>$id_ordre_fabrication,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
 
-                        ComposantNomenclatureOrdreFab::where('societe',auth()->user()->societe)->where('id',$id)->delete();
+                        ComposantNomenclatureOrdreFab::where('societe_id',auth()->user()->societe_id)->where('id',$id)->delete();
                         $id_activite = $this->ids;  
                         $page = 'OrdreFabrication';    
                         LogActivity::addToLog('Composant nomenclature (OF) supprimé', $id_activite, $page);
@@ -506,7 +505,7 @@ class DetailOrdreFabrication extends Component
         }   
     }
     public function editer(int $id){
-        $affiche = ComposantNomenclatureOrdreFab::where('societe',auth()->user()->societe)->where('id',$id)->first();               
+        $affiche = ComposantNomenclatureOrdreFab::where('societe_id',auth()->user()->societe_id)->where('id',$id)->first();               
         $this->idy = $affiche->id;
         $this->composant_id = $affiche->composant_id;
         $this->composant = $affiche->composant;        
@@ -515,16 +514,16 @@ class DetailOrdreFabrication extends Component
         $this->resteAconsommer = $this->quantiteCompos - $this->quantiteConsommer;
     }
     public function fabricationPartiel(){
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){ 
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->creer_ordre_fab;
             if($autoriser == 1){   
                 $this->validate([            
                     'reste_a_consommer'=>'required|numeric',            
                     'choix_entrepot'=>'required|numeric',  // id entrepot          
                 ]);        
-                $test_statut = OrdreFabrication::where('societe',auth()->user()->societe)->where('id',$this->ids)->first(); 
+                $test_statut = OrdreFabrication::where('societe_id',auth()->user()->societe_id)->where('id',$this->ids)->first(); 
                 $statut = $test_statut->statut;   
                 if($statut != 'Fabriqué'){ 
 
@@ -532,7 +531,7 @@ class DetailOrdreFabrication extends Component
 
                     // if($this->reste_a_consommer <= $this->resteAconsommer){  
                         
-                        $ligneComposant = ComposantNomenclatureOrdreFab::where('societe',auth()->user()->societe)->where('ordre_fabrication',$this->ids)->where('id',$this->idy)->get(); 
+                        $ligneComposant = ComposantNomenclatureOrdreFab::where('societe_id',auth()->user()->societe_id)->where('ordre_fabrication',$this->ids)->where('id',$this->idy)->get(); 
                                                     
                         foreach($ligneComposant as $ligneComposants){ 
                                 
@@ -546,11 +545,11 @@ class DetailOrdreFabrication extends Component
                             $resteAconso = $ligneComposants->quantite - $ligneComposants->quantite_consommer; 
 
                             $id_entrep = $this->choix_entrepot;
-                            $Entrepo = Entrepot::where('societe',auth()->user()->societe)->where('id',$id_entrep)->first();                    
+                            $Entrepo = Entrepot::where('societe_id',auth()->user()->societe_id)->where('id',$id_entrep)->first();                    
                             $id_entrepot = $Entrepo->id; 
                             $nom_entrepot = $Entrepo->nom; 
 
-                            $prods = Produit::where('societe',auth()->user()->societe)->where('id',$id_produit)->first();                    
+                            $prods = Produit::where('societe_id',auth()->user()->societe_id)->where('id',$id_produit)->first();                    
                             $id_prod = $prods->id; 
                             $nom_produit = $prods->nom_produit; 
                             $reference = $prods->reference; 
@@ -563,7 +562,7 @@ class DetailOrdreFabrication extends Component
                             $etat = $prods->etat; 
                             $image = $prods->image; 
                             
-                            $verifie_stock = Stock::where('societe',auth()->user()->societe)->where('id_entrepot', $id_entrepot)->where('id_produit',$id_produit)->count();
+                            $verifie_stock = Stock::where('societe_id',auth()->user()->societe_id)->where('id_entrepot', $id_entrepot)->where('id_produit',$id_produit)->count();
                             if($verifie_stock == 0){
                                 
                                 $quantite = 0;
@@ -572,11 +571,11 @@ class DetailOrdreFabrication extends Component
                                 $limite_stock_alerte_bd = 5;
                                 Stock::create(['id_entrepot'=>$id_entrepot,'nom_produit'=>$nom_produit,'id_produit'=>$id_produit,'reference'=>$reference,'categorie'=>$categorie,'type_produit'=>$type_produit,'nature_produit'=>$nature_produit,'quantite'=>$quantite,
                                 'prix_achat_last'=>$prix_achat, 'prix_moyen_pondere_achat'=>$prix_achat, 'valorisation_achat_total'=>$valorisation_achat_total,'prix_vente_unitaire'=>$prix_vente,'prix_vente_min'=>$prix_vente_min,'valeur_vente_total'=>$valeur_vente_total,
-                                'limite_stock_alerte'=>$limite_stock_alerte_bd,'etat'=>$etat,'image'=>$image,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);                                
+                                'limite_stock_alerte'=>$limite_stock_alerte_bd,'etat'=>$etat,'image'=>$image,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);                                
                             }
                             
                             if( $this->type_nomencla == 'Fabrication'){
-                                $stockTrouver = Stock::where('societe',auth()->user()->societe)->where('id_entrepot', $id_entrepot)->where('id_produit',$id_produit)->first();
+                                $stockTrouver = Stock::where('societe_id',auth()->user()->societe_id)->where('id_entrepot', $id_entrepot)->where('id_produit',$id_produit)->first();
                                 $nom_produit = $stockTrouver->nom_produit;
                                 // $id_produit = $stockTrouver->id_produit;
                                 $reference = $stockTrouver->reference;                            
@@ -597,12 +596,12 @@ class DetailOrdreFabrication extends Component
                                 }
                                 else{
                                     
-                                    Stock::where('societe',auth()->user()->societe)->where('id_entrepot',$id_entrepot)->where('id_produit',$id_produit)->update(['quantite'=>$qteSockFinal,'valorisation_achat_total'=>$valorisation_achat_total,'valeur_vente_total'=>$valeur_vente_total,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);   
+                                    Stock::where('societe_id',auth()->user()->societe_id)->where('id_entrepot',$id_entrepot)->where('id_produit',$id_produit)->update(['quantite'=>$qteSockFinal,'valorisation_achat_total'=>$valorisation_achat_total,'valeur_vente_total'=>$valeur_vente_total,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);   
                             
                                     MagConsoComposantOf::create(['entrepot_id'=>$id_entrepot,'entrepot_conso'=>$nom_entrepot,'ordre_fabrication'=>$ordre_fabrication,'ref_ordre'=>$ref_ordre,'quantite_consommer'=>$this->reste_a_consommer,'unite'=>$unite,'composant_id'=>$id_produit,'composant'=>$composant,
-                                    'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);   
+                                    'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);   
 
-                                    $quantiteConsommerFinal = MagConsoComposantOf::where('societe',auth()->user()->societe)->where('composant_id',$id_produit)->where('ordre_fabrication',$this->ids)->sum('quantite_consommer');
+                                    $quantiteConsommerFinal = MagConsoComposantOf::where('societe_id',auth()->user()->societe_id)->where('composant_id',$id_produit)->where('ordre_fabrication',$this->ids)->sum('quantite_consommer');
                                     ComposantNomenclatureOrdreFab::find($this->idy)->update(['quantite_consommer'=>$quantiteConsommerFinal,'id_entrepot'=>$id_entrepot,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);   
 
 
@@ -611,14 +610,15 @@ class DetailOrdreFabrication extends Component
                                     $statut = 'OF';                                    
                                     
                                     Mouvement::create(['id_entrepot'=>$id_entrepot,'nom_produit'=>$nom_produit,'id_produit'=>$id_produit,'reference'=>$reference,'quantite'=>-$this->reste_a_consommer,'libele_mouvement'=>$libele_mouvement,
-                                    'code_mouvement'=>$code_mouvement,'statut'=>$statut,'origine'=>$this->ref_ordre,'id_ordre_fab'=>$this->ids,'entrepot'=>$nom_entrepot,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
+                                    'code_mouvement'=>$code_mouvement,'statut'=>$statut,'origine'=>$this->ref_ordre,'id_ordre_fab'=>$this->ids,'entrepot'=>$nom_entrepot,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,
+                                    'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
                                                   
-                                    $sommeResteQte = ComposantNomenclatureOrdreFab::where('societe',auth()->user()->societe)->where('ordre_fabrication',$this->ids)->sum('quantite');
-                                    $sommeResteQteConso = ComposantNomenclatureOrdreFab::where('societe',auth()->user()->societe)->where('ordre_fabrication',$this->ids)->sum('quantite_consommer');
+                                    $sommeResteQte = ComposantNomenclatureOrdreFab::where('societe_id',auth()->user()->societe_id)->where('ordre_fabrication',$this->ids)->sum('quantite');
+                                    $sommeResteQteConso = ComposantNomenclatureOrdreFab::where('societe_id',auth()->user()->societe_id)->where('ordre_fabrication',$this->ids)->sum('quantite_consommer');
                                     $sommeResteAconsommer = $sommeResteQte - $sommeResteQteConso;                                                                            
                                     
                                     $etats = 'En cours';                  
-                                    OrdreFabrication::where('societe',auth()->user()->societe)->where('id',$this->ids)->update(['statut'=>$etats,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
+                                    OrdreFabrication::where('societe_id',auth()->user()->societe_id)->where('id',$this->ids)->update(['statut'=>$etats,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
                                     
                                     $id_activite = $this->ids;
                                     $page = 'OrdreFabrication';
@@ -645,7 +645,7 @@ class DetailOrdreFabrication extends Component
                             }
                             else{
 
-                                $stockTrouver = Stock::where('societe',auth()->user()->societe)->where('id_entrepot', $id_entrepot)->where('id_produit',$id_produit)->first();
+                                $stockTrouver = Stock::where('societe_id',auth()->user()->societe_id)->where('id_entrepot', $id_entrepot)->where('id_produit',$id_produit)->first();
                                 $nom_produit = $stockTrouver->nom_produit;
                                 // $id_produit = $stockTrouver->id_produit;
                                 $reference = $stockTrouver->reference;                            
@@ -654,12 +654,12 @@ class DetailOrdreFabrication extends Component
                                 $valeur_vente_total = $stockTrouver->prix_vente_unitaire * $qteSockFinal;
                                 $quantiteStock = $stockTrouver->quantite; 
 
-                                Stock::where('societe',auth()->user()->societe)->where('id_entrepot',$id_entrepot)->where('id_produit',$id_produit)->update(['quantite'=>$qteSockFinal,'valorisation_achat_total'=>$valorisation_achat_total,'valeur_vente_total'=>$valeur_vente_total,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);   
+                                Stock::where('societe_id',auth()->user()->societe_id)->where('id_entrepot',$id_entrepot)->where('id_produit',$id_produit)->update(['quantite'=>$qteSockFinal,'valorisation_achat_total'=>$valorisation_achat_total,'valeur_vente_total'=>$valeur_vente_total,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);   
                         
                                 MagConsoComposantOf::create(['entrepot_id'=>$id_entrepot,'entrepot_conso'=>$nom_entrepot,'ordre_fabrication'=>$ordre_fabrication,'ref_ordre'=>$ref_ordre,'quantite_consommer'=>$this->reste_a_consommer,'unite'=>$unite,'composant_id'=>$id_produit,'composant'=>$composant,
-                                'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);   
+                                'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);   
 
-                                $quantiteConsommerFinal = MagConsoComposantOf::where('societe',auth()->user()->societe)->where('composant_id',$id_produit)->where('ordre_fabrication',$this->ids)->sum('quantite_consommer');
+                                $quantiteConsommerFinal = MagConsoComposantOf::where('societe_id',auth()->user()->societe_id)->where('composant_id',$id_produit)->where('ordre_fabrication',$this->ids)->sum('quantite_consommer');
                                 ComposantNomenclatureOrdreFab::find($this->idy)->update(['quantite_consommer'=>$quantiteConsommerFinal,'id_entrepot'=>$id_entrepot,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);   
 
 
@@ -668,20 +668,15 @@ class DetailOrdreFabrication extends Component
                                 $statut = 'OF';                                
                                 
                                 Mouvement::create(['id_entrepot'=>$id_entrepot,'nom_produit'=>$nom_produit,'id_produit'=>$id_produit,'reference'=>$reference,'quantite'=>$this->reste_a_consommer,'libele_mouvement'=>$libele_mouvement,
-                                'code_mouvement'=>$code_mouvement,'statut'=>$statut,'origine'=>$this->ref_ordre,'id_ordre_fab'=>$this->ids,'entrepot'=>$nom_entrepot,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
+                                'code_mouvement'=>$code_mouvement,'statut'=>$statut,'origine'=>$this->ref_ordre,'id_ordre_fab'=>$this->ids,'entrepot'=>$nom_entrepot,'societe'=>auth()->user()->societe,
+                                'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
                                               
-                                $sommeResteQte = ComposantNomenclatureOrdreFab::where('societe',auth()->user()->societe)->where('ordre_fabrication',$this->ids)->sum('quantite');
-                                $sommeResteQteConso = ComposantNomenclatureOrdreFab::where('societe',auth()->user()->societe)->where('ordre_fabrication',$this->ids)->sum('quantite_consommer');
-                                $sommeResteAconsommer = $sommeResteQte - $sommeResteQteConso;
-                                                                    
-                                // if($sommeResteAconsommer == 0){
-                                //     $etats = 'Clôturée';                        
-                                // }
-                                // else{   
-                                //     $etats = 'Partiel';                  
-                                // }
+                                $sommeResteQte = ComposantNomenclatureOrdreFab::where('societe_id',auth()->user()->societe_id)->where('ordre_fabrication',$this->ids)->sum('quantite');
+                                $sommeResteQteConso = ComposantNomenclatureOrdreFab::where('societe_id',auth()->user()->societe_id)->where('ordre_fabrication',$this->ids)->sum('quantite_consommer');
+                                $sommeResteAconsommer = $sommeResteQte - $sommeResteQteConso;                                                                    
+                               
                                 $etats = 'En cours';                  
-                                OrdreFabrication::where('societe',auth()->user()->societe)->where('id',$this->ids)->update(['statut'=>$etats,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
+                                OrdreFabrication::where('societe_id',auth()->user()->societe_id)->where('id',$this->ids)->update(['statut'=>$etats,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
                                 
                                 $id_activite = $this->ids;
                                 $page = 'OrdreFabrication';
@@ -754,11 +749,10 @@ class DetailOrdreFabrication extends Component
     } 
     public function afficheConso(int $id){
         $this->id_ofab = $id;
-        $test_afficher = MagConsoComposantOf::where('societe',auth()->user()->societe)->where('composant_id',$id)->count();   
+        $test_afficher = MagConsoComposantOf::where('societe_id',auth()->user()->societe_id)->where('composant_id',$id)->count();   
         if($test_afficher > 0){
-            $afficher = MagConsoComposantOf::where('societe',auth()->user()->societe)->where('composant_id',$id)->first();               
+            $afficher = MagConsoComposantOf::where('societe_id',auth()->user()->societe_id)->where('composant_id',$id)->first();               
             $this->nom_composant = $afficher->composant;
-            // $this->id_ofab = $afficher->ordre_fabrication;
         } 
         else{
             $this->dispatch('alert',  
@@ -772,9 +766,9 @@ class DetailOrdreFabrication extends Component
         }           
     }
     public function precedant(int $id){ 
-        $testPrecedant = OrdreFabrication::where('societe',auth()->user()->societe)->where('id','<',$id)->orderBy('id','desc')->count();
+        $testPrecedant = OrdreFabrication::where('societe_id',auth()->user()->societe_id)->where('id','<',$id)->orderBy('id','desc')->count();
         if($testPrecedant > 0){ 
-            $precedant = OrdreFabrication::where('societe',auth()->user()->societe)->where('id','<',$id)->orderBy('id','desc')->first();        
+            $precedant = OrdreFabrication::where('societe_id',auth()->user()->societe_id)->where('id','<',$id)->orderBy('id','desc')->first();        
             $previous = $precedant->id; 
             $this->redirect('/detail_ordre_fab?id='.$previous.'&active=9&champ=2-1&choix=2', navigate: true);             
         }  
@@ -792,9 +786,9 @@ class DetailOrdreFabrication extends Component
     }    
     public function suivant(int $id){    
         
-        $testSuivant = OrdreFabrication::where('societe',auth()->user()->societe)->where('id','>',$id)->orderBy('id','asc')->count();
+        $testSuivant = OrdreFabrication::where('societe_id',auth()->user()->societe_id)->where('id','>',$id)->orderBy('id','asc')->count();
         if($testSuivant > 0){
-            $suivant = OrdreFabrication::where('societe',auth()->user()->societe)->where('id','>',$id)->orderBy('id','asc')->first();
+            $suivant = OrdreFabrication::where('societe_id',auth()->user()->societe_id)->where('id','>',$id)->orderBy('id','asc')->first();
             $next = $suivant->id;             
             $this->redirect('/detail_ordre_fab?id='.$next.'&active=9&champ=2-1&choix=2', navigate: true);                     
         }  
@@ -814,13 +808,13 @@ class DetailOrdreFabrication extends Component
         $this->validate([
             'quantite_recu'=>'required|numeric',
         ]);
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->creer_ordre_fab;
             if($autoriser == 1){                  
                 
-                $of = OrdreFabrication::where('societe',auth()->user()->societe)->where('id',$this->ids)->first(); 
+                $of = OrdreFabrication::where('societe_id',auth()->user()->societe_id)->where('id',$this->ids)->first(); 
                 $produit_a_fabrique = $of->produit_a_fabrique;  
                 $id_produit = $of->produit_id;  
                 $id_entrepot = $of->id_entrepot;  
@@ -832,9 +826,9 @@ class DetailOrdreFabrication extends Component
                 $qteabriqueFinal = $quantite_fabriqueBD + $this->quantite_recu;
                
                 OrdreFabrication::find($this->ids)->update(['quantite_fabrique'=>$qteabriqueFinal,'cout_total'=>$this->coutTotalFinal,
-                'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
 
-                $prods = Produit::where('societe',auth()->user()->societe)->where('id',$id_produit)->first();                    
+                $prods = Produit::where('societe_id',auth()->user()->societe_id)->where('id',$id_produit)->first();                    
                 $id_prod = $prods->id; 
                 $nom_produit = $prods->nom_produit; 
                 $reference = $prods->reference; 
@@ -847,7 +841,7 @@ class DetailOrdreFabrication extends Component
                 $etat = $prods->etat; 
                 $image = $prods->image;
 
-                $verifie_stock = Stock::where('societe',auth()->user()->societe)->where('id_entrepot', $id_entrepot)->where('id_produit',$id_produit)->count();
+                $verifie_stock = Stock::where('societe_id',auth()->user()->societe_id)->where('id_entrepot', $id_entrepot)->where('id_produit',$id_produit)->count();
                 if($verifie_stock == 0){
                     
                     $quantite = 0;
@@ -856,10 +850,10 @@ class DetailOrdreFabrication extends Component
                     $limite_stock_alerte_bd = 5;
                     Stock::create(['id_entrepot'=>$id_entrepot,'nom_produit'=>$nom_produit,'id_produit'=>$id_produit,'reference'=>$reference,'categorie'=>$categorie,'type_produit'=>$type_produit,'nature_produit'=>$nature_produit,'quantite'=>$quantite,
                     'prix_achat_last'=>$prix_achat, 'prix_moyen_pondere_achat'=>$prix_achat, 'valorisation_achat_total'=>$valorisation_achat_total,'prix_vente_unitaire'=>$prix_vente,'prix_vente_min'=>$prix_vente_min,'valeur_vente_total'=>$valeur_vente_total,
-                    'limite_stock_alerte'=>$limite_stock_alerte_bd,'etat'=>$etat,'image'=>$image,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);                                
+                    'limite_stock_alerte'=>$limite_stock_alerte_bd,'etat'=>$etat,'image'=>$image,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);                                
                 }
 
-                $stockTrouver = Stock::where('societe',auth()->user()->societe)->where('id_entrepot',$id_entrepot)->where('id_produit',$id_produit)->first();
+                $stockTrouver = Stock::where('societe_id',auth()->user()->societe_id)->where('id_entrepot',$id_entrepot)->where('id_produit',$id_produit)->first();
                 $nom_produit = $stockTrouver->nom_produit;
                 $reference = $stockTrouver->reference; 
 
@@ -873,7 +867,7 @@ class DetailOrdreFabrication extends Component
                 $valeur_vente_total = $stockTrouver->prix_vente_unitaire * $qteSockFinal;
                 $quantiteStock = $stockTrouver->quantite; 
                 
-                Stock::where('societe',auth()->user()->societe)->where('id_entrepot',$id_entrepot)->where('id_produit',$id_produit)->update(['quantite'=>$qteSockFinal,
+                Stock::where('societe_id',auth()->user()->societe_id)->where('id_entrepot',$id_entrepot)->where('id_produit',$id_produit)->update(['quantite'=>$qteSockFinal,
                 'valorisation_achat_total'=>$valorisation_achat_total,'valeur_vente_total'=>$valeur_vente_total,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);   
                 
                 // $libele_mouvement = 'OrdreFabrication';           
@@ -883,12 +877,12 @@ class DetailOrdreFabrication extends Component
                 if($type_nomencla == 'Fabrication'){ 
                     $libele_mouvement = 'OrdreFabrication (Production)';
                     Mouvement::create(['id_entrepot'=>$id_entrepot,'nom_produit'=>$nom_produit,'id_produit'=>$id_produit,'reference'=>$reference,'quantite'=>$this->quantite_recu,'libele_mouvement'=>$libele_mouvement,
-                    'code_mouvement'=>$code_mouvement,'statut'=>$statut,'origine'=>$ref_ordre,'id_ordre_fab'=>$this->ids,'entrepot'=>$nom_entrepot,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                    'code_mouvement'=>$code_mouvement,'statut'=>$statut,'origine'=>$ref_ordre,'id_ordre_fab'=>$this->ids,'entrepot'=>$nom_entrepot,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
                 }
                 else{
                      $libele_mouvement = 'OrdreDéassemblage (Consommation)';
                      Mouvement::create(['id_entrepot'=>$id_entrepot,'nom_produit'=>$nom_produit,'id_produit'=>$id_produit,'reference'=>$reference,'quantite'=>-$this->quantite_recu,'libele_mouvement'=>$libele_mouvement,
-                    'code_mouvement'=>$code_mouvement,'statut'=>$statut,'origine'=>$ref_ordre,'id_ordre_fab'=>$this->ids,'entrepot'=>$nom_entrepot,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                    'code_mouvement'=>$code_mouvement,'statut'=>$statut,'origine'=>$ref_ordre,'id_ordre_fab'=>$this->ids,'entrepot'=>$nom_entrepot,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
                 }
                 $id_activite = $this->ids;  
                 $page = 'OrdreFabrication';    
@@ -926,14 +920,14 @@ class DetailOrdreFabrication extends Component
         }   
     }
     public function Cloturer(){        
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->creer_ordre_fab;
             if($autoriser == 1){   
                
                 $statut = 'Terminé';                                    
-                OrdreFabrication::find($this->ids)->update(['statut'=>$statut,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);                 
+                OrdreFabrication::find($this->ids)->update(['statut'=>$statut,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);                 
                            
                 $id_activite = $this->ids;  
                 $page = 'OrdreFabrication';    
@@ -974,13 +968,13 @@ class DetailOrdreFabrication extends Component
         $this->approuver = $id;      
     } 
     public function ecraser(){        
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){ 
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->supprimer_ordre_fab;
             if($autoriser == 1){                
                 // suppression definitive et redirection                    
-                $ligneComposantOf = ComposantNomenclatureOrdreFab::where('societe',auth()->user()->societe)->where('ordre_fabrication',$this->ids)->get(); 
+                $ligneComposantOf = ComposantNomenclatureOrdreFab::where('societe_id',auth()->user()->societe_id)->where('ordre_fabrication',$this->ids)->get(); 
                 foreach($ligneComposantOf as $ligneComposantOfs){
                     $produit_id = $ligneComposantOfs->composant_id;
                     $quantite = $ligneComposantOfs->quantite_consommer;
@@ -990,7 +984,7 @@ class DetailOrdreFabrication extends Component
 
                     if($id_entrepot){
                     
-                        $stockAtuel = Stock :: where('societe',auth()->user()->societe)->where('id_entrepot',$id_entrepot)->where('id_produit',$produit_id)->first(); 
+                        $stockAtuel = Stock :: where('societe_id',auth()->user()->societe_id)->where('id_entrepot',$id_entrepot)->where('id_produit',$produit_id)->first(); 
                         $id_stockProd = $stockAtuel->id;
                         $QteStockActuel = $stockAtuel->quantite;
                         $prix_moyen_pondere_achat = $stockAtuel->prix_moyen_pondere_achat;
@@ -1003,10 +997,10 @@ class DetailOrdreFabrication extends Component
                         $qteSockFinal = $QteStockActuel + $quantite;
                         $valorisation_achat_total = $prix_moyen_pondere_achat * $qteSockFinal;
                         $valeur_vente_total = $prix_vente_unitaire * $qteSockFinal;
-                        Stock::where('societe',auth()->user()->societe)->where('id',$id_stockProd)->update(['quantite'=>$qteSockFinal,'valorisation_achat_total'=>$valorisation_achat_total,'valeur_vente_total'=>$valeur_vente_total,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);   
+                        Stock::where('societe_id',auth()->user()->societe_id)->where('id',$id_stockProd)->update(['quantite'=>$qteSockFinal,'valorisation_achat_total'=>$valorisation_achat_total,'valeur_vente_total'=>$valeur_vente_total,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);   
                         // Fin retour
 
-                        $entrepo = Entrepot::where('societe',auth()->user()->societe)->where('id',$id_entrepot)->first();                    
+                        $entrepo = Entrepot::where('societe_id',auth()->user()->societe_id)->where('id',$id_entrepot)->first();                    
                         $nom_entrepot = $entrepo->nom; 
                         
                         $code_mouvement = date('YmdHis');
@@ -1020,7 +1014,7 @@ class DetailOrdreFabrication extends Component
                             $libele_mouvement = 'Suppression Ordre Déassemblage (Composant)';
                         }
                         Mouvement::create(['id_entrepot'=>$id_entrepot,'entrepot'=>$nom_entrepot,'nom_produit'=>$nom_produit,'id_produit'=>$id_produit,'reference'=>$reference,'quantite'=>$quantite,'libele_mouvement'=>$libele_mouvement,
-                        'code_mouvement'=>$code_mouvement,'statut'=>$statut,'origine'=>$ref_ordre,'id_ordre_fab'=>$id_ordre_fabrication,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
+                        'code_mouvement'=>$code_mouvement,'statut'=>$statut,'origine'=>$ref_ordre,'id_ordre_fab'=>$id_ordre_fabrication,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
                     }
                     else{
                         $this->dispatch('alert',                    
@@ -1035,7 +1029,7 @@ class DetailOrdreFabrication extends Component
                 }   
 
                 // Cette partie gere l'entete de l'orde de fabrication
-                $ofab = OrdreFabrication::where('societe',auth()->user()->societe)->where('id',$this->ids)->first(); 
+                $ofab = OrdreFabrication::where('societe_id',auth()->user()->societe_id)->where('id',$this->ids)->first(); 
                 $produit_id = $ofab->produit_id;
                 $quantite = $ofab->quantite_fabrique;
                 $id_entrepot = $ofab->id_entrepot;
@@ -1043,9 +1037,9 @@ class DetailOrdreFabrication extends Component
                 $ref_ordre = $ofab->ref_ordre;
                 $type_nomencla = $ofab->type_nomencla;
 
-                $test_StockAtuel = Stock :: where('societe',auth()->user()->societe)->where('id_entrepot',$id_entrepot)->where('id_produit',$produit_id)->count(); 
+                $test_StockAtuel = Stock :: where('societe_id',auth()->user()->societe_id)->where('id_entrepot',$id_entrepot)->where('id_produit',$produit_id)->count(); 
                 if($test_StockAtuel > 0){
-                    $stockAtuel = Stock :: where('societe',auth()->user()->societe)->where('id_entrepot',$id_entrepot)->where('id_produit',$produit_id)->first(); 
+                    $stockAtuel = Stock :: where('societe_id',auth()->user()->societe_id)->where('id_entrepot',$id_entrepot)->where('id_produit',$produit_id)->first(); 
                     $id_stockProd = $stockAtuel->id;
                     $QteStockActuel = $stockAtuel->quantite;
                     $prix_moyen_pondere_achat = $stockAtuel->prix_moyen_pondere_achat;
@@ -1058,10 +1052,10 @@ class DetailOrdreFabrication extends Component
                     $qteSockFinal = $QteStockActuel + $quantite;
                     $valorisation_achat_total = $prix_moyen_pondere_achat * $qteSockFinal;
                     $valeur_vente_total = $prix_vente_unitaire * $qteSockFinal;
-                    Stock::where('societe',auth()->user()->societe)->where('id',$id_stockProd)->update(['quantite'=>$qteSockFinal,'valorisation_achat_total'=>$valorisation_achat_total,'valeur_vente_total'=>$valeur_vente_total,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);   
+                    Stock::where('societe_id',auth()->user()->societe_id)->where('id',$id_stockProd)->update(['quantite'=>$qteSockFinal,'valorisation_achat_total'=>$valorisation_achat_total,'valeur_vente_total'=>$valeur_vente_total,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);   
                     // Fin retour
 
-                    $entrepo = Entrepot::where('societe',auth()->user()->societe)->where('id',$id_entrepot)->first();                    
+                    $entrepo = Entrepot::where('societe_id',auth()->user()->societe_id)->where('id',$id_entrepot)->first();                    
                     $nom_entrepot = $entrepo->nom; 
                     
                     $code_mouvement = date('YmdHis');
@@ -1075,7 +1069,7 @@ class DetailOrdreFabrication extends Component
                         $libele_mouvement = 'Suppression Ordre Déassemblage';
                     }
                     Mouvement::create(['id_entrepot'=>$id_entrepot,'entrepot'=>$nom_entrepot,'nom_produit'=>$nom_produit,'id_produit'=>$id_produit,'reference'=>$reference,'quantite'=>$quantite,'libele_mouvement'=>$libele_mouvement,
-                    'code_mouvement'=>$code_mouvement,'statut'=>$statut,'origine'=>$ref_ordre,'id_ordre_fab'=>$id_ordre_fabrication,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
+                    'code_mouvement'=>$code_mouvement,'statut'=>$statut,'origine'=>$ref_ordre,'id_ordre_fab'=>$id_ordre_fabrication,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
                 }
 
                 $page = 'OrdreFabrication';                        
@@ -1123,13 +1117,13 @@ class DetailOrdreFabrication extends Component
         $this->validate([
             'qte_a_produire'=>'required|numeric',
         ]);
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){ 
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->modifier_ordre_fab;
             if($autoriser == 1){                  
 
-                OrdreFabrication::find($this->ids)->update(['quantite'=>$this->qte_a_produire,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                OrdreFabrication::find($this->ids)->update(['quantite'=>$this->qte_a_produire,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
 
                 $id_activite = $this->ids;  
                 $page = 'OrdreFabrication';    

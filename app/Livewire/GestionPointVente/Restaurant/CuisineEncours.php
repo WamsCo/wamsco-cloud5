@@ -24,9 +24,9 @@ class CuisineEncours extends Component
     use WithFileUploads;
 
     public function mount(){        
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $this->autoriser = $role[0]->voir_marge;
             $autoriser = $role[0]->voir_ecran_cuisine;
             if($autoriser == 0){
@@ -44,7 +44,7 @@ class CuisineEncours extends Component
     public function render()
     {
         $dateJour = date('Y-m-d');            
-        $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();
+        $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();
         $jourValid = $entite_mod[0]->validite_mod; 
         $mod_cuisine = $entite_mod[0]->mod_cuisine; 
         $soldeClient = $entite_mod[0]->solde;
@@ -63,7 +63,7 @@ class CuisineEncours extends Component
                 $aller = -3;
 
                 // statut qui affiche tout
-                $emplacement = TableRestau::where('societe', auth()->user()->societe)->where('utiliser','Oui')
+                $emplacement = TableRestau::where('societe_id',auth()->user()->societe_id)->where('utiliser','Oui')
                 ->where(function ($query) {
                     $query->where('statut','A préparer')
                         ->orWhere('statut','En cours')
@@ -72,29 +72,29 @@ class CuisineEncours extends Component
                 $emplacement_allCount = $emplacement->count();
 
                 // statut A préparer
-                $emplacement_prepaCount = TableRestau::where('societe',auth()->user()->societe)->where('utiliser','Oui')->where('statut','A préparer')->orderBy('updated_at', 'DESC')->count(); 
+                $emplacement_prepaCount = TableRestau::where('societe_id',auth()->user()->societe_id)->where('utiliser','Oui')->where('statut','A préparer')->orderBy('updated_at', 'DESC')->count(); 
                 // // statut en cours
-                $emplacement_encour = TableRestau::where('societe',auth()->user()->societe)->where('utiliser','Oui')->where('statut','En cours')->orderBy('updated_at', 'DESC')->get(); 
+                $emplacement_encour = TableRestau::where('societe_id',auth()->user()->societe_id)->where('utiliser','Oui')->where('statut','En cours')->orderBy('updated_at', 'DESC')->get(); 
                 $emplacement_encourCount = $emplacement_encour->count();
 
                 // statut terminer
-                $emplacement_terminerCount = TableRestau::where('societe',auth()->user()->societe)->where('utiliser','Oui')->where('statut','Terminer')->orderBy('updated_at', 'DESC')->count(); 
-                $cmdAttenteLigne = RestauCommandeAttenteLigne::where('societe',auth()->user()->societe)->get();            
+                $emplacement_terminerCount = TableRestau::where('societe_id',auth()->user()->societe_id)->where('utiliser','Oui')->where('statut','Terminer')->orderBy('updated_at', 'DESC')->count(); 
+                $cmdAttenteLigne = RestauCommandeAttenteLigne::where('societe_id',auth()->user()->societe_id)->get();            
 
                 // $page = 'SessionPos'; // Pour evenement lie
-                // $log = LogActivityModel::where('user_societe',auth()->user()->societe)->where('id_activite', $this->ids)->where('page', $page)->limit(10)->orderBy('id','desc')->get();
+                // $log = LogActivityModel::where('societe_id',auth()->user()->societe_id)->where('id_activite', $this->ids)->where('page', $page)->limit(10)->orderBy('id','desc')->get();
                 // $logCount = $log->count();            
-                // $taxe = DeviseTva::where('societe',auth()->user()->societe)->orderBy('taux_tva','asc')->get();
+                // $taxe = DeviseTva::where('societe_id',auth()->user()->societe_id)->orderBy('taux_tva','asc')->get();
 
-                $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->count(); 
+                $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->count(); 
                 if($deviseTva == 0){
                     $this->devise = 'FCFA';
                 }
                 else{
-                    $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->get(); 
+                    $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->get(); 
                     $this->devise = $deviseTva[0]->devise;
                 }
-                $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();          
+                $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();          
                 $jourValid = $entite_mod[0]->validite_mod; 
                 // ceci pour trouver le nombre de jour restant avant expiration
                 $nbjoursRestant = round((strtotime($jourValid) - strtotime($dateJour))/(60*60*24));
@@ -128,9 +128,9 @@ class CuisineEncours extends Component
         }
     }    
     public function terminer(int $ids){
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){ 
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->changer_statut_cmd_cuisine;
             if($autoriser == 1){
                 $statut = 'Terminer'; 
@@ -167,9 +167,9 @@ class CuisineEncours extends Component
         }
     }
     public function barrerProd(int $id, string $etats){
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){ 
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->changer_statut_cmd_cuisine;
             if($autoriser == 1){
                 if($etats == 'Barrer'){

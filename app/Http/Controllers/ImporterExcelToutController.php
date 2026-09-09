@@ -37,7 +37,7 @@ class ImporterExcelToutController extends Controller
 			foreach($donnees as $donnee){	                							
 				// on teste s'il la colonne existe avec isset() 
 				if(isset($donnee->nom) && isset($donnee->type_tiers) && isset($donnee->telephone) && isset($donnee->sexe) && isset($donnee->ville) && isset($donnee->pays)){				
-					$test_tier = Tier::where('societe',auth()->user()->societe)->where('nom', $donnee->nom)->count();
+					$test_tier = Tier::where('societe_id',auth()->user()->societe_id)->where('nom', $donnee->nom)->count();
 					if($test_tier == 0){
 						$tiers = new Tier;
 						$tiers->nom = $donnee->nom; 
@@ -54,6 +54,7 @@ class ImporterExcelToutController extends Controller
 						$tiers->nom_user = auth()->user()->email;
 						$tiers->user_id = auth()->user()->id;								
 						$tiers->societe = auth()->user()->societe;			
+						$tiers->societe_id = auth()->user()->societe_id;			
 						$tiers->save();	
 						$i++; 						
 					}					
@@ -114,6 +115,7 @@ class ImporterExcelToutController extends Controller
 					$entrepot = Entrepot::firstOrCreate(
 						[
 							'societe' => auth()->user()->societe,
+							'societe_id' => auth()->user()->societe_id,
 							'nom'     => trim($row['nom_magasin']),
 						],
 						[
@@ -122,6 +124,7 @@ class ImporterExcelToutController extends Controller
 							'nom_user'     => auth()->user()->name,
 							'user_id'      => auth()->id(),
 							'societe_mere' => auth()->user()->societe_mere,
+							'societe_mere_id' => auth()->user()->societe_mere_id,
 						]
 					);
 
@@ -129,6 +132,7 @@ class ImporterExcelToutController extends Controller
 					Categorie::firstOrCreate(
 						[
 							'societe'       => auth()->user()->societe,
+							'societe_id' 	=> auth()->user()->societe_id,
 							'nom_categorie' => trim($row['categorie']),
 						],
 
@@ -144,6 +148,7 @@ class ImporterExcelToutController extends Controller
 					Tier::firstOrCreate(
 						[
 							'societe' => auth()->user()->societe,
+							'societe_id' => auth()->user()->societe_id,
 							'nom'     => trim($row['fournisseur']),
 						],
 						[
@@ -184,6 +189,7 @@ class ImporterExcelToutController extends Controller
 						'nom_user' => auth()->user()->name,
 						'user_id' => auth()->id(),
 						'societe' => auth()->user()->societe,
+						'societe_id' => auth()->user()->societe_id,
 
 					]);						
 
@@ -205,6 +211,7 @@ class ImporterExcelToutController extends Controller
 						'limite_stock_alerte' => $produit->limite_stock_alerte,
 						'etat' => 1,
 						'societe' => auth()->user()->societe,
+						'societe_id' => auth()->user()->societe_id,
 						'nom_user' => auth()->user()->name,
 						'user_id' => auth()->id(),
 					]);
@@ -250,7 +257,7 @@ class ImporterExcelToutController extends Controller
 			foreach($donnees as $donnee){	                							
 				// on teste s'il la colonne existe avec isset() 
 				if(isset($donnee->categorie) && isset($donnee->echelon) && isset($donnee->salaire_base)){				
-					$test_grille = GrilleSalariale::where('societe',auth()->user()->societe)->where('categorie', $donnee->categorie)->where('echelon', $donnee->echelon)->count();
+					$test_grille = GrilleSalariale::where('societe_id',auth()->user()->societe_id)->where('categorie', $donnee->categorie)->where('echelon', $donnee->echelon)->count();
 					if($test_grille == 0){
 						$grille = new GrilleSalariale;
 						$grille->categorie = $donnee->categorie; 
@@ -262,6 +269,7 @@ class ImporterExcelToutController extends Controller
 						$grille->nom_user = auth()->user()->email;
 						$grille->user_id = auth()->user()->id;								
 						$grille->societe = auth()->user()->societe;			
+						$grille->societe_id = auth()->user()->societe_id;			
 						$grille->save();	
 						$i++; 						
 					}					
@@ -318,7 +326,7 @@ class ImporterExcelToutController extends Controller
 				   isset($donnee->prix_vente_min) && isset($donnee->prix_vente) && isset($donnee->limite_stock_alerte) && isset($donnee->nom_magasin)){					   
 
 				   // creer les differents entrepots
-					$test_entrep = Entrepot::where('societe',auth()->user()->societe)->where('nom', $donnee->nom_magasin)->count();
+					$test_entrep = Entrepot::where('societe_id',auth()->user()->societe_id)->where('nom', $donnee->nom_magasin)->count();
 					if($test_entrep == 0){
 						$entrep = new Entrepot;
 						$entrep->nom = $donnee->nom_magasin;
@@ -327,18 +335,15 @@ class ImporterExcelToutController extends Controller
 						$entrep->nom_user = auth()->user()->email;		
 						$entrep->user_id = auth()->user()->id;			
 						$entrep->societe = auth()->user()->societe;			
-						$entrep->societe_mere = auth()->user()->societe_mere;			
+						$entrep->societe_mere = auth()->user()->societe_mere;	
+						$entrep->societe_mere_id = auth()->user()->societe_mere_id;	
 						$entrep->save();
 						
 						// ceci recupere le dernier enregistrement cree a l'instant
 						$dernier_id = $entrep->id;
-						// $dernier_id = Entrepot::where('societe',auth()->user()->societe)->where('user_id',auth()->user()->id)->latest()->first()->id; 
-					}
+					}					
 
-					// $entrep = Entrepot::where('societe',auth()->user()->societe)->first();
-                	// $entrepo_id =  $entrep->id;
-
-					$test_prod = Produit::where('societe',auth()->user()->societe)->where('nom_produit', $donnee->nom_produit)->count();
+					$test_prod = Produit::where('societe_id',auth()->user()->societe_id)->where('nom_produit', $donnee->nom_produit)->count();
 					if($test_prod == 0){		
 
 						$produit = new Produit;
@@ -361,8 +366,8 @@ class ImporterExcelToutController extends Controller
 						$produit->save();
 						
 						// ceci recupere le dernier enregistrement cree a l'instant
-						$dernier_id = $produit->id;
-						// $dernier_id_prod = Produit::where('societe',auth()->user()->societe)->where('user_id',auth()->user()->id)->latest()->first()->id; 						
+						$dernier_id_prod = $produit->id;
+						// $dernier_id_prod = Produit::where('societe_id',auth()->user()->societe_id)->where('user_id',auth()->user()->id)->latest()->first()->id; 						
 						
 						// Creation entrepot dans stock						
 						$quantite = 0;
@@ -373,10 +378,10 @@ class ImporterExcelToutController extends Controller
 						'type_produit'=>'Produit','nature_produit'=>'Manufacturé','quantite'=>$quantite,
 						'prix_achat_last'=>$donnee->prix_achat, 'prix_moyen_pondere_achat'=>$donnee->prix_achat,'valorisation_achat_total'=>$valorisation_achat_total,'prix_vente_unitaire'=>$donnee->prix_vente,
 						'prix_vente_min'=>$donnee->prix_vente_min,'valeur_vente_total'=>$valeur_vente_total,
-						'limite_stock_alerte'=>$donnee->limite_stock_alerte,'etat'=>1,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);						
+						'limite_stock_alerte'=>$donnee->limite_stock_alerte,'etat'=>1,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);						
 						
 						// creer les differentes categorie
-						$test_cat = Categorie::where('societe',auth()->user()->societe)->where('nom_categorie', $donnee->categorie)->count();
+						$test_cat = Categorie::where('societe_id',auth()->user()->societe_id)->where('nom_categorie', $donnee->categorie)->count();
 						if($test_cat == 0){
 							$categor = new Categorie;
 							$categor->nom_categorie = $donnee->categorie;
@@ -384,11 +389,12 @@ class ImporterExcelToutController extends Controller
 							$categor->nom_user = auth()->user()->name;	
 							$categor->user_id = auth()->user()->id;		
 							$categor->societe = auth()->user()->societe;			
+							$categor->societe_id = auth()->user()->societe_id;			
 							$categor->save();
 						}
 
 						// creer les differentes Tier
-						$test_tier = Tier::where('societe',auth()->user()->societe)->where('nom', $donnee->fournisseur)->count();
+						$test_tier = Tier::where('societe_id',auth()->user()->societe_id)->where('nom', $donnee->fournisseur)->count();
 						if($test_tier == 0){
 							$tiers = new Tier;
 							$tiers->nom = $donnee->fournisseur;
@@ -405,6 +411,7 @@ class ImporterExcelToutController extends Controller
 							$tiers->nom_user = auth()->user()->name;		
 							$tiers->user_id = auth()->user()->id;		
 							$tiers->societe = auth()->user()->societe;			
+							$tiers->societe_id = auth()->user()->societe_id;			
 							$tiers->save();
 						}
 						$i++; 

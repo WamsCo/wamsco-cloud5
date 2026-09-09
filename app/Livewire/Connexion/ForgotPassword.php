@@ -33,8 +33,9 @@ class ForgotPassword extends Component
                 $email = $user[0]->email;
                 $name = $user[0]->name;
                 $societe = $user[0]->societe;
+                $societe_id = $user[0]->societe_id;
 
-                $entite_all = Entite::where('enseigne',$societe)->get();
+                $entite_all = Entite::where('id',$societe_id)->get();
                 $logo = $entite_all[0]->logo; 
 
                 $date = date('d-m-Y H:i:s');           

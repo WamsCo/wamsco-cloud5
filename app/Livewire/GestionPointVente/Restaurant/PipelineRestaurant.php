@@ -41,9 +41,9 @@ class PipelineRestaurant extends Component
         $this->evolution = '';
     }
     public function mount(){  
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->passe_cmd_restau;
             if($autoriser == 0){
                 toast()->error('Oups Désolé', 'Vous n\'êtes pas autorisé à ouvrir cette page!')->position('top-end')->autoClose(5000)->background('#fff')->width('460px')->padding('5px');
@@ -54,7 +54,7 @@ class PipelineRestaurant extends Component
                 $id_session_pos = request('id'); // id session pos restau
                 $ref_session_pos = request('ref'); // reference session pos restau
 
-                $sess = SessionRestau::where('societe',auth()->user()->societe)->where('id',$id_session_pos)->first();               
+                $sess = SessionRestau::where('societe_id',auth()->user()->societe_id)->where('id',$id_session_pos)->first();               
                 $this->id_session_posRes = $sess->id;
                 $this->ref_session_posRes = $sess->session_id;
             }
@@ -68,7 +68,7 @@ class PipelineRestaurant extends Component
     public function render()
     {
         $dateJour = date('Y-m-d');            
-        $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();
+        $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();
         $jourValid = $entite_mod[0]->validite_mod;
         $mod_crm = $entite_mod[0]->mod_crm;
         $soldeClient = $entite_mod[0]->solde;
@@ -87,32 +87,32 @@ class PipelineRestaurant extends Component
                 $id = $this->id_session_posRes; 
                 $ref = $this->ref_session_posRes;
                                 
-                $espace = EspaceRestau :: where('societe',auth()->user()->societe)->orderBy('id','asc')->get(); 
-                $opportuniter = TableRestau :: where('societe',auth()->user()->societe)->orderBy('step')->orderBy('position')->get()->groupBy('step');  
+                $espace = EspaceRestau :: where('societe_id',auth()->user()->societe_id)->orderBy('id','asc')->get(); 
+                $opportuniter = TableRestau :: where('societe_id',auth()->user()->societe_id)->orderBy('step')->orderBy('position')->get()->groupBy('step');  
                 $opportuniterCount = $opportuniter->count();
 
-                $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+                $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
                 $autoriser = $role[0]->voir_cmd_autre_restau;
                 if($autoriser == 1){ 
-                    $cmd = RestauCommandeAttenteEntete ::where('societe',auth()->user()->societe)->where('ref_session_pos',$this->ref_session_posRes)->orderBy('id','asc')->get();
+                    $cmd = RestauCommandeAttenteEntete ::where('societe_id',auth()->user()->societe_id)->where('ref_session_pos',$this->ref_session_posRes)->orderBy('id','asc')->get();
                 }
                 else{ 
-                    $cmd = RestauCommandeAttenteEntete ::where('user_id',auth()->user()->id)->where('societe',auth()->user()->societe)->where('ref_session_pos',$this->ref_session_posRes)->orderBy('id','asc')->get();
+                    $cmd = RestauCommandeAttenteEntete ::where('user_id',auth()->user()->id)->where('societe_id',auth()->user()->societe_id)->where('ref_session_pos',$this->ref_session_posRes)->orderBy('id','asc')->get();
                 }                
                 $cmdCount = $cmd->count();
 
-                $user = Utilisateur::where('societe',auth()->user()->societe)->orderBy('name','asc')->get(); 
+                $user = Utilisateur::where('societe_id',auth()->user()->societe_id)->orderBy('name','asc')->get(); 
 
-                $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->count();             
+                $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->count();             
                 if($deviseTva == 0){
                     $this->devise = 'FCFA';
                 }
                 else{
-                    $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->get(); 
+                    $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->get(); 
                     $this->devise = $deviseTva[0]->devise;                
                 }  
                 toast()->success('Prêt', '')->position('top-right')->autoClose(2000)->background('#fff')->width('220px')->padding('5px');            
-                $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get(); 
+                $entite_mod = Entite::where('id',auth()->user()->societe_id)->get(); 
                 $jourValid = $entite_mod[0]->validite_mod; 
                 // ceci pour trouver le nombre de jour restant avant expiration
                 $nbjoursRestant = round((strtotime($jourValid) - strtotime($dateJour))/(60*60*24));           
@@ -145,7 +145,7 @@ class PipelineRestaurant extends Component
         }
     }
     public function table(int $id){
-        $espaces = EspaceRestau::where('societe',auth()->user()->societe)->where('id', $id)->first();
+        $espaces = EspaceRestau::where('societe_id',auth()->user()->societe_id)->where('id', $id)->first();
         $this->evolution = $espaces->id;
     }
     public function store(){        
@@ -154,25 +154,25 @@ class PipelineRestaurant extends Component
             'description'=>'nullable|max:255',
             'evolution'=>'required|numeric', // id espace
         ]);   
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->creer_table;
             if($autoriser == 1){                                    
-                $test_espace = EspaceRestau::where('societe',auth()->user()->societe)->where('id', $this->evolution)->count();
+                $test_espace = EspaceRestau::where('societe_id',auth()->user()->societe_id)->where('id', $this->evolution)->count();
                 if($test_espace > 0){
 
-                    $etapes = EspaceRestau::where('societe',auth()->user()->societe)->where('id', $this->evolution)->first();
+                    $etapes = EspaceRestau::where('societe_id',auth()->user()->societe_id)->where('id', $this->evolution)->first();
                     $nom_espace = $etapes->nom_espace; 
 
                     $position = 0;
                     $dates = date('dmy/His');  
                     $token_ok = 'REST/'.$dates;
                     $reference = $token_ok;
-                    TableRestau :: create(['nom_table'=>$this->nom_table,'reference'=>$reference,'description'=>$this->description,'nom_espace'=>$nom_espace,'id_espace'=>$this->evolution,
-                    'step'=>$this->evolution,'position'=>$position,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->email,'user_id'=>auth()->user()->id]);
+                    $tableRes = TableRestau :: create(['nom_table'=>$this->nom_table,'reference'=>$reference,'description'=>$this->description,'nom_espace'=>$nom_espace,'id_espace'=>$this->evolution,
+                    'step'=>$this->evolution,'position'=>$position,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->email,'user_id'=>auth()->user()->id]);
                     // ceci recupere le dernier enregistrement cree a l'instant
-                    $dernier_id = TableRestau::where('societe',auth()->user()->societe)->where('user_id',auth()->user()->id)->latest()->first()->id; 
+                    $dernier_id = $tableRes->id; 
                     $this->dispatch('pipelineStore');
                     $id_activite = $dernier_id;   
                     $page = 'TableRestau';    
@@ -221,12 +221,12 @@ class PipelineRestaurant extends Component
         }   
     }
     public function getTotalParOpportunite(int $id_espace){ 
-        return TableRestau :: where('societe',auth()->user()->societe)->where('id_espace', $id_espace)->count(); 
+        return TableRestau :: where('societe_id',auth()->user()->societe_id)->where('id_espace', $id_espace)->count(); 
     }
     public function moveTask($taskId, $newEtape, $newPosition){    
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->modifier_table;
             if($autoriser == 1){
                 $task = TableRestau::find($taskId)->update([ 'step' => $newEtape,'position' => $newPosition,]);    
@@ -237,9 +237,9 @@ class PipelineRestaurant extends Component
                     });
 
                 // NB:  ceci enregistrer dans l'opportunite l'etape actuelle
-                $Task =  TableRestau::where('societe',auth()->user()->societe)->where('id',$taskId)->first();
+                $Task =  TableRestau::where('societe_id',auth()->user()->societe_id)->where('id',$taskId)->first();
                 $id_step_task = $Task->step;
-                $esp =  EspaceRestau::where('societe',auth()->user()->societe)->where('id',$id_step_task)->first();
+                $esp =  EspaceRestau::where('societe_id',auth()->user()->societe_id)->where('id',$id_step_task)->first();
                 $nom_espace = $esp->nom_espace;
                 
                 TableRestau :: find($taskId)->update(['nom_espace'=>$nom_espace,'id_espace'=>$id_step_task,]);        
@@ -271,7 +271,7 @@ class PipelineRestaurant extends Component
         }  
     }
     public function voirTable(int $id){ 
-        $esp = TableRestau :: where('societe',auth()->user()->societe)->where('id',$id)->first();
+        $esp = TableRestau :: where('societe_id',auth()->user()->societe_id)->where('id',$id)->first();
         $nom_table = $esp->nom_table;
         $reference = $esp->reference; // ceci devient id: de la table (tres important)
         $utiliser = $esp->utiliser;
@@ -304,7 +304,7 @@ class PipelineRestaurant extends Component
     public function CmdAttente(int $id_session_posRes,string $ref_session_posRes){
         $this->redirect('/cmd_attente?id='.$this->id_session_posRes.'&ref='.$this->ref_session_posRes.'&active=5&champ=2-1', navigate: true);
     }
-     public function backSession(int $id_session_posRes,string $ref_session_posRes){
+    public function backSession(int $id_session_posRes,string $ref_session_posRes){
         $this->redirect('/detail_restau_session?id='.$this->id_session_posRes.'&ref='.$this->ref_session_posRes.'&active=5&champ=2-1&choix=1', navigate: true);
     }
 }

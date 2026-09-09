@@ -109,9 +109,9 @@ class ListeOrdreFabrication extends Component
         }
     }
     public function mount(){
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $this->autoriser = $role[0]->voir_marge;
             $autoriser = $role[0]->liste_ordre_fab;
             if($autoriser == 0){
@@ -134,7 +134,7 @@ class ListeOrdreFabrication extends Component
     public function render()
     {
         $dateJour = date('Y-m-d');            
-        $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();
+        $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();
         $jourValid = $entite_mod[0]->validite_mod;
         $mod_fabrication = $entite_mod[0]->mod_fabrication;
         $soldeClient = $entite_mod[0]->solde; 
@@ -155,27 +155,26 @@ class ListeOrdreFabrication extends Component
 
                 // if(empty($this->parEtat) && empty($this->parUser)){
                 if(!empty($this->parUser)){
-                    $listeOrdreFab = OrdreFabrication::where('societe',auth()->user()->societe)->where('ref_ordre','like','%'.$this->parRef.'%')->where('produit_a_fabrique','like','%'.$this->query.'%')->where('user_id',$this->parUser)->whereBetween('created_at',[$start, $end])->orderBy($this->orderField, $this->orderDirection)->paginate($this->parPage);
+                    $listeOrdreFab = OrdreFabrication::where('societe_id',auth()->user()->societe_id)->where('ref_ordre','like','%'.$this->parRef.'%')->where('produit_a_fabrique','like','%'.$this->query.'%')->where('user_id',$this->parUser)->whereBetween('created_at',[$start, $end])->orderBy($this->orderField, $this->orderDirection)->paginate($this->parPage);
                 }
                 else{ 
-                    $listeOrdreFab = OrdreFabrication::where('societe',auth()->user()->societe)->where('ref_ordre','like','%'.$this->parRef.'%')->where('produit_a_fabrique','like','%'.$this->query.'%')->whereBetween('created_at',[$start, $end])->orderBy($this->orderField, $this->orderDirection)->paginate($this->parPage);
+                    $listeOrdreFab = OrdreFabrication::where('societe_id',auth()->user()->societe_id)->where('ref_ordre','like','%'.$this->parRef.'%')->where('produit_a_fabrique','like','%'.$this->query.'%')->whereBetween('created_at',[$start, $end])->orderBy($this->orderField, $this->orderDirection)->paginate($this->parPage);
                 }
                 $listelisteOrdreFabCount = $listeOrdreFab->count();            
                 
-                $utilisat = Utilisateur::where('societe',auth()->user()->societe)->orderBy('name','asc')->get();   
+                $utilisat = Utilisateur::where('societe_id',auth()->user()->societe_id)->orderBy('name','asc')->get();   
 
-                $resultat = OrdreFabrication::where('societe',auth()->user()->societe)->get();  
+                $resultat = OrdreFabrication::where('societe_id',auth()->user()->societe_id)->get();  
                 $nbreTotalOrdre = $resultat->where('statut','Terminé')->count();     
                 $nbreTotalOrdreTotal = $resultat->count();
 
                 // select nomenclature
-                $listeNomenclatur = Nomenclature::where('societe',auth()->user()->societe)->where('etat',1)->orderBy('libelle')->get();
-                $produit = Produit::where('societe',auth()->user()->societe)->where('nature_produit','!=','Matière première')->where('etat',1)->orderBy('nom_produit')->get();
-                $entrepot = Entrepot::where('societe',auth()->user()->societe)->where('active',1)->orderBy('nom','asc')->get();
-                // $composant_produit = Produit::where('societe',auth()->user()->societe)->where('nature_produit','Matière première')->where('etat',1)->orderBy('nom_produit')->get();
-                $composant_produit = Produit::where('societe',auth()->user()->societe)->where('nature_produit','!=','Manufacturé')->where('etat',1)->orderBy('nom_produit')->get();
-                $utilisateur = Utilisateur::where('societe',auth()->user()->societe)->where('etat',1)->orderBy('name','asc')->get();
-                $tier = Tier::where('societe',auth()->user()->societe)->where('etat',1)->orderBy('nom','asc')->get();
+                $listeNomenclatur = Nomenclature::where('societe_id',auth()->user()->societe_id)->where('etat',1)->orderBy('libelle')->get();
+                $produit = Produit::where('societe_id',auth()->user()->societe_id)->where('nature_produit','!=','Matière première')->where('etat',1)->orderBy('nom_produit')->get();
+                $entrepot = Entrepot::where('societe_id',auth()->user()->societe_id)->where('active',1)->orderBy('nom','asc')->get();
+                $composant_produit = Produit::where('societe_id',auth()->user()->societe_id)->where('nature_produit','!=','Manufacturé')->where('etat',1)->orderBy('nom_produit')->get();
+                $utilisateur = Utilisateur::where('societe_id',auth()->user()->societe_id)->where('etat',1)->orderBy('name','asc')->get();
+                $tier = Tier::where('societe_id',auth()->user()->societe_id)->where('etat',1)->orderBy('nom','asc')->get();
                 
                 $test_nomen = Nomenclature::where('id',$this->nomenclatures)->count();    
                 if($test_nomen > 0){
@@ -193,30 +192,30 @@ class ListeOrdreFabrication extends Component
                     $this->note = $nomen->description;
                     $this->quantite_formule = $nomen->quantite; // ceci pour formule
                 } 
-                $listeComposant = ComposantNomenclature::where('societe',auth()->user()->societe)->where('nomencla_id',$this->nomenclatures)->orderBy($this->orderField, $this->orderDirection)->get();
-                $ComposantCount = ComposantNomenclature::where('societe',auth()->user()->societe)->where('nomencla_id',$this->nomenclatures)->count();
+                $listeComposant = ComposantNomenclature::where('societe_id',auth()->user()->societe_id)->where('nomencla_id',$this->nomenclatures)->orderBy($this->orderField, $this->orderDirection)->get();
+                $ComposantCount = ComposantNomenclature::where('societe_id',auth()->user()->societe_id)->where('nomencla_id',$this->nomenclatures)->count();
                 // Fin
 
                 // select
-                $listEntrepot = Entrepot::where('societe',auth()->user()->societe)->orderBy('nom','asc')->where('active',1)->get(); 
-                $stock = Stock::where('societe',auth()->user()->societe)->where('id_produit',$this->choix_composant)->where('type_produit','Produit')->where('etat',1)->get();  
+                $listEntrepot = Entrepot::where('societe_id',auth()->user()->societe_id)->orderBy('nom','asc')->where('active',1)->get(); 
+                $stock = Stock::where('societe_id',auth()->user()->societe_id)->where('id_produit',$this->choix_composant)->where('type_produit','Produit')->where('etat',1)->get();  
                 // Fin select
 
-                $derniereActivite = OrdreFabrication::where('societe',auth()->user()->societe)->latest('updated_at')->first();
+                $derniereActivite = OrdreFabrication::where('societe_id',auth()->user()->societe_id)->latest('updated_at')->first();
                 
                 $page = 'OrdreFabrication'; // Pour evenement lie
                 $log = LogActivityModel::where('user_societe',auth()->user()->societe)->where('page', $page)->limit(50)->orderBy('id','desc')->get();
                 $logCount = $log->count();
                 
-                $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->count(); 
+                $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->count(); 
                 if($deviseTva == 0){
                     $this->devise = 'FCFA';
                 }
                 else{
-                    $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->get(); 
+                    $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->get(); 
                     $this->devise = $deviseTva[0]->devise;
                 }
-                $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();          
+                $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();          
                 $jourValid = $entite_mod[0]->validite_mod; 
                 // ceci pour trouver le nombre de jour restant avant expiration
                 $nbjoursRestant = round((strtotime($jourValid) - strtotime($dateJour))/(60*60*24));
@@ -256,18 +255,18 @@ class ListeOrdreFabrication extends Component
             'quantite_composant'=>'required|numeric',
             'unite'=>'required|max:10',            
         ]);
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->ajouter_composant;
             if($autoriser == 1){       
                
-                $compos = Produit::where('societe',auth()->user()->societe)->where('id',$this->choix_composant)->first();
+                $compos = Produit::where('societe_id',auth()->user()->societe_id)->where('id',$this->choix_composant)->first();
                 $composant_id = $compos->id;                
                 $nom_composant = $compos->nom_produit;                
                 $cout = $compos->prix_achat;
 
-                $mag = Entrepot::where('societe',auth()->user()->societe)->where('id',$this->magasin)->first();
+                $mag = Entrepot::where('societe_id',auth()->user()->societe_id)->where('id',$this->magasin)->first();
                 $id_magasin = $mag->id;                
                 $nom_magasin = $mag->nom;  
 
@@ -275,7 +274,8 @@ class ListeOrdreFabrication extends Component
                     $quantite_consommer = 0;
                     $coutFinal = $cout * $this->quantite_composant; 
                     ComposantNomenclature::create(['composant'=>$nom_composant,'composant_id'=>$composant_id,'nomencla_id'=>$this->ids,'quantite'=>$this->quantite_composant,
-                        'id_entrepot'=>$id_magasin,'nom_entrepot'=>$nom_magasin,'cout'=>$coutFinal,'unite'=>$this->unite,'quantite_consommer'=>$quantite_consommer,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                        'id_entrepot'=>$id_magasin,'nom_entrepot'=>$nom_magasin,'cout'=>$coutFinal,'unite'=>$this->unite,'quantite_consommer'=>$quantite_consommer,'societe'=>auth()->user()->societe,
+                        'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
 
                     $id_activite = $this->ids;  
                     $page = 'Nomenclature';    
@@ -328,9 +328,9 @@ class ListeOrdreFabrication extends Component
         $this->confirmer = $id;        
     } 
     public function supprimer(int $id){
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){ 
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->supprimer_composant;
             if($autoriser == 1){   
                 if($id){ 
@@ -384,12 +384,12 @@ class ListeOrdreFabrication extends Component
             'tiers'=>'max:25',                        
             'note'=>'max:255',                        
         ]);
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){ 
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->creer_ordre_fab;
             if($autoriser == 1){   
-                $test_composant = ComposantNomenclature ::where('societe',auth()->user()->societe)->where('nomencla_id',$this->nomenclatures)->count();
+                $test_composant = ComposantNomenclature ::where('societe_id',auth()->user()->societe_id)->where('nomencla_id',$this->nomenclatures)->count();
                 if($test_composant > 0){
                     $date = date('dmy');
                     $length = 3;
@@ -400,14 +400,14 @@ class ListeOrdreFabrication extends Component
                     $coutTotal = 0; 
                     
                     // recuperer id et nom entrepot
-                    $entrepo = Entrepot::where('societe',auth()->user()->societe)->where('id',$this->entrepot_fabrication)->where('active',1)->orderBy('nom')->first();
+                    $entrepo = Entrepot::where('societe_id',auth()->user()->societe_id)->where('id',$this->entrepot_fabrication)->where('active',1)->orderBy('nom')->first();
                     $entrepo_id =$entrepo->id;
                     $nom_entrepot = $entrepo->nom;
 
 
-                    $test_users = Utilisateur::where('societe',auth()->user()->societe)->where('id',$this->responsable)->where('etat',1)->orderBy('name')->count();
+                    $test_users = Utilisateur::where('societe_id',auth()->user()->societe_id)->where('id',$this->responsable)->where('etat',1)->orderBy('name')->count();
                     if($test_users > 0){
-                        $users = Utilisateur::where('societe',auth()->user()->societe)->where('id',$this->responsable)->where('etat',1)->orderBy('name')->first();
+                        $users = Utilisateur::where('societe_id',auth()->user()->societe_id)->where('id',$this->responsable)->where('etat',1)->orderBy('name')->first();
                         $id_respo = $users->id;
                         $nom_respo = $users->name;
                     }
@@ -416,9 +416,9 @@ class ListeOrdreFabrication extends Component
                         $nom_respo = NULL;
                     }
 
-                    $test_tier = Tier::where('societe',auth()->user()->societe)->where('id',$this->tiers)->where('etat',1)->orderBy('nom')->count();
+                    $test_tier = Tier::where('societe_id',auth()->user()->societe_id)->where('id',$this->tiers)->where('etat',1)->orderBy('nom')->count();
                     if($test_tier > 0){
-                        $tie = Tier::where('societe',auth()->user()->societe)->where('id',$this->tiers)->where('etat',1)->orderBy('nom')->first();
+                        $tie = Tier::where('societe_id',auth()->user()->societe_id)->where('id',$this->tiers)->where('etat',1)->orderBy('nom')->first();
                         $id_tier = $tie->id;
                         $nom_tier = $tie->nom;
                     }
@@ -427,16 +427,16 @@ class ListeOrdreFabrication extends Component
                         $nom_tier = NULL;
                     }
                         
-                    OrdreFabrication::create(['ref_ordre'=>$token_ok,'produit_a_fabrique'=>$this->produit_a_fabrique,'produit_id'=>$this->produit_id,'type_nomencla'=>$this->type_nomencla,
+                    $ordreFab = OrdreFabrication::create(['ref_ordre'=>$token_ok,'produit_a_fabrique'=>$this->produit_a_fabrique,'produit_id'=>$this->produit_id,'type_nomencla'=>$this->type_nomencla,
                     'nomencla_id'=>$this->nomenclatures,'code_nomencla'=>$this->code,'libelle'=>$this->libelle,'quantite'=>$this->quantite,'quantite_fabrique'=>$quantite_fabrique,'cout_total'=>$coutTotal,
                     'unite_mesure'=>$this->unite_mesure,'duree'=>$this->duree,'entrepot_fabrication'=>$nom_entrepot,'id_entrepot'=>$this->entrepot_fabrication,'date_debut'=>$this->date_entree,
                     'date_fin'=>$this->date_sortie,'statut'=>$statut,'responsable'=>$nom_respo,'responsable_id'=>$id_respo,'tiers'=>$nom_tier,'tiers_id'=>$id_tier,'description'=>$this->note,'societe'=>auth()->user()->societe,
-                    'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                    'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
 
                     // ceci recupere le dernier enregistrement cree a l'instant 
-                    $dernier_id = OrdreFabrication::where('societe',auth()->user()->societe)->where('user_id',auth()->user()->id)->latest()->first()->id;
+                    $dernier_id = $ordreFab->id;
                                                             
-                    $CompoNomenclature = ComposantNomenclature::where('societe',auth()->user()->societe)->where('nomencla_id',$this->nomenclatures)->get(); 
+                    $CompoNomenclature = ComposantNomenclature::where('societe_id',auth()->user()->societe_id)->where('nomencla_id',$this->nomenclatures)->get(); 
                     foreach($CompoNomenclature as $CompoNomenclatures){
 
                         /* **** calcul quantite a consommer automatique en fonction de la formule nomenclature ****
@@ -473,10 +473,11 @@ class ListeOrdreFabrication extends Component
                             'cout'=>$coutTotal,                            
                             'user_id'=>auth()->user()->id,
                             'nom_user'=>auth()->user()->name,
+                            'societe_id'=>auth()->user()->societe_id,
                             'societe'=>auth()->user()->societe]);
                     }
                     // ceci recupere le dernier enregistrement cree a l'instant
-                    $dernier_id = OrdreFabrication::where('societe',auth()->user()->societe)->where('user_id',auth()->user()->id)->latest()->first()->id; 
+                    // $dernier_id = OrdreFabrication::where('societe_id',auth()->user()->societe_id)->where('user_id',auth()->user()->id)->latest()->first()->id; 
                     $id_activite = $dernier_id;  
                     $page = 'OrdreFabrication';    
                     LogActivity::addToLog('Ordre fabrication » '.$token_ok.' créée', $id_activite, $page);
@@ -522,9 +523,9 @@ class ListeOrdreFabrication extends Component
         $this->confirmer = $id;        
     }
     public function supprimerAll(int $ids, int $idx){ 
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){ 
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->supprimer_nomencla;
             if($autoriser == 1){
                 OrdreFabrication::where('id',$ids)->delete();

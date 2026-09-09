@@ -51,9 +51,9 @@ class LigneFacture extends Component
         }
     }
     public function mount(){
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $this->autoriser = $role[0]->voir_marge;
             $autoriser = $role[0]->consulter_facture;
             if($autoriser == 0){
@@ -72,7 +72,7 @@ class LigneFacture extends Component
     public function render()
     {
         $dateJour = date('Y-m-d');            
-        $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();
+        $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();
         $jourValid = $entite_mod[0]->validite_mod;
         $mod_facturation = $entite_mod[0]->mod_facturation;
         $soldeClient = $entite_mod[0]->solde; 
@@ -91,9 +91,9 @@ class LigneFacture extends Component
                 $start = Carbon::parse($this->date_debut)->startOfDay(); //2016-09-29 00:00:00.000000
                 $end = Carbon::parse($this->date_fin)->endOfDay();  
 
-                // $fact_client = DB::table('facture_client_lignes')->select('*', DB::Raw('Sum(prix_achat) as prix_achatTotal, prix_achat as prixAchat, Sum(quantite) as quantiteTotal, Sum(montant_ttc) as montantTotal, Sum(marge) as margeTotal, Sum(montant_remise) as montant_remiseTotal, Sum(montant_tva) as montant_tvaTotal, Sum(montant_precompte) as montant_precompteTotal'))->where('societe',auth()->user()->societe)->where('statut_paiement','like','%'.$this->statut_paiement.'%')->whereBetween('created_at',[$start, $end])->where('num_facture','like','%'.$this->query.'%')->where('user_id','like','%'.$this->parNom.'%')->where('categorie','like','%'.$this->parCat.'%')->where('client','like','%'.$this->parClt.'%')->where('designation','like','%'.$this->parProd.'%')->where('offrir','like','%'.$this->parOffre.'%')->groupBy('designation')->orderBy($this->orderField2, $this->orderDirection2)->get();
-                $produit = Produit::where('societe',auth()->user()->societe)->orderBy('nom_produit','ASC')->get();
-                $fact_client = factureClientLigne::where('societe',auth()->user()->societe)->where('code_facture','like','%'.$this->parFact.'%')->where('nom_client','like','%'.$this->query.'%')->where('id_produit','like','%'.$this->parNomProduit.'%')->whereBetween('created_at',[$start, $end])->orderBy($this->orderField, $this->orderDirection)->paginate($this->parPage);
+                // $fact_client = DB::table('facture_client_lignes')->select('*', DB::Raw('Sum(prix_achat) as prix_achatTotal, prix_achat as prixAchat, Sum(quantite) as quantiteTotal, Sum(montant_ttc) as montantTotal, Sum(marge) as margeTotal, Sum(montant_remise) as montant_remiseTotal, Sum(montant_tva) as montant_tvaTotal, Sum(montant_precompte) as montant_precompteTotal'))->where('societe_id',auth()->user()->societe_id)->where('statut_paiement','like','%'.$this->statut_paiement.'%')->whereBetween('created_at',[$start, $end])->where('num_facture','like','%'.$this->query.'%')->where('user_id','like','%'.$this->parNom.'%')->where('categorie','like','%'.$this->parCat.'%')->where('client','like','%'.$this->parClt.'%')->where('designation','like','%'.$this->parProd.'%')->where('offrir','like','%'.$this->parOffre.'%')->groupBy('designation')->orderBy($this->orderField2, $this->orderDirection2)->get();
+                $produit = Produit::where('societe_id',auth()->user()->societe_id)->orderBy('nom_produit','ASC')->get();
+                $fact_client = factureClientLigne::where('societe_id',auth()->user()->societe_id)->where('code_facture','like','%'.$this->parFact.'%')->where('nom_client','like','%'.$this->query.'%')->where('id_produit','like','%'.$this->parNomProduit.'%')->whereBetween('created_at',[$start, $end])->orderBy($this->orderField, $this->orderDirection)->paginate($this->parPage);
                 $factClientCount = $fact_client->count();
                 $QuantiteTotal = $fact_client->sum('quantite');
                 $montantTTC = $fact_client->sum('montant_ttc');
@@ -101,7 +101,7 @@ class LigneFacture extends Component
                 $montantTRemise = $fact_client->sum('montant_remise');
                 
                 // pour les KPI
-                $resultat = factureClientLigne::where('societe',auth()->user()->societe)->get();  
+                $resultat = factureClientLigne::where('societe_id',auth()->user()->societe_id)->get();  
                 $nbreTotalFact = $resultat->count(); 
                 $quantite_all = $resultat->sum('quantite');     
                 $montantTTC_all = $resultat->sum('montant_ttc');
@@ -109,21 +109,21 @@ class LigneFacture extends Component
                 $montantTmarge_All = $resultat->sum('marge'); 
                 $montantCreance_all = $resultat->sum('reste_a_percevoir');     
 
-                $derniereActivite = factureClientLigne::where('societe',auth()->user()->societe)->latest('updated_at')->first();
+                $derniereActivite = factureClientLigne::where('societe_id',auth()->user()->societe_id)->latest('updated_at')->first();
                 
                 $page = 'factureClient'; // pour evenement lies
-                $log = LogActivityModel::where('user_societe',auth()->user()->societe)->where('page', $page)->limit(50)->orderBy('id','desc')->get();
+                $log = LogActivityModel::where('societe_id',auth()->user()->societe_id)->where('page', $page)->limit(50)->orderBy('id','desc')->get();
                 $logCount = $log->count();
                 
-                $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->count(); 
+                $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->count(); 
                 if($deviseTva == 0){
                     $this->devise = 'FCFA';
                 }
                 else{
-                    $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->get(); 
+                    $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->get(); 
                     $this->devise = $deviseTva[0]->devise;
                 }
-                $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();          
+                $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();          
                 $jourValid = $entite_mod[0]->validite_mod; 
                 // ceci pour trouver le nombre de jour restant avant expiration
                 $nbjoursRestant = round((strtotime($jourValid) - strtotime($dateJour))/(60*60*24));

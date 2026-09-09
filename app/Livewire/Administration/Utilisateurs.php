@@ -105,9 +105,9 @@ class Utilisateurs extends Component
         }
     }
     public function mount(){        
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->consulter_user;
             if($autoriser == 0){
                 alert()->error('Oups Désolé', 'Vous n\'êtes pas autorisé à ouvrir cette page !!!')->position('center')->autoClose(5000)->background('#fff')->width('460px')->padding('5px');
@@ -135,7 +135,7 @@ class Utilisateurs extends Component
     public function render(){
 
         $dateJour = date('Y-m-d');            
-        $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();
+        $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();
         $jourValid = $entite_mod[0]->validite_mod; 
         $mod_administration = $entite_mod[0]->mod_administration; 
         $soldeClient = $entite_mod[0]->solde;
@@ -156,31 +156,31 @@ class Utilisateurs extends Component
                 $utilisateurCount = $utilisateur->count(); 
 
                 $entite = Entite::orderBy('enseigne','asc')->get();
-                $departe = Departement :: where('societe',auth()->user()->societe)->orderBy('nom_departement','asc')->get();  
-                $posteTravail = Poste_travail :: where('societe',auth()->user()->societe)->orderBy('nom_poste','asc')->get(); 
+                $departe = Departement :: where('societe_id',auth()->user()->societe_id)->orderBy('nom_departement','asc')->get();  
+                $posteTravail = Poste_travail :: where('societe_id',auth()->user()->societe_id)->orderBy('nom_poste','asc')->get(); 
                 
-                if(auth()->user()->societe == "Administration"){
+                if(auth()->user()->societe == "Administration"){ 
                     $privillege = Role::where('societe', $this->societe)->orderBy('nom','asc')->get(); // ceci affiche en fonction de la societe choisie
                 }
                 else{
-                    $privillege = Role::where('societe',auth()->user()->societe)->orderBy('nom','asc')->get();
+                    $privillege = Role::where('societe_id',auth()->user()->societe_id)->orderBy('nom','asc')->get();
                 }
 
-                $configCount = Parametre::where('societe',auth()->user()->societe)->limit(1)->count();
+                $configCount = Parametre::where('societe_id',auth()->user()->societe_id)->limit(1)->count();
                 if($configCount > 0){
-                    $config = Parametre::where('societe',auth()->user()->societe)->limit(1)->get();
+                    $config = Parametre::where('societe_id',auth()->user()->societe_id)->limit(1)->get();
                     $this->envoi_mail = $config[0]->envoi_mail;
                 }
                 else{
                     $this->envoi_mail = 0;
                 }
 
-                $resultat = Utilisateur::where('societe',auth()->user()->societe)->get();  
+                $resultat = Utilisateur::where('societe_id',auth()->user()->societe_id)->get();  
                 $nbreTotalUtilisateur = $resultat->count();     
 
-                $derniereActivite = Utilisateur::where('societe',auth()->user()->societe)->latest('updated_at')->first();
+                $derniereActivite = Utilisateur::where('societe_id',auth()->user()->societe_id)->latest('updated_at')->first();
 
-                $utilisa = Utilisateur::where('societe',auth()->user()->societe)->orderBy('name','asc')->get();
+                $utilisa = Utilisateur::where('societe_id',auth()->user()->societe_id)->orderBy('name','asc')->get();
                 // gerer les heures employes : affiche directement en modifiant
                 if($this->horaire_journalier > 0){
                     $resultatHebdo = $this->horaire_journalier * 5;                
@@ -189,7 +189,7 @@ class Utilisateurs extends Component
                 } 
                 
                 $page = 'Utilisateur'; // pour evenement lies
-                $log = LogActivityModel::where('user_societe',auth()->user()->societe)->where('page', $page)->limit(50)->orderBy('id','desc')->get();
+                $log = LogActivityModel::where('societe_id',auth()->user()->societe_id)->where('page', $page)->limit(50)->orderBy('id','desc')->get();
                 $logCount = $log->count();
 
                 if(auth()->user()->societe == "Administration"){                     
@@ -197,20 +197,20 @@ class Utilisateurs extends Component
                     $userSociete = Utilisateur::where('societe',$this->parSociete)->get();
                 }
                 else{
-                    $entite = Entite::where('enseigne',auth()->user()->societe)->get();
-                    $userSociete = Utilisateur::where('societe',auth()->user()->societe)->get();
+                    $entite = Entite::where('id',auth()->user()->societe_id)->get();
+                    $userSociete = Utilisateur::where('societe_id',auth()->user()->societe_id)->get();
                 }                 
                 $userDispo = $userSociete->count();
 
-                $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->count(); 
+                $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->count(); 
                 if($deviseTva == 0){
                     $this->devise = 'FCFA';
                 }
                 else{
-                    $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->get(); 
+                    $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->get(); 
                     $this->devise = $deviseTva[0]->devise;
                 }
-                $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();          
+                $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();          
                 $jourValid = $entite_mod[0]->validite_mod; 
                 // ceci pour trouver le nombre de jour restant avant expiration
                 $nbjoursRestant = round((strtotime($jourValid) - strtotime($dateJour))/(60*60*24));
@@ -245,9 +245,9 @@ class Utilisateurs extends Component
     } 
     public function store(){        
         // ceci teste pour verifier si l'user encours a un role dans la bd 
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->creer_user;
             if($autoriser == 1){
                 if(auth()->user()->societe ==  "Administration"){                     
@@ -318,11 +318,15 @@ class Utilisateurs extends Component
                     $verification = Entite ::where('enseigne',$this->societe)->count(); 
                     if($verification > 0){
                         $entiteEnseigne = Entite ::where('enseigne',$this->societe)->get(); 
+                        $societe_id = $entiteEnseigne[0]->id;   
                         $societe_mere = $entiteEnseigne[0]->societe_mere;   
+                        $societe_mere_id = $entiteEnseigne[0]->societe_mere_id;   
                         $nbre_user_max = $entiteEnseigne[0]->nbre_user_max;   
                     }
                     else{
+                        $societe_id = 0;
                         $societe_mere = 'Inconnue';
+                        $societe_mere_id = 0;
                         $nbre_user_max = 0;
                     }  
                     
@@ -331,9 +335,9 @@ class Utilisateurs extends Component
                         
                         try {
                                 // recuperer le nom du Departement via son id 
-                                $test_depart = Departement::where('societe',auth()->user()->societe)->where('id',$this->departement)->count();
+                                $test_depart = Departement::where('societe_id',auth()->user()->societe_id)->where('id',$this->departement)->count();
                                 if($test_depart > 0){
-                                    $depart = Departement::where('societe',auth()->user()->societe)->where('id',$this->departement)->get();
+                                    $depart = Departement::where('societe_id',auth()->user()->societe_id)->where('id',$this->departement)->get();
                                     $nomDepart = $depart[0]->nom_departement;
                                 }
                                 else{
@@ -342,9 +346,9 @@ class Utilisateurs extends Component
                                 }                            
 
                                 // recuperer le nom du poste de travail via son id
-                                $test_postes = Poste_travail::where('societe',auth()->user()->societe)->where('id',$this->poste_travail)->count();
+                                $test_postes = Poste_travail::where('societe_id',auth()->user()->societe_id)->where('id',$this->poste_travail)->count();
                                 if($test_postes > 0){
-                                    $postes = Poste_travail::where('societe',auth()->user()->societe)->where('id',$this->poste_travail)->get();
+                                    $postes = Poste_travail::where('societe_id',auth()->user()->societe_id)->where('id',$this->poste_travail)->get();
                                     $nomPostes = $postes[0]->nom_poste;
                                 }
                                 else{
@@ -358,8 +362,8 @@ class Utilisateurs extends Component
                                     $horaire_mensuel = $horaire_hebdo * 52 / 12;
                                 }
 
-                                Utilisateur::create(['titre'=>$this->titre,'email'=>$this->email,'name'=>$this->nom,'telephone'=>$this->telephone,'password'=>bcrypt($this->password),'salarie'=>$this->salarie,'sexe'=>$this->sexe,'nationalite'=>$this->nationalite,
-                                        'societe'=>$this->societe,'societe_mere'=>$societe_mere,'type_user'=>$this->role,'date_valide'=>$this->date_valide,'matricule'=>$this->matricule,'etat'=>$this->etat,
+                                $users = Utilisateur::create(['titre'=>$this->titre,'email'=>$this->email,'name'=>$this->nom,'telephone'=>$this->telephone,'password'=>bcrypt($this->password),'salarie'=>$this->salarie,'sexe'=>$this->sexe,'nationalite'=>$this->nationalite,
+                                        'societe'=>$this->societe,'societe_id'=>$societe_id,'societe_mere'=>$societe_mere,'societe_mere_id'=>$societe_mere_id,'type_user'=>$this->role,'date_valide'=>$this->date_valide,'matricule'=>$this->matricule,'etat'=>$this->etat,
                                         'cni'=>$this->cni,'passeport'=>$this->passeport,'niu'=>$this->niu,'date_naissance'=>$this->date_naissance,'lieu_naissance'=>$this->lieu_naissance,'etat_civil'=>$this->etat_civil,
                                         'nbre_enfant'=>$this->nbre_enfant,'nom_conjoint'=>$this->nom_conjoint,'date_nais_conjoint'=>$this->date_nais_conjoint,'persone_contact_urgence'=>$this->persone_contact_urgence,
                                         'telephone_urgence'=>$this->telephone_urgence,'departement'=>$nomDepart,'departement_id'=>$this->departement,'poste_travail'=>$nomPostes,'poste_travail_id'=>$this->poste_travail,
@@ -368,12 +372,13 @@ class Utilisateurs extends Component
                                         'horaire_journalier'=>$this->horaire_journalier,'horaire_hebdo'=>$horaire_hebdo,'horaire_mensuel'=>$horaire_mensuel,
                                         'salaire'=>$this->salaire,'categorie'=>$this->categorie, 'echelon'=>$this->echelon,'mode_paiement'=>$this->mode_paiement,'nom_banque'=>$this->nom_banque,'numero_compte'=>$this->numero_compte,'rib'=>$this->rib,
                                         'cnps'=>$this->cnps,'dipe'=>$this->dipe,'note_interne'=>$this->note_interne,'nom_user'=>auth()->user()->email,'user_id'=>auth()->user()->id]);
-                                                                
                                 
+                                // last user create
+                                $dernier_id = $users->id; 
+
                                 $nbre_users = Utilisateur::where('societe',$this->societe)->count(); 
                                 Entite :: where('enseigne',$this->societe)->update(['nombre_users'=>$nbre_users]); 
                                 
-                                $dernier_id = Utilisateur::where('societe',$this->societe)->where('user_id',auth()->user()->id)->latest()->first()->id; 
                                                                        
                                 // ************* debut envoi email ********************   
                                 if($this->envoi_mail == 1){                           
@@ -381,6 +386,7 @@ class Utilisateurs extends Component
                                     $email = $user[0]->email;
                                     $name = $user[0]->name;
                                     $societe = $user[0]->societe;
+                                    $societe_id = $user[0]->societe_id;
                                     $created_at = $user[0]->created_at;                       
 
                                     $entite_all = Entite::where('enseigne',$this->societe)->get();
@@ -396,7 +402,7 @@ class Utilisateurs extends Component
                                         'lien'=>'http://wamsco-cloud.net/connexion?email='.$email.'&user='.$name.'&active=ok&champ=1-1',
                                         'logo'=>'https://wamsco-cloud.net/storage/'.$logo,
                                     ];  
-                                    Mail::to($email)->send(new ConfirmationMail($body)); 
+                                    // Mail::to($email)->send(new ConfirmationMail($body)); 
                                     flash ('L\'utilisateur (<strong>'.$this->nom.'</strong>) a été créé avec succès. Un e-mail de confirmation a été envoyé à l\'adresse indiquée !')->success();
                                 }                              
                                 else{
@@ -521,14 +527,14 @@ class Utilisateurs extends Component
                         $nbre_user_max = 0;
                     }
                     
-                    $nbreUsers = Utilisateur::where('societe',auth()->user()->societe)->count();   
+                    $nbreUsers = Utilisateur::where('societe_id',auth()->user()->societe_id)->count();   
                     if($nbreUsers < $nbre_user_max){                      
                         try {
 
                                 // recuperer le nom du Departement via son id 
-                                $test_depart = Departement::where('societe',auth()->user()->societe)->where('id',$this->departement)->count();
+                                $test_depart = Departement::where('societe_id',auth()->user()->societe_id)->where('id',$this->departement)->count();
                                 if($test_depart > 0){
-                                    $depart = Departement::where('societe',auth()->user()->societe)->where('id',$this->departement)->get();
+                                    $depart = Departement::where('societe_id',auth()->user()->societe_id)->where('id',$this->departement)->get();
                                     $nomDepart = $depart[0]->nom_departement;
                                 }
                                 else{
@@ -537,9 +543,9 @@ class Utilisateurs extends Component
                                 }                            
 
                                 // recuperer le nom du poste de travail via son id
-                                $test_postes = Poste_travail::where('societe',auth()->user()->societe)->where('id',$this->poste_travail)->count();
+                                $test_postes = Poste_travail::where('societe_id',auth()->user()->societe_id)->where('id',$this->poste_travail)->count();
                                 if($test_postes > 0){
-                                    $postes = Poste_travail::where('societe',auth()->user()->societe)->where('id',$this->poste_travail)->get();
+                                    $postes = Poste_travail::where('societe_id',auth()->user()->societe_id)->where('id',$this->poste_travail)->get();
                                     $nomPostes = $postes[0]->nom_poste;
                                 }
                                 else{
@@ -553,8 +559,8 @@ class Utilisateurs extends Component
                                     $horaire_mensuel = $horaire_hebdo * 52 / 12;
                                 }
                                                            
-                                Utilisateur::create(['titre'=>$this->titre,'email'=>$this->email,'name'=>$this->nom,'telephone'=>$this->telephone,'password'=>bcrypt($this->password),'salarie'=>$this->salarie,'sexe'=>$this->sexe,'nationalite'=>$this->nationalite,
-                                        'societe'=>auth()->user()->societe,'societe_mere'=>auth()->user()->societe_mere,'type_user'=>$this->role,'date_valide'=>$this->date_valide,'matricule'=>$this->matricule,'etat'=>$this->etat,
+                                $users = Utilisateur::create(['titre'=>$this->titre,'email'=>$this->email,'name'=>$this->nom,'telephone'=>$this->telephone,'password'=>bcrypt($this->password),'salarie'=>$this->salarie,'sexe'=>$this->sexe,'nationalite'=>$this->nationalite,
+                                        'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'societe_mere'=>auth()->user()->societe_mere,'societe_mere_id'=>auth()->user()->societe_mere_id,'type_user'=>$this->role,'date_valide'=>$this->date_valide,'matricule'=>$this->matricule,'etat'=>$this->etat,
                                         'cni'=>$this->cni,'passeport'=>$this->passeport,'niu'=>$this->niu,'date_naissance'=>$this->date_naissance,'lieu_naissance'=>$this->lieu_naissance,'etat_civil'=>$this->etat_civil,
                                         'nbre_enfant'=>$this->nbre_enfant,'nom_conjoint'=>$this->nom_conjoint,'date_nais_conjoint'=>$this->date_nais_conjoint,'persone_contact_urgence'=>$this->persone_contact_urgence,
                                         'telephone_urgence'=>$this->telephone_urgence,'departement'=>$nomDepart,'departement_id'=>$this->departement,'poste_travail'=>$nomPostes,'poste_travail_id'=>$this->poste_travail,
@@ -564,11 +570,11 @@ class Utilisateurs extends Component
                                         'salaire'=>$this->salaire,'categorie'=>$this->categorie, 'echelon'=>$this->echelon,'mode_paiement'=>$this->mode_paiement,'nom_banque'=>$this->nom_banque,'numero_compte'=>$this->numero_compte,'rib'=>$this->rib,
                                         'cnps'=>$this->cnps,'dipe'=>$this->dipe,'note_interne'=>$this->note_interne,'nom_user'=>auth()->user()->email,'user_id'=>auth()->user()->id]);
                            
+                            $dernier_id = $users->id;
                            
-                            $nbre_users = Utilisateur::where('societe',auth()->user()->societe)->count();                    
+                            $nbre_users = Utilisateur::where('societe_id',auth()->user()->societe_id)->count();                    
                             Entite :: where('enseigne',auth()->user()->societe)->update(['nombre_users'=>$nbre_users]); 
 
-                            $dernier_id = Utilisateur::where('societe',auth()->user()->societe)->where('user_id',auth()->user()->id)->latest()->first()->id;
                             
                             // ************* debut envoi email ******************** 
                             if($this->envoi_mail == 1){                              
@@ -578,7 +584,7 @@ class Utilisateurs extends Component
                                 $societe = $user[0]->societe;
                                 $created_at = $user[0]->created_at;                       
 
-                                $entite_all = Entite::where('enseigne',auth()->user()->societe)->get();
+                                $entite_all = Entite::where('id',auth()->user()->societe_id)->get();
                                 $logo = $entite_all[0]->logo; 
 
                                 $date = date('d-m-Y H:i:s');           
@@ -591,7 +597,7 @@ class Utilisateurs extends Component
                                     'lien'=>'http://wamsco-cloud.net/connexion?email='.$email.'&user='.$name.'&active=ok&champ=1-1',
                                     'logo'=>'https://wamsco-cloud.net/storage/'.$logo,
                                 ];  
-                                Mail::to($email)->send(new ConfirmationMail($body));
+                                // Mail::to($email)->send(new ConfirmationMail($body));
                                 flash ('L\'utilisateur (<strong>'.$this->nom.'</strong>) a été créé avec succès. Un e-mail de confirmation a été envoyé à l\'adresse indiquée !')->success();
                             } 
                             else{
@@ -656,9 +662,9 @@ class Utilisateurs extends Component
         }  
     }
     public function changeEtat(int $id, int $etat){ 
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->modifier_user;
             if($autoriser == 1){          
                 if($etat == 1){
@@ -731,9 +737,9 @@ class Utilisateurs extends Component
     }    
     public function supprimer($id){ 
 
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->supprimer_user;
             if($autoriser == 1){   
                 if($id){
@@ -743,10 +749,11 @@ class Utilisateurs extends Component
 
                         $society =  Utilisateur::where('id',$id)->first();
                         $societe_user = $society->societe;
+                        $societe_id = $society->societe_id;
                         Utilisateur::where('id',$id)->delete(); 
                         
-                        $users = Utilisateur::where('societe',$societe_user)->count(); 
-                        Entite::where('enseigne',$societe_user)->update(['nombre_users'=>$users]);
+                        $users = Utilisateur::where('societe_id',$societe_id)->count(); 
+                        Entite::where('id',$societe_id)->update(['nombre_users'=>$users]);
                         
                         $page = 'Utilisateur';
                         LogActivityModel::where('id_activite',$id)->where('page',$page)->delete();

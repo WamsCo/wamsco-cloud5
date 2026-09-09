@@ -47,9 +47,9 @@ class EcritureBancaireCaisses extends Component
         }
     }
     public function mount(){
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->consulter_ecriture;
             if($autoriser == 0){
                 alert()->error('Oups Désolé', 'Vous n\'êtes pas autorisé à ouvrir cette page !!!')->position('center')->autoClose(5000)->background('#fff')->width('460px')->padding('5px');
@@ -68,7 +68,7 @@ class EcritureBancaireCaisses extends Component
     public function render()
     {
         $dateJour = date('Y-m-d');            
-        $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();
+        $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();
         $jourValid = $entite_mod[0]->validite_mod;
         $mod_banque_caisse = $entite_mod[0]->mod_banque_caisse;  
         $soldeClient = $entite_mod[0]->solde;
@@ -87,16 +87,16 @@ class EcritureBancaireCaisses extends Component
                 $start = Carbon::parse($this->date_debut)->startOfDay(); //2016-09-29 00:00:00.000000
                 $end = Carbon::parse($this->date_fin)->endOfDay();     // 2016-09-29 23:59:59.000000   
                 if(empty($this->parCompte) && empty($this->query)){
-                    $ecriture = EcritureBancaire :: where('societe',auth()->user()->societe)->whereBetween('created_at',[$start, $end])->orderBy($this->orderField, $this->orderDirection)->paginate($this->parPage); 
+                    $ecriture = EcritureBancaire :: where('societe_id',auth()->user()->societe_id)->whereBetween('created_at',[$start, $end])->orderBy($this->orderField, $this->orderDirection)->paginate($this->parPage); 
                 } 
                 elseif(!empty($this->parCompte) && empty($this->query)){
-                    $ecriture = EcritureBancaire :: where('societe',auth()->user()->societe)->where('id_compte_bancaire', $this->parCompte)->whereBetween('created_at',[$start, $end])->orderBy($this->orderField, $this->orderDirection)->paginate($this->parPage); 
+                    $ecriture = EcritureBancaire :: where('societe_id',auth()->user()->societe_id)->where('id_compte_bancaire', $this->parCompte)->whereBetween('created_at',[$start, $end])->orderBy($this->orderField, $this->orderDirection)->paginate($this->parPage); 
                 }
                 elseif(empty($this->parCompte) && !empty($this->query)){
-                    $ecriture = EcritureBancaire :: where('societe',auth()->user()->societe)->where('tiers','like','%'.$this->query.'%')->whereBetween('created_at',[$start, $end])->orderBy($this->orderField, $this->orderDirection)->paginate($this->parPage);   
+                    $ecriture = EcritureBancaire :: where('societe_id',auth()->user()->societe_id)->where('tiers','like','%'.$this->query.'%')->whereBetween('created_at',[$start, $end])->orderBy($this->orderField, $this->orderDirection)->paginate($this->parPage);   
                 } 
                 else{
-                    $ecriture = EcritureBancaire :: where('societe',auth()->user()->societe)->where('id_compte_bancaire', $this->parCompte)->where('tiers','like','%'.$this->query.'%')->whereBetween('created_at',[$start, $end])->orderBy($this->orderField, $this->orderDirection)->paginate($this->parPage);   
+                    $ecriture = EcritureBancaire :: where('societe_id',auth()->user()->societe_id)->where('id_compte_bancaire', $this->parCompte)->where('tiers','like','%'.$this->query.'%')->whereBetween('created_at',[$start, $end])->orderBy($this->orderField, $this->orderDirection)->paginate($this->parPage);   
                 }     
                 $ecritureCount = $ecriture->count();
                 
@@ -105,34 +105,34 @@ class EcritureBancaireCaisses extends Component
                 $soldeCredit = $ecriture->sum('credit');             
                 $solde = $soldeCredit - $soldeDebit; 
                 
-                $compteBanq = CompteBancaire::where('societe',auth()->user()->societe)->where('etat',1)->orderBy('nom_compte_bancaire', 'ASC')->get(); 
+                $compteBanq = CompteBancaire::where('societe_id',auth()->user()->societe_id)->where('etat',1)->orderBy('nom_compte_bancaire', 'ASC')->get(); 
 
                 // KPI
-                $resultat = EcritureBancaire :: where('societe',auth()->user()->societe)->get();
+                $resultat = EcritureBancaire :: where('societe_id',auth()->user()->societe_id)->get();
                 $TotalDebit = $resultat->sum('debit'); 
                 $TotalCredit = $resultat->sum('credit');
                 $soldeTotal = $TotalCredit - $TotalDebit; 
                 // Fin KPI
 
-                $resultat = EcritureBancaire::where('societe',auth()->user()->societe)->get();  
+                $resultat = EcritureBancaire::where('societe_id',auth()->user()->societe_id)->get();  
                 $nbreTotalEcritureBancaire = $resultat->count();     
 
-                $derniereActivite = EcritureBancaire::where('societe',auth()->user()->societe)->latest('updated_at')->first();
+                $derniereActivite = EcritureBancaire::where('societe_id',auth()->user()->societe_id)->latest('updated_at')->first();
                 
                 $page = 'EcritureBancaire'; // pour evenement lies
-                $log = LogActivityModel::where('user_societe',auth()->user()->societe)->where('page', $page)->limit(50)->orderBy('id','desc')->get();
+                $log = LogActivityModel::where('societe_id',auth()->user()->societe_id)->where('page', $page)->limit(50)->orderBy('id','desc')->get();
                 $logCount = $log->count();
 
-                $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->count(); 
+                $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->count(); 
                 if($deviseTva == 0){
                     $this->devise = 'FCFA';
                 }
                 else{
-                    $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->get(); 
+                    $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->get(); 
                     $this->devise = $deviseTva[0]->devise;
                 }
                 
-                $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();                      
+                $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();                      
                 $jourValid = $entite_mod[0]->validite_mod; 
                 // ceci pour trouver le nombre de jour restant avant expiration
                 $nbjoursRestant = round((strtotime($jourValid) - strtotime($dateJour))/(60*60*24));
@@ -171,29 +171,29 @@ class EcritureBancaireCaisses extends Component
     } 
     public function supprimer($id){ 
         
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->supprimer_compte;
             if($autoriser == 1){   
                     if($id){                   
                         // supprime le paiement Divers
-                        // EcritureBancaire::where('societe',auth()->user()->societe)->where('id',$id)->delete(); 
+                        // EcritureBancaire::where('societe_id',auth()->user()->societe_id)->where('id',$id)->delete(); 
 
-                        $compte = EcritureBancaire::where('societe',auth()->user()->societe)->where('id',$id)->first();               
+                        $compte = EcritureBancaire::where('societe_id',auth()->user()->societe_id)->where('id',$id)->first();               
                         $id_compte_bancaire = $compte->id_compte_bancaire;
                         $type_paiement = $compte->type_paiement;
                         
                         if($type_paiement == 'PaiementDivers'){
 
-                            EcritureBancaire::where('societe',auth()->user()->societe)->where('id',$id)->delete(); 
-                            PaiementDiver::where('societe',auth()->user()->societe)->where('id_ecriture_bancaire',$id)->delete(); 
+                            EcritureBancaire::where('societe_id',auth()->user()->societe_id)->where('id',$id)->delete(); 
+                            PaiementDiver::where('societe_id',auth()->user()->societe_id)->where('id_ecriture_bancaire',$id)->delete(); 
 
                              // ceci calcul le solde
-                            $soldeCredit = EcritureBancaire::where('societe',auth()->user()->societe)->where('id_compte_bancaire',$id_compte_bancaire)->sum('credit');
-                            $soldeDebit = EcritureBancaire::where('societe',auth()->user()->societe)->where('id_compte_bancaire',$id_compte_bancaire)->sum('debit');  
+                            $soldeCredit = EcritureBancaire::where('societe_id',auth()->user()->societe_id)->where('id_compte_bancaire',$id_compte_bancaire)->sum('credit');
+                            $soldeDebit = EcritureBancaire::where('societe_id',auth()->user()->societe_id)->where('id_compte_bancaire',$id_compte_bancaire)->sum('debit');  
                             $solde = $soldeCredit - $soldeDebit;
-                            CompteBancaire::where('societe',auth()->user()->societe)->where('id',$id_compte_bancaire)->update(['solde'=>$solde]);
+                            CompteBancaire::where('societe_id',auth()->user()->societe_id)->where('id',$id_compte_bancaire)->update(['solde'=>$solde]);
                            
                             $id_activite = $id_compte_bancaire;
                             $page = 'CompteBancaire';
@@ -209,13 +209,13 @@ class EcritureBancaireCaisses extends Component
                         }
                         elseif($type_paiement == 'SoldeInitial'){
 
-                            EcritureBancaire::where('societe',auth()->user()->societe)->where('id',$id)->delete(); 
+                            EcritureBancaire::where('societe_id',auth()->user()->societe_id)->where('id',$id)->delete(); 
 
                             // ceci calcul le solde
-                            $soldeCredits = EcritureBancaire::where('societe',auth()->user()->societe)->where('id_compte_bancaire',$id_compte_bancaire)->sum('credit');
-                            $soldeDebits = EcritureBancaire::where('societe',auth()->user()->societe)->where('id_compte_bancaire',$id_compte_bancaire)->sum('debit');  
+                            $soldeCredits = EcritureBancaire::where('societe_id',auth()->user()->societe_id)->where('id_compte_bancaire',$id_compte_bancaire)->sum('credit');
+                            $soldeDebits = EcritureBancaire::where('societe_id',auth()->user()->societe_id)->where('id_compte_bancaire',$id_compte_bancaire)->sum('debit');  
                             $soldes = $soldeCredits - $soldeDebits;
-                            CompteBancaire::where('societe',auth()->user()->societe)->where('id',$id_compte_bancaire)->update(['solde'=>$soldes]);
+                            CompteBancaire::where('societe_id',auth()->user()->societe_id)->where('id',$id_compte_bancaire)->update(['solde'=>$soldes]);
                             
                             $id_activite = $id_compte_bancaire;
                             $page = 'CompteBancaire';
@@ -231,13 +231,13 @@ class EcritureBancaireCaisses extends Component
                         }
                         elseif($type_paiement == 'VirementInterne'){
 
-                            EcritureBancaire::where('societe',auth()->user()->societe)->where('id',$id)->delete(); 
+                            EcritureBancaire::where('societe_id',auth()->user()->societe_id)->where('id',$id)->delete(); 
 
                             // ceci calcul le solde
-                            $soldeCredit = EcritureBancaire::where('societe',auth()->user()->societe)->where('id_compte_bancaire',$id_compte_bancaire)->sum('credit');
-                            $soldeDebit = EcritureBancaire::where('societe',auth()->user()->societe)->where('id_compte_bancaire',$id_compte_bancaire)->sum('debit');  
+                            $soldeCredit = EcritureBancaire::where('societe_id',auth()->user()->societe_id)->where('id_compte_bancaire',$id_compte_bancaire)->sum('credit');
+                            $soldeDebit = EcritureBancaire::where('societe_id',auth()->user()->societe_id)->where('id_compte_bancaire',$id_compte_bancaire)->sum('debit');  
                             $solde = $soldeCredit - $soldeDebit;
-                            CompteBancaire::where('societe',auth()->user()->societe)->where('id',$id_compte_bancaire)->update(['solde'=>$solde]);
+                            CompteBancaire::where('societe_id',auth()->user()->societe_id)->where('id',$id_compte_bancaire)->update(['solde'=>$solde]);
 
                             $id_activite = $id_compte_bancaire;
                             $page = 'CompteBancaire';
@@ -255,13 +255,13 @@ class EcritureBancaireCaisses extends Component
 
                             // la suppression de Reglement ne peut etre effectuer ici: id reglement ne se trouve pas dans EcritureBancaire
 
-                            // EcritureBancaire::where('societe',auth()->user()->societe)->where('id',$id)->delete(); 
+                            // EcritureBancaire::where('societe_id',auth()->user()->societe_id)->where('id',$id)->delete(); 
                             // Reglement::where('id',$id)->delete(); // ne peut etre effectuer ici id reglement ne se trouve pas dans EcritureBancaire                            
                             // // ceci calcul le solde
-                            // $soldeCredit = EcritureBancaire::where('societe',auth()->user()->societe)->where('id_compte_bancaire',$id_compte_bancaire)->sum('credit');
-                            // $soldeDebit = EcritureBancaire::where('societe',auth()->user()->societe)->where('id_compte_bancaire',$id_compte_bancaire)->sum('debit');  
+                            // $soldeCredit = EcritureBancaire::where('societe_id',auth()->user()->societe_id)->where('id_compte_bancaire',$id_compte_bancaire)->sum('credit');
+                            // $soldeDebit = EcritureBancaire::where('societe_id',auth()->user()->societe_id)->where('id_compte_bancaire',$id_compte_bancaire)->sum('debit');  
                             // $solde = $soldeCredit - $soldeDebit;
-                            // CompteBancaire::where('societe',auth()->user()->societe)->where('id',$id_compte_bancaire)->update(['solde'=>$solde]);
+                            // CompteBancaire::where('societe_id',auth()->user()->societe_id)->where('id',$id_compte_bancaire)->update(['solde'=>$solde]);
 
                            $this->dispatch('alert',                    
                                title:'Désolé, la suppression du règlement client n\'est pas autorisée ici ! <br> Rendez-vous au niveau de la facture!',
@@ -276,13 +276,13 @@ class EcritureBancaireCaisses extends Component
 
                             // la suppression de Reglement ne peut etre effectuer ici: id reglement ne se trouve pas dans EcritureBancaire
 
-                            // EcritureBancaire::where('societe',auth()->user()->societe)->where('id',$id)->delete(); 
+                            // EcritureBancaire::where('societe_id',auth()->user()->societe_id)->where('id',$id)->delete(); 
                             // Reglement::where('id',$id)->delete(); // ne peut etre effectuer ici id reglement fournisseur ne se trouve pas dans EcritureBancaire                            
                             // // ceci calcul le solde
-                            // $soldeCredit = EcritureBancaire::where('societe',auth()->user()->societe)->where('id_compte_bancaire',$id_compte_bancaire)->sum('credit');
-                            // $soldeDebit = EcritureBancaire::where('societe',auth()->user()->societe)->where('id_compte_bancaire',$id_compte_bancaire)->sum('debit');  
+                            // $soldeCredit = EcritureBancaire::where('societe_id',auth()->user()->societe_id)->where('id_compte_bancaire',$id_compte_bancaire)->sum('credit');
+                            // $soldeDebit = EcritureBancaire::where('societe_id',auth()->user()->societe_id)->where('id_compte_bancaire',$id_compte_bancaire)->sum('debit');  
                             // $solde = $soldeCredit - $soldeDebit;
-                            // CompteBancaire::where('societe',auth()->user()->societe)->where('id',$id_compte_bancaire)->update(['solde'=>$solde]);
+                            // CompteBancaire::where('societe_id',auth()->user()->societe_id)->where('id',$id_compte_bancaire)->update(['solde'=>$solde]);
 
                            $this->dispatch('alert',                    
                                title:'Désolé, la suppression du règlement fournisseur n\'est pas autorisée ici ! <br> Rendez-vous au niveau de la facture!',
@@ -297,13 +297,13 @@ class EcritureBancaireCaisses extends Component
 
                             // la suppression de Reglement ne peut etre effectuer ici: id reglement ne se trouve pas dans EcritureBancaire
 
-                            // EcritureBancaire::where('societe',auth()->user()->societe)->where('id',$id)->delete(); 
+                            // EcritureBancaire::where('societe_id',auth()->user()->societe_id)->where('id',$id)->delete(); 
                             // Reglement::where('id',$id)->delete(); // ne peut etre effectuer ici id reglement fournisseur ne se trouve pas dans EcritureBancaire                            
                             // // ceci calcul le solde
-                            // $soldeCredit = EcritureBancaire::where('societe',auth()->user()->societe)->where('id_compte_bancaire',$id_compte_bancaire)->sum('credit');
-                            // $soldeDebit = EcritureBancaire::where('societe',auth()->user()->societe)->where('id_compte_bancaire',$id_compte_bancaire)->sum('debit');  
+                            // $soldeCredit = EcritureBancaire::where('societe_id',auth()->user()->societe_id)->where('id_compte_bancaire',$id_compte_bancaire)->sum('credit');
+                            // $soldeDebit = EcritureBancaire::where('societe_id',auth()->user()->societe_id)->where('id_compte_bancaire',$id_compte_bancaire)->sum('debit');  
                             // $solde = $soldeCredit - $soldeDebit;
-                            // CompteBancaire::where('societe',auth()->user()->societe)->where('id',$id_compte_bancaire)->update(['solde'=>$solde]);
+                            // CompteBancaire::where('societe_id',auth()->user()->societe_id)->where('id',$id_compte_bancaire)->update(['solde'=>$solde]);
 
                            $this->dispatch('alert',                    
                                title:'Désolé, la suppression du règlement commercial n\'est pas autorisée ici ! <br> Rendez-vous au niveau de l\'entité!',

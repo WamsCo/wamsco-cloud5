@@ -20,7 +20,7 @@ class ChoixPlan extends Component
     public function render()
     {
         $dateJour = date('Y-m-d');            
-        $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();
+        $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();
         $jourValid = $entite_mod[0]->validite_mod; 
         $soldeClient = $entite_mod[0]->solde;            
         $title = 'Choix Plan '.auth()->user()->societe.' | WamsCo';
@@ -33,21 +33,21 @@ class ChoixPlan extends Component
         $dateJour = date('Y-m-d');
         toast()->success('Prêt', '')->position('top-right')->autoClose(2000)->background('#fff')->width('220px')->padding('5px');
 
-        $derniereActivite = soldeClient::where('enseigne',auth()->user()->societe)->latest('updated_at')->first(); 
+        $derniereActivite = soldeClient::where('id_enseigne',auth()->user()->societe_id)->latest('updated_at')->first(); 
 
         $page = 'Abonnement'; // Pour evenement lie
-        $log = LogActivityModel::where('user_societe',auth()->user()->societe)->where('page', $page)->limit(50)->orderBy('id','desc')->get();
+        $log = LogActivityModel::where('societe_id',auth()->user()->societe_id)->where('page', $page)->limit(50)->orderBy('id','desc')->get();
         $logCount = $log->count();
         
-        $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->count(); 
+        $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->count(); 
         if($deviseTva == 0){
             $this->devise = 'FCFA';
         }
         else{
-            $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->get(); 
+            $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->get(); 
             $this->devise = $deviseTva[0]->devise;
         }
-        $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();          
+        $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();          
         $jourValid = $entite_mod[0]->validite_mod; 
         // ceci pour trouver le nombre de jour restant avant expiration
         $nbjoursRestant = round((strtotime($jourValid) - strtotime($dateJour))/(60*60*24));

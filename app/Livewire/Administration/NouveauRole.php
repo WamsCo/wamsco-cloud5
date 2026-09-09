@@ -16,7 +16,7 @@ class NouveauRole extends Component
 {
     public $id;
     public $ids;
-    public $nom, $societe, $nom_user, $user_id, $description; 
+    public $nom, $societe, $societe_id, $nom_user, $user_id, $description; 
     public $created_at;
     public $updated_at;
     public $auteur; 
@@ -73,9 +73,9 @@ class NouveauRole extends Component
     $eff_paie_restau,$consulter_espace,$creer_espace,$modifier_espace,$supprimer_espace,$consulter_table,$creer_table,$modifier_table,$supprimer_table;
 
     public function mount(){        
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->consulter_role;
             $this->updated_at = $role[0]->updated_at;
             if($autoriser == 0){
@@ -87,6 +87,7 @@ class NouveauRole extends Component
             alert()->error('Oups Désolé', 'Désolé, vous n\'avez pas de privillège, veuillez contacter un administrateur!')->position('center')->autoClose(5000)->background('#fff')->width('460px')->padding('5px');
             $this->redirect('/bienvenue', navigate: true);
         }            
+        $this->societe_id = auth()->user()->societe_id;
         $this->societe = auth()->user()->societe;
         $this->parSociete = auth()->user()->societe;
         $this->auteur = auth()->user()->name;
@@ -96,7 +97,7 @@ class NouveauRole extends Component
     {
         $this->ids = request('id'); // id user
         $dateJour = date('Y-m-d');            
-        $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();
+        $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();
         $jourValid = $entite_mod[0]->validite_mod;
         $mod_administration = $entite_mod[0]->mod_administration; 
         $soldeClient = $entite_mod[0]->solde; 
@@ -117,28 +118,29 @@ class NouveauRole extends Component
                 }
                 else{
 
-                    $entite = Entite::where('enseigne',auth()->user()->societe)->where('active',1)->orderBy('enseigne','asc')->get();  
+                    $entite = Entite::where('id',auth()->user()->societe_id)->where('active',1)->orderBy('enseigne','asc')->get();  
                 }  
 
-                $entit = Entite::where('enseigne',$this->societe)->where('active',1)->orderBy('enseigne','asc')->first();
+                $entit = Entite::where('id',$this->societe_id)->where('active',1)->orderBy('enseigne','asc')->first();
                 $societe_mere = $entit->societe_mere;
-                $entiteFiliale = Entite::where('societe_mere',$societe_mere)->where('active',1)->orderBy('enseigne','asc')->get();
+                $societe_mere_id = $entit->societe_mere_id;
+                $entiteFiliale = Entite::where('societe_mere_id',$societe_mere_id)->where('active',1)->orderBy('enseigne','asc')->get();
                 // $entiteFiliale = Entite::where('societe_mere',auth()->user()->societe_mere)->where('active',1)->orderBy('enseigne','asc')->get(); 
 
                 $page = 'Role';
-                $log = LogActivityModel::where('user_societe',auth()->user()->societe)->where('page', $page)->limit(50)->orderBy('id','desc')->get();
+                $log = LogActivityModel::where('societe_id',auth()->user()->societe_id)->where('page', $page)->limit(50)->orderBy('id','desc')->get();
                 $logCount = $log->count();
 
-                $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->count();             
+                $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->count();             
                 if($deviseTva == 0){
                     $this->devise = 'FCFA';
                 }
                 else{
-                    $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->get(); 
+                    $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->get(); 
                     $this->devise = $deviseTva[0]->devise;                
                 }                    
                 toast()->success('Prêt', '')->position('top-right')->autoClose(2000)->background('#fff')->width('220px')->padding('5px');    
-                $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get(); 
+                $entite_mod = Entite::where('id',auth()->user()->societe_id)->get(); 
                 $jourValid = $entite_mod[0]->validite_mod; 
                 // ceci pour trouver le nombre de jour restant avant expiration
                 $nbjoursRestant = round((strtotime($jourValid) - strtotime($dateJour))/(60*60*24));
@@ -334,12 +336,12 @@ class NouveauRole extends Component
              
         ]);
         
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->creer_role;
             if($autoriser == 1){                
-                Role::create(['nom'=>$this->nom,'societe'=>$this->societe,'description'=>$this->description,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id,
+                $role = Role::create(['nom'=>$this->nom,'societe'=>$this->societe,'description'=>$this->description,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id,
                            'consulter_tier'=>$this->consulter_tier,'creer_tier'=>$this->creer_tier,'modifier_tier'=>$this->modifier_tier, 'supprimer_tier'=>$this->supprimer_tier,
                            'consulter_produit'=>$this->consulter_produit,'creer_produit'=>$this->creer_produit,'modifier_produit'=>$this->modifier_produit,'supprimer_produit'=>$this->supprimer_produit,
                            'consulter_categorie'=>$this->consulter_categorie,'creer_categorie'=>$this->creer_categorie,'modifier_categorie'=>$this->modifier_categorie,'supprimer_categorie'=>$this->supprimer_categorie,
@@ -378,12 +380,13 @@ class NouveauRole extends Component
                                         
                 ]);  
 
-                $dernier_id = Role::where('societe',$this->societe)->where('user_id',auth()->user()->id)->latest()->first()->id; 
+                $dernier_id = $role->id; 
 
-                $entit = Entite::where('enseigne',$this->societe)->where('active',1)->orderBy('enseigne','asc')->first();
+                $entit = Entite::where('id',$this->societe_id)->where('active',1)->orderBy('enseigne','asc')->first();
                 $societe_mere = $entit->societe_mere;
+                $societe_mere_id = $entit->societe_mere_id;
                 // creer ce role dans toutes les entites societe mere 
-                $liste_entite= Entite::where('societe_mere',$societe_mere)->get(); 
+                $liste_entite= Entite::where('societe_mere_id',$societe_mere_id)->get(); 
                 // $liste_entite= Entite::where('societe_mere',auth()->user()->societe_mere)->get(); 
                 foreach($liste_entite as $liste_entites){                            
                     $rol = Role::find($dernier_id);

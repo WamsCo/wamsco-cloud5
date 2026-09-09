@@ -107,9 +107,9 @@ class DetailReceptionFournisseur extends Component
         }
     }
     public function mount(){
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->consulter_reception;
             if($autoriser == 0){
                 alert()->error('Oups Désolé', 'Vous n\'êtes pas autorisé à ouvrir cette page !!!')->position('center')->autoClose(5000)->background('#fff')->width('460px')->padding('5px');
@@ -124,7 +124,7 @@ class DetailReceptionFournisseur extends Component
     public function render(){
     
         $dateJour = date('Y-m-d');            
-        $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();
+        $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();
         $jourValid = $entite_mod[0]->validite_mod; 
         $mod_cmd = $entite_mod[0]->mod_cmd;
         $soldeClient = $entite_mod[0]->solde;
@@ -143,9 +143,9 @@ class DetailReceptionFournisseur extends Component
                 $this->id = request('id'); // id entete facture
                 $this->ref_exp = request('ref'); // reference facture
                 //     // ceci au chargement de la page
-                $test_facture = ReceptionFournisseurEntete::where('societe',auth()->user()->societe)->where('id',$this->id)->count(); 
+                $test_facture = ReceptionFournisseurEntete::where('societe_id',auth()->user()->societe_id)->where('id',$this->id)->count(); 
                 if($test_facture > 0){
-                    $compte = ReceptionFournisseurEntete::where('societe',auth()->user()->societe)->where('id',$this->id)->first();               
+                    $compte = ReceptionFournisseurEntete::where('societe_id',auth()->user()->societe_id)->where('id',$this->id)->first();               
                     $this->ids = $compte->id;
                     $this->fact_entete_id = $compte->id_facture_fournisseur_entete;
                     $this->codeReception = $compte->code_reception;
@@ -176,9 +176,9 @@ class DetailReceptionFournisseur extends Component
                     $id_entrepot = $compte->id_entrepot;
                     $this->auteur = $compte->nom_user;
 
-                    $essai = Entrepot::where('societe',auth()->user()->societe)->where('id',$id_entrepot)->count();   
+                    $essai = Entrepot::where('societe_id',auth()->user()->societe_id)->where('id',$id_entrepot)->count();   
                     if($essai > 0){
-                        $Entrepo = Entrepot::where('societe',auth()->user()->societe)->where('id',$id_entrepot)->first();               
+                        $Entrepo = Entrepot::where('societe_id',auth()->user()->societe_id)->where('id',$id_entrepot)->first();               
                         $this->entrepot_expedition = $Entrepo->id;
                         $this->nonEntrepot = $Entrepo->nom;
                         $this->idEntrepot = $Entrepo->id;
@@ -189,12 +189,12 @@ class DetailReceptionFournisseur extends Component
                         $this->idEntrepot = '';
                     }
                 }  
-                $banque = CompteBancaire :: where('societe',auth()->user()->societe)->get();
-                $tier = Tier::where('societe',auth()->user()->societe)->where('id',$this->id_fournisseur)->get();                  
+                $banque = CompteBancaire :: where('societe_id',auth()->user()->societe_id)->get();
+                $tier = Tier::where('societe_id',auth()->user()->societe_id)->where('id',$this->id_fournisseur)->get();                  
                 
                 if(!empty($this->fact_entete_id)){
                 
-                    $recepClient_ligne = ReceptionFournisseurLignePartiel::where('societe',auth()->user()->societe)->where('id_facture_fournisseur_entete',$this->fact_entete_id)->orderBy($this->orderField, $this->orderDirection)->get();
+                    $recepClient_ligne = ReceptionFournisseurLignePartiel::where('societe_id',auth()->user()->societe_id)->where('id_facture_fournisseur_entete',$this->fact_entete_id)->orderBy($this->orderField, $this->orderDirection)->get();
                     $recepClientLigneCount = $recepClient_ligne->count();
 
                     $montantHT = $recepClient_ligne->sum('montant_ht');
@@ -205,7 +205,7 @@ class DetailReceptionFournisseur extends Component
                 }
                 else{
                     
-                    $recepClient_ligne = ReceptionFournisseurLignePartiel::where('societe',auth()->user()->societe)->where('id_commande_fournisseur_entete',$this->cmd_entete_id)->where('code_reception',$this->codeReception)->orderBy($this->orderField, $this->orderDirection)->get();
+                    $recepClient_ligne = ReceptionFournisseurLignePartiel::where('societe_id',auth()->user()->societe_id)->where('id_commande_fournisseur_entete',$this->cmd_entete_id)->where('code_reception',$this->codeReception)->orderBy($this->orderField, $this->orderDirection)->get();
                     $recepClientLigneCount = $recepClient_ligne->count();
                     $montantHT = $recepClient_ligne->sum('montant_ht');
                     $montantTTC = $recepClient_ligne->sum('montant_ttc');
@@ -215,42 +215,42 @@ class DetailReceptionFournisseur extends Component
                 }
 
                 // Parametre
-                $config = Parametre::where('societe',auth()->user()->societe)->limit(1)->get();
+                $config = Parametre::where('societe_id',auth()->user()->societe_id)->limit(1)->get();
                 $id_entrepot = $config[0]->id_entrepot_fctfourni;
 
-                $produit = Stock::where('societe',auth()->user()->societe)->where('id_entrepot', $id_entrepot)->get();
-                $stockProd = Stock::where('societe',auth()->user()->societe)->get();
-                $ListeEntrepot = Entrepot::where('societe',auth()->user()->societe)->get();
+                $produit = Stock::where('societe_id',auth()->user()->societe_id)->where('id_entrepot', $id_entrepot)->get();
+                $stockProd = Stock::where('societe_id',auth()->user()->societe_id)->get();
+                $ListeEntrepot = Entrepot::where('societe_id',auth()->user()->societe_id)->get();
                 
-                $testChoix = Stock::where('societe',auth()->user()->societe)->where('id',$this->choix_produit)->count();
+                $testChoix = Stock::where('societe_id',auth()->user()->societe_id)->where('id',$this->choix_produit)->count();
                 if($testChoix > 0){
                     // ceci permet d'afficher la quantite entrepot origine
-                    $choixProd = Stock::where('societe',auth()->user()->societe)->where('id',$this->choix_produit)->get();
+                    $choixProd = Stock::where('societe_id',auth()->user()->societe_id)->where('id',$this->choix_produit)->get();
                     $this->id_produit = $choixProd[0]->id_produit;                
 
                     // avoir le prix_vente_min 
-                    $prod = Produit::where('societe',auth()->user()->societe)->where('id',$this->id_produit)->first();
+                    $prod = Produit::where('societe_id',auth()->user()->societe_id)->where('id',$this->id_produit)->first();
                     $this->prix_vente_min = $prod->prix_vente_min;                
                 }
                 
-                $cmdFourniEntete = CommandeFournisseurEntete::where('societe',auth()->user()->societe)->where('id',$this->cmd_entete_id)->orderBy('id','desc')->get();
-                $factFourniEntete = factureFournisseurEntete::where('societe',auth()->user()->societe)->where('id',$this->fact_entete_id)->orderBy('id','desc')->get();
+                $cmdFourniEntete = CommandeFournisseurEntete::where('societe_id',auth()->user()->societe_id)->where('id',$this->cmd_entete_id)->orderBy('id','desc')->get();
+                $factFourniEntete = factureFournisseurEntete::where('societe_id',auth()->user()->societe_id)->where('id',$this->fact_entete_id)->orderBy('id','desc')->get();
                 
                 $page = 'ReceptionFournisseur'; // Pour evenement lie
                 $log = LogActivityModel::where('user_societe',auth()->user()->societe)->where('id_activite', $this->ids)->where('page', $page)->limit(22)->orderBy('id','desc')->get();
                 $logCount = $log->count();
 
-                $taxe = DeviseTva::where('societe',auth()->user()->societe)->orderBy('taux_tva','asc')->get();
+                $taxe = DeviseTva::where('societe_id',auth()->user()->societe_id)->orderBy('taux_tva','asc')->get();
 
-                $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->count(); 
+                $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->count(); 
                 if($deviseTva == 0){
                     $this->devise = 'FCFA';
                 }
                 else{
-                    $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->get(); 
+                    $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->get(); 
                     $this->devise = $deviseTva[0]->devise;
                 }
-                $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();          
+                $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();          
                 $jourValid = $entite_mod[0]->validite_mod; 
                 // ceci pour trouver le nombre de jour restant avant expiration
                 $nbjoursRestant = round((strtotime($jourValid) - strtotime($dateJour))/(60*60*24));
@@ -284,15 +284,15 @@ class DetailReceptionFournisseur extends Component
         }  
     }
     public function changeDateLivraison(){         
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){ 
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->creer_reception;
             if($autoriser == 1){
                 $this->validate([            
                     'date_echeance'=>'required|date',            
                 ]);            
-                ReceptionFournisseurEntete::where('societe',auth()->user()->societe)->where('id',$this->ids)->update(['date_echeance'=>$this->date_echeance,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
+                ReceptionFournisseurEntete::where('societe_id',auth()->user()->societe_id)->where('id',$this->ids)->update(['date_echeance'=>$this->date_echeance,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
                 $id_activite = $this->ids;
                 $page = 'ReceptionFournisseur';
                 LogActivity::addToLog('Date livraison (réception) modifiée', $id_activite, $page); 
@@ -329,15 +329,15 @@ class DetailReceptionFournisseur extends Component
         }  
     } 
     public function changeMethodeReception(){  
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){ 
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->creer_reception;
             if($autoriser == 1){
                 $this->validate([            
                     'methode_reception'=>'max:255',            
                 ]);        
-                ReceptionFournisseurEntete::where('societe',auth()->user()->societe)->where('id',$this->ids)->update(['methode_reception'=>$this->methode_reception,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
+                ReceptionFournisseurEntete::where('societe_id',auth()->user()->societe_id)->where('id',$this->ids)->update(['methode_reception'=>$this->methode_reception,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
                 $id_activite = $this->ids;
                 $page = 'ReceptionFournisseur';
                 LogActivity::addToLog('Méthode réception modifiée', $id_activite, $page); 
@@ -374,15 +374,15 @@ class DetailReceptionFournisseur extends Component
         }   
     } 
     public function changeNumeroSuivi(){  
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){ 
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->creer_reception;
             if($autoriser == 1){
                 $this->validate([            
                     'numero_suivi'=>'max:255',            
                 ]);        
-                ReceptionFournisseurEntete::where('societe',auth()->user()->societe)->where('id',$this->ids)->update(['numero_suivi'=>$this->numero_suivi,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
+                ReceptionFournisseurEntete::where('societe_id',auth()->user()->societe_id)->where('id',$this->ids)->update(['numero_suivi'=>$this->numero_suivi,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
                 $id_activite = $this->ids;
                 $page = 'ReceptionFournisseur';
                 LogActivity::addToLog('Numéro de suivi (réception) modifiée', $id_activite, $page); 
@@ -419,15 +419,15 @@ class DetailReceptionFournisseur extends Component
         } 
     } 
     public function changeNote(){  
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){ 
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->creer_reception;
             if($autoriser == 1){
                 $this->validate([            
                     'note'=>'max:255',            
                 ]);        
-                ReceptionFournisseurEntete::where('societe',auth()->user()->societe)->where('id',$this->ids)->update(['note'=>$this->note,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
+                ReceptionFournisseurEntete::where('societe_id',auth()->user()->societe_id)->where('id',$this->ids)->update(['note'=>$this->note,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
                 $id_activite = $this->ids;
                 $page = 'ReceptionFournisseur';
                 LogActivity::addToLog('Note (réception) modifiée', $id_activite, $page);
@@ -464,31 +464,31 @@ class DetailReceptionFournisseur extends Component
         } 
     } 
     // public function reception(){    
-    //     $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+    //     $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
     //     if($test > 0){ 
-    //         $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+    //         $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
     //         $autoriser = $role[0]->creer_reception;
     //         if($autoriser == 1){
     //             if(!empty($this->fact_entete_id)){
-    //                 $test_reception = ReceptionFournisseurLigne::where('societe',auth()->user()->societe)->where('id_facture_fournisseur_entete',$this->fact_entete_id)->count(); 
+    //                 $test_reception = ReceptionFournisseurLigne::where('societe_id',auth()->user()->societe_id)->where('id_facture_fournisseur_entete',$this->fact_entete_id)->count(); 
     //             }
     //             else{
-    //                 $test_reception = ReceptionFournisseurLigne::where('societe',auth()->user()->societe)->where('id_commande_fournisseur_entete',$this->cmd_entete_id)->count();
+    //                 $test_reception = ReceptionFournisseurLigne::where('societe_id',auth()->user()->societe_id)->where('id_commande_fournisseur_entete',$this->cmd_entete_id)->count();
     //             }
 
     //             if($test_reception > 0){   
 
-    //                 $test_etat = ReceptionFournisseurEntete::where('societe',auth()->user()->societe)->where('id',$this->ids)->first(); 
+    //                 $test_etat = ReceptionFournisseurEntete::where('societe_id',auth()->user()->societe_id)->where('id',$this->ids)->first(); 
     //                 $etat = $test_etat->etat;           
 
     //                 if($etat == 'Brouillon'){ 
                         
     //                     $etat = 'Clôturée';
     //                     if(!empty($this->fact_entete_id)){
-    //                         $ligneReception = ReceptionFournisseurLigne::where('societe',auth()->user()->societe)->where('id_facture_fournisseur_entete',$this->fact_entete_id)->get();        
+    //                         $ligneReception = ReceptionFournisseurLigne::where('societe_id',auth()->user()->societe_id)->where('id_facture_fournisseur_entete',$this->fact_entete_id)->get();        
     //                     }
     //                     else{
-    //                         $ligneReception = ReceptionFournisseurLigne::where('societe',auth()->user()->societe)->where('id_commande_fournisseur_entete',$this->cmd_entete_id)->get(); 
+    //                         $ligneReception = ReceptionFournisseurLigne::where('societe_id',auth()->user()->societe_id)->where('id_commande_fournisseur_entete',$this->cmd_entete_id)->get(); 
     //                     }
 
     //                     foreach($ligneReception as $ligneReceptions){
@@ -502,7 +502,7 @@ class DetailReceptionFournisseur extends Component
     //                         $id_fact_fourni_entete = $ligneReceptions->id_facture_fournisseur_entete;
     //                         $id_cmd_fourni_entete = $ligneReceptions->id_commande_fournisseur_entete;
                         
-    //                         $stockTrouver = Stock::where('societe',auth()->user()->societe)->where('id_entrepot',$id_entrepot)->where('id_produit',$id_produit)->first();
+    //                         $stockTrouver = Stock::where('societe_id',auth()->user()->societe_id)->where('id_entrepot',$id_entrepot)->where('id_produit',$id_produit)->first();
     //                         // $stockTrouver = Stock::find($id_stock_destinataire);
     //                         $nom_produit = $stockTrouver->nom_produit;
     //                         // $id_produit = $stockTrouver->id_produit;
@@ -512,10 +512,10 @@ class DetailReceptionFournisseur extends Component
     //                         $valeur_vente_total = $stockTrouver->prix_vente_unitaire * $qteSockFinal;
     //                         $reste_a_recevoir = 0;
                         
-    //                         Stock::where('societe',auth()->user()->societe)->where('id_entrepot',$id_entrepot)->where('id_produit',$id_produit)->update(['quantite'=>$qteSockFinal,'valorisation_achat_total'=>$valorisation_achat_total,'valeur_vente_total'=>$valeur_vente_total,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);   
+    //                         Stock::where('societe_id',auth()->user()->societe_id)->where('id_entrepot',$id_entrepot)->where('id_produit',$id_produit)->update(['quantite'=>$qteSockFinal,'valorisation_achat_total'=>$valorisation_achat_total,'valeur_vente_total'=>$valeur_vente_total,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);   
     //                         ReceptionFournisseurLigne::where('id',$id_exp)->update(['quantite_recue'=>$quantite_stock,'reste_a_recevoir'=>$reste_a_recevoir,'etat'=>$etat,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);   
                         
-    //                         $Entrepo = Entrepot::where('societe',auth()->user()->societe)->where('id',$id_entrepot)->first();                    
+    //                         $Entrepo = Entrepot::where('societe_id',auth()->user()->societe_id)->where('id',$id_entrepot)->first();                    
     //                         $nom_entrepot = $Entrepo->nom; 
 
     //                         $libele_mouvement = 'Réception';           
@@ -525,14 +525,14 @@ class DetailReceptionFournisseur extends Component
     //                         Mouvement::create(['id_entrepot'=>$id_entrepot,'nom_produit'=>$nom_produit,'id_produit'=>$id_produit,'reference'=>$reference,'quantite'=>$quantite_stock,'libele_mouvement'=>$libele_mouvement,
     //                         'code_mouvement'=>$code_mouvement,'statut'=>$statut,'origine'=>$code_reception,'id_reception'=>$this->ids,'entrepot'=>$nom_entrepot,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
                             
-    //                         ReceptionFournisseurEntete::where('societe',auth()->user()->societe)->where('id',$this->ids)->update(['etat'=>$etat,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
+    //                         ReceptionFournisseurEntete::where('societe_id',auth()->user()->societe_id)->where('id',$this->ids)->update(['etat'=>$etat,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
     //                         if(!empty($this->fact_entete_id)){ 
-    //                             factureFournisseurEntete::where('societe',auth()->user()->societe)->where('id',$id_fact_fourni_entete)->update(['etat_reception'=>$etat,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
-    //                             CommandeFournisseurEntete::where('societe',auth()->user()->societe)->where('id_facture_fournisseur_entete',$id_fact_fourni_entete)->update(['etat_reception'=>$etat,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);  
+    //                             factureFournisseurEntete::where('societe_id',auth()->user()->societe_id)->where('id',$id_fact_fourni_entete)->update(['etat_reception'=>$etat,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+    //                             CommandeFournisseurEntete::where('societe_id',auth()->user()->societe_id)->where('id_facture_fournisseur_entete',$id_fact_fourni_entete)->update(['etat_reception'=>$etat,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);  
     //                         }
     //                         else{
-    //                             CommandeFournisseurEntete::where('societe',auth()->user()->societe)->where('id',$id_cmd_fourni_entete)->update(['etat_reception'=>$etat,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
-    //                             factureFournisseurEntete::where('societe',auth()->user()->societe)->where('id_commande_fournisseur_entete',$id_cmd_fourni_entete)->update(['etat_reception'=>$etat,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+    //                             CommandeFournisseurEntete::where('societe_id',auth()->user()->societe_id)->where('id',$id_cmd_fourni_entete)->update(['etat_reception'=>$etat,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
+    //                             factureFournisseurEntete::where('societe_id',auth()->user()->societe_id)->where('id_commande_fournisseur_entete',$id_cmd_fourni_entete)->update(['etat_reception'=>$etat,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
     //                         } 
     //                         $id_activite = $this->ids;
     //                         $page = 'ReceptionFournisseur';
@@ -594,9 +594,9 @@ class DetailReceptionFournisseur extends Component
     //     } 
     // }
     public function precedant(){ 
-        $testPrecedant = ReceptionFournisseurEntete::where('societe',auth()->user()->societe)->where('id','<',$this->ids)->orderBy('id','desc')->count();
+        $testPrecedant = ReceptionFournisseurEntete::where('societe_id',auth()->user()->societe_id)->where('id','<',$this->ids)->orderBy('id','desc')->count();
         if($testPrecedant > 0){ 
-            $precedant = ReceptionFournisseurEntete::where('societe',auth()->user()->societe)->where('id','<',$this->ids)->orderBy('id','desc')->first();        
+            $precedant = ReceptionFournisseurEntete::where('societe_id',auth()->user()->societe_id)->where('id','<',$this->ids)->orderBy('id','desc')->first();        
             $previous = $precedant->id; 
             $this->redirect('/detail_reception_fourni?id='.$previous.'&ref='.$this->reference.'&active=6&champ=2-1&choix=2', navigate: true);              
         }  
@@ -613,9 +613,9 @@ class DetailReceptionFournisseur extends Component
     }    
     public function suivant(){    
         
-        $testSuivant = ReceptionFournisseurEntete::where('societe',auth()->user()->societe)->where('id','>',$this->ids)->orderBy('id','asc')->count();
+        $testSuivant = ReceptionFournisseurEntete::where('societe_id',auth()->user()->societe_id)->where('id','>',$this->ids)->orderBy('id','asc')->count();
         if($testSuivant > 0){
-            $suivant = ReceptionFournisseurEntete::where('societe',auth()->user()->societe)->where('id','>',$this->ids)->orderBy('id','asc')->first();
+            $suivant = ReceptionFournisseurEntete::where('societe_id',auth()->user()->societe_id)->where('id','>',$this->ids)->orderBy('id','asc')->first();
             $next = $suivant->id;             
             $this->redirect('/detail_reception_fourni?id='.$next.'&ref='.$this->reference.'&active=6&champ=2-1&choix=2', navigate: true);                     
         }  
@@ -631,7 +631,7 @@ class DetailReceptionFournisseur extends Component
         } 
     }
     // public function editer(int $id){
-    //     $affiche = ReceptionFournisseurLigne::where('societe',auth()->user()->societe)->where('id',$id)->first();               
+    //     $affiche = ReceptionFournisseurLigne::where('societe_id',auth()->user()->societe_id)->where('id',$id)->first();               
     //     $this->idy = $affiche->id;
     //     $this->nom_produit = $affiche->produit;
     //     $this->quantite_cmd = $affiche->quantite;
@@ -639,25 +639,25 @@ class DetailReceptionFournisseur extends Component
     //     $this->resteRecevoir = $affiche->reste_a_recevoir;
     // }  
     // public function receptionPartiel(){
-    //     $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+    //     $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
     //     if($test > 0){ 
-    //         $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+    //         $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
     //         $autoriser = $role[0]->creer_reception;
     //         if($autoriser == 1){
     //             $this->validate([            
     //                 'reste_recevoir'=>'required|numeric',            
     //             ]);        
-    //             $test_etat = ReceptionFournisseurEntete::where('societe',auth()->user()->societe)->where('id',$this->ids)->first(); 
+    //             $test_etat = ReceptionFournisseurEntete::where('societe_id',auth()->user()->societe_id)->where('id',$this->ids)->first(); 
     //             $etat = $test_etat->etat;   
     //             if($etat == 'Brouillon' || $etat == 'Partiel'){ 
 
     //                 if($this->reste_recevoir <= $this->resteRecevoir){                                
                         
     //                     if(!empty($this->fact_entete_id)){ 
-    //                         $ligneReception = ReceptionFournisseurLigne::where('societe',auth()->user()->societe)->where('id_facture_fournisseur_entete',$this->fact_entete_id)->where('id',$this->idy)->get();        
+    //                         $ligneReception = ReceptionFournisseurLigne::where('societe_id',auth()->user()->societe_id)->where('id_facture_fournisseur_entete',$this->fact_entete_id)->where('id',$this->idy)->get();        
     //                     }
     //                     else{
-    //                         $ligneReception = ReceptionFournisseurLigne::where('societe',auth()->user()->societe)->where('id_commande_fournisseur_entete',$this->cmd_entete_id)->where('id',$this->idy)->get();        
+    //                         $ligneReception = ReceptionFournisseurLigne::where('societe_id',auth()->user()->societe_id)->where('id_commande_fournisseur_entete',$this->cmd_entete_id)->where('id',$this->idy)->get();        
     //                     }
                         
     //                     foreach($ligneReception as $ligneReceptions){
@@ -673,7 +673,7 @@ class DetailReceptionFournisseur extends Component
     //                         $id_fact_fourni_entete = $ligneReceptions->id_facture_fournisseur_entete;
     //                         $id_cmd_fourni_entete = $ligneReceptions->id_commande_fournisseur_entete;
                             
-    //                         $stockTrouver = Stock::where('societe',auth()->user()->societe)->where('id_entrepot',$id_entrepot)->where('id_produit',$id_produit)->first();
+    //                         $stockTrouver = Stock::where('societe_id',auth()->user()->societe_id)->where('id_entrepot',$id_entrepot)->where('id_produit',$id_produit)->first();
     //                         $nom_produit = $stockTrouver->nom_produit;
     //                         // $id_produit = $stockTrouver->id_produit;
     //                         $reference = $stockTrouver->reference;
@@ -688,10 +688,10 @@ class DetailReceptionFournisseur extends Component
     //                         else{
     //                             $etat = 'Partiel'; 
     //                         }
-    //                         Stock::where('societe',auth()->user()->societe)->where('id_entrepot',$id_entrepot)->where('id_produit',$id_produit)->update(['quantite'=>$qteSockFinal,'valorisation_achat_total'=>$valorisation_achat_total,'valeur_vente_total'=>$valeur_vente_total,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);   
+    //                         Stock::where('societe_id',auth()->user()->societe_id)->where('id_entrepot',$id_entrepot)->where('id_produit',$id_produit)->update(['quantite'=>$qteSockFinal,'valorisation_achat_total'=>$valorisation_achat_total,'valeur_vente_total'=>$valeur_vente_total,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);   
     //                         ReceptionFournisseurLigne::where('id',$id_exp)->update(['quantite_recue'=>$quantite_recue,'reste_a_recevoir'=>$reste_a_recevoir,'etat'=>$etat,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);   
                             
-    //                         $Entrepo = Entrepot::where('societe',auth()->user()->societe)->where('id',$id_entrepot)->first();                    
+    //                         $Entrepo = Entrepot::where('societe_id',auth()->user()->societe_id)->where('id',$id_entrepot)->first();                    
     //                         $nom_entrepot = $Entrepo->nom; 
 
     //                         $libele_mouvement = 'Réception';           
@@ -702,10 +702,10 @@ class DetailReceptionFournisseur extends Component
     //                         'code_mouvement'=>$code_mouvement,'statut'=>$statut,'origine'=>$code_reception,'id_reception'=>$this->ids,'entrepot'=>$nom_entrepot,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
                             
     //                         if(!empty($this->fact_entete_id)){
-    //                             $sommeResteArecevoir = ReceptionFournisseurLigne::where('societe',auth()->user()->societe)->where('id_facture_fournisseur_entete',$this->fact_entete_id)->sum('reste_a_recevoir');        
+    //                             $sommeResteArecevoir = ReceptionFournisseurLigne::where('societe_id',auth()->user()->societe_id)->where('id_facture_fournisseur_entete',$this->fact_entete_id)->sum('reste_a_recevoir');        
     //                         }
     //                         else{
-    //                             $sommeResteArecevoir = ReceptionFournisseurLigne::where('societe',auth()->user()->societe)->where('id_commande_fournisseur_entete',$this->cmd_entete_id)->sum('reste_a_recevoir');        
+    //                             $sommeResteArecevoir = ReceptionFournisseurLigne::where('societe_id',auth()->user()->societe_id)->where('id_commande_fournisseur_entete',$this->cmd_entete_id)->sum('reste_a_recevoir');        
     //                         }
                             
     //                         if($sommeResteArecevoir == 0){
@@ -715,15 +715,15 @@ class DetailReceptionFournisseur extends Component
     //                             $etats = 'Partiel';                  
     //                         }
 
-    //                         ReceptionFournisseurEntete::where('societe',auth()->user()->societe)->where('id',$this->ids)->update(['etat'=>$etats,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
+    //                         ReceptionFournisseurEntete::where('societe_id',auth()->user()->societe_id)->where('id',$this->ids)->update(['etat'=>$etats,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
                             
     //                         if(!empty($this->fact_entete_id)){ 
-    //                             factureFournisseurEntete::where('societe',auth()->user()->societe)->where('id',$id_fact_fourni_entete)->update(['etat_reception'=>$etats,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
-    //                             CommandeFournisseurEntete::where('societe',auth()->user()->societe)->where('id_facture_fournisseur_entete',$id_fact_fourni_entete)->update(['etat_reception'=>$etats,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);  
+    //                             factureFournisseurEntete::where('societe_id',auth()->user()->societe_id)->where('id',$id_fact_fourni_entete)->update(['etat_reception'=>$etats,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+    //                             CommandeFournisseurEntete::where('societe_id',auth()->user()->societe_id)->where('id_facture_fournisseur_entete',$id_fact_fourni_entete)->update(['etat_reception'=>$etats,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);  
     //                         }
     //                         else{
-    //                             CommandeFournisseurEntete::where('societe',auth()->user()->societe)->where('id',$id_cmd_fourni_entete)->update(['etat_reception'=>$etats,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
-    //                             factureFournisseurEntete::where('societe',auth()->user()->societe)->where('id_commande_fournisseur_entete',$id_cmd_fourni_entete)->update(['etat_reception'=>$etats,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+    //                             CommandeFournisseurEntete::where('societe_id',auth()->user()->societe_id)->where('id',$id_cmd_fourni_entete)->update(['etat_reception'=>$etats,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
+    //                             factureFournisseurEntete::where('societe_id',auth()->user()->societe_id)->where('id_commande_fournisseur_entete',$id_cmd_fourni_entete)->update(['etat_reception'=>$etats,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
     //                         }                    
 
     //                         $id_activite = $this->ids;
@@ -789,14 +789,14 @@ class DetailReceptionFournisseur extends Component
         $this->confirmer = $id;      
     }     
     public function supprimer(){         
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){ 
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->supprimer_reception;
             if($autoriser == 1){                 
-                $test_reception = ReceptionFournisseurLignePartiel::where('societe',auth()->user()->societe)->where('id_reception_fournisseur_entete',$this->ids)->where('id_commande_fournisseur_entete',$this->cmd_entete_id)->count();
+                $test_reception = ReceptionFournisseurLignePartiel::where('societe_id',auth()->user()->societe_id)->where('id_reception_fournisseur_entete',$this->ids)->where('id_commande_fournisseur_entete',$this->cmd_entete_id)->count();
                 if($test_reception > 0){ 
-                    $ligneReception = ReceptionFournisseurLignePartiel::where('societe',auth()->user()->societe)->where('id_reception_fournisseur_entete',$this->ids)->where('id_commande_fournisseur_entete',$this->cmd_entete_id)->get(); 
+                    $ligneReception = ReceptionFournisseurLignePartiel::where('societe_id',auth()->user()->societe_id)->where('id_reception_fournisseur_entete',$this->ids)->where('id_commande_fournisseur_entete',$this->cmd_entete_id)->get(); 
                     foreach($ligneReception as $ligneReceptions){
                             
                         $id_exp = $ligneReceptions->id;            
@@ -811,7 +811,7 @@ class DetailReceptionFournisseur extends Component
                         $code_reception = $ligneReceptions->code_reception;
 
                         if($type_produit == 'Produit'){
-                            $stockTrouver = Stock::where('societe',auth()->user()->societe)->where('id_entrepot',$id_entrepot)->where('id_produit',$id_produit)->first();
+                            $stockTrouver = Stock::where('societe_id',auth()->user()->societe_id)->where('id_entrepot',$id_entrepot)->where('id_produit',$id_produit)->first();
                             // $id_produit = $stockTrouver->id_produit;
                             $nom_produit = $stockTrouver->nom_produit;
                             $reference = $stockTrouver->reference;
@@ -819,12 +819,12 @@ class DetailReceptionFournisseur extends Component
                             $valorisation_achat_total = $stockTrouver->prix_moyen_pondere_achat * $qteSockFinal;
                             $valeur_vente_total = $stockTrouver->prix_vente_unitaire * $qteSockFinal;                   
                             $reste_a_recevoir = 0;                    
-                            Stock::where('societe',auth()->user()->societe)->where('id_entrepot',$id_entrepot)->where('id_produit',$id_produit)->update(['quantite'=>$qteSockFinal,'valorisation_achat_total'=>$valorisation_achat_total,'valeur_vente_total'=>$valeur_vente_total,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);   
+                            Stock::where('societe_id',auth()->user()->societe_id)->where('id_entrepot',$id_entrepot)->where('id_produit',$id_produit)->update(['quantite'=>$qteSockFinal,'valorisation_achat_total'=>$valorisation_achat_total,'valeur_vente_total'=>$valeur_vente_total,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);   
                         
                             // retour dans quantite
-                            $testTrouver = ReceptionFournisseurLigne::where('societe',auth()->user()->societe)->where('id_commande_fournisseur_entete',$this->cmd_entete_id)->where('id_entrepot',$id_entrepot)->where('id_produit',$id_produit)->count();
+                            $testTrouver = ReceptionFournisseurLigne::where('societe_id',auth()->user()->societe_id)->where('id_commande_fournisseur_entete',$this->cmd_entete_id)->where('id_entrepot',$id_entrepot)->where('id_produit',$id_produit)->count();
                             if($testTrouver > 0){
-                                $stockTrouver = ReceptionFournisseurLigne::where('societe',auth()->user()->societe)->where('id_commande_fournisseur_entete',$this->cmd_entete_id)->where('id_entrepot',$id_entrepot)->where('id_produit',$id_produit)->first();
+                                $stockTrouver = ReceptionFournisseurLigne::where('societe_id',auth()->user()->societe_id)->where('id_commande_fournisseur_entete',$this->cmd_entete_id)->where('id_entrepot',$id_entrepot)->where('id_produit',$id_produit)->first();
                                 $idExpCltLigne = $stockTrouver->id;
                                 $quantite = $stockTrouver->quantite;
                                 $qteRecue = $stockTrouver->quantite_recue;
@@ -835,19 +835,18 @@ class DetailReceptionFournisseur extends Component
                                 $quantite_recueTotal = $quantite - $reste_a_recevoirTotal;                               
                                 $etats = 'Validée';
                                 ReceptionFournisseurLigne::where('id',$idExpCltLigne)->update(['quantite_recue'=>$quantite_recueTotal,'reste_a_recevoir'=>$reste_a_recevoirTotal,                                                                                           
-                                                                                           'etat'=>$etats,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,
-                                                                                           'user_id'=>auth()->user()->id]);   
+                                'etat'=>$etats,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);   
                             }                            
                             // Fin retour
                             
-                            $Entrepo = Entrepot::where('societe',auth()->user()->societe)->where('id',$id_entrepot)->first();                    
+                            $Entrepo = Entrepot::where('societe_id',auth()->user()->societe_id)->where('id',$id_entrepot)->first();                    
                             $nom_entrepot = $Entrepo->nom; 
                         }
                         else{ 
                             // retour dans quantite
-                            $testTrouver = ReceptionFournisseurLigne::where('societe',auth()->user()->societe)->where('id_commande_fournisseur_entete',$this->cmd_entete_id)->where('id_produit',$id_produit)->count();
+                            $testTrouver = ReceptionFournisseurLigne::where('societe_id',auth()->user()->societe_id)->where('id_commande_fournisseur_entete',$this->cmd_entete_id)->where('id_produit',$id_produit)->count();
                             if($testTrouver > 0){
-                                $stockTrouver = ReceptionFournisseurLigne::where('societe',auth()->user()->societe)->where('id_commande_fournisseur_entete',$this->cmd_entete_id)->where('id_produit',$id_produit)->first();
+                                $stockTrouver = ReceptionFournisseurLigne::where('societe_id',auth()->user()->societe_id)->where('id_commande_fournisseur_entete',$this->cmd_entete_id)->where('id_produit',$id_produit)->first();
                                 $idExpCltLigne = $stockTrouver->id;
                                 $quantite = $stockTrouver->quantite;
                                 $qteRecue = $stockTrouver->quantite_recue;
@@ -858,36 +857,35 @@ class DetailReceptionFournisseur extends Component
                                 $quantite_recueTotal = $quantite - $reste_a_recevoirTotal; 
                                 $etats = 'Validée';
                                 ReceptionFournisseurLigne::where('id',$idExpCltLigne)->update(['quantite_recue'=>$quantite_recueTotal,'reste_a_recevoir'=>$reste_a_recevoirTotal,                                                                                           
-                                                                                           'etat'=>$etats,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,
-                                                                                           'user_id'=>auth()->user()->id]);   
+                                'etat'=>$etats,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);   
                             }                               
                             // Fin retour
                             $nom_entrepot = 'Pas d\'entrepot (Service)';
                             $id_entrepot = 0;
                         }
                         $vider = NULL;
-                        factureFournisseurEntete::where('societe',auth()->user()->societe)->where('id',$this->fact_entete_id)->update(['id_reception_fournisseur_entete'=>$vider,'code_reception'=>$vider,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
+                        factureFournisseurEntete::where('societe_id',auth()->user()->societe_id)->where('id',$this->fact_entete_id)->update(['id_reception_fournisseur_entete'=>$vider,'code_reception'=>$vider,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
 
                         $libele_mouvement = 'Réception (retour)';           
                         $code_mouvement = date('YmdHis');
                         $statut = 'RCP';
                         if($type_produit == 'Produit'){
                             Mouvement::create(['id_entrepot'=>$id_entrepot,'nom_produit'=>$nom_produit,'id_produit'=>$id_produit,'reference'=>$reference,'quantite'=>-$quantite_recue,'libele_mouvement'=>$libele_mouvement,
-                            'code_mouvement'=>$code_mouvement,'statut'=>$statut,'origine'=>$code_reception,'id_reception'=>$this->ids,'entrepot'=>$nom_entrepot,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);                            
+                            'code_mouvement'=>$code_mouvement,'statut'=>$statut,'origine'=>$code_reception,'id_reception'=>$this->ids,'entrepot'=>$nom_entrepot,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);                            
                         }
                     }                    
                     // suppression definitive et redirection
                     $page = 'ReceptionFournisseur';
                     ReceptionFournisseurEntete::where('id',$this->ids)->delete(); 
                     ReceptionFournisseurLignePartiel::where('id_reception_fournisseur_entete',$this->ids)->delete();
-                    $verfierRecep = ReceptionFournisseurEntete::where('societe',auth()->user()->societe)->where('id_commande_fournisseur_entete',$this->cmd_entete_id)->count();
+                    $verfierRecep = ReceptionFournisseurEntete::where('societe_id',auth()->user()->societe_id)->where('id_commande_fournisseur_entete',$this->cmd_entete_id)->count();
                     if($verfierRecep > 0){
                         $etat = 'Partiel'; 
                     }
                     else{
                         $etat = ''; // ceci affiche 'Non créée'
                     }
-                    CommandeFournisseurEntete::where('id',$this->cmd_entete_id)->update(['etat_reception'=>$etat,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                    CommandeFournisseurEntete::where('id',$this->cmd_entete_id)->update(['etat_reception'=>$etat,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
                     
                     LogActivityModel::where('id_activite',$this->ids)->where('page',$page)->delete();
                     $id_activite = $this->ids;
@@ -937,9 +935,9 @@ class DetailReceptionFournisseur extends Component
         } 
     }
     public function clotureReception(){
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){ 
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->creer_reception;
             if($autoriser == 1){  
                 $etat = 'Clôturée';                
@@ -995,12 +993,12 @@ class DetailReceptionFournisseur extends Component
         }
     }
     public function creerFacture(){ 
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){ 
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->creer_fact_fourni;
             if($autoriser == 1){ 
-                $test_facture = factureFournisseurEntete::where('societe',auth()->user()->societe)->where('id_reception_fournisseur_entete',$this->ids)->count();
+                $test_facture = factureFournisseurEntete::where('societe_id',auth()->user()->societe_id)->where('id_reception_fournisseur_entete',$this->ids)->count();
                 if($test_facture == 0){
                     
                     $etat = 'Brouillon';
@@ -1011,10 +1009,10 @@ class DetailReceptionFournisseur extends Component
                     // $token_ok = 'FACT/'.$dates.'/'.$token;
                 
                         // copier la table CommandeFournisseurEntete dans factureFournisseurEntete
-                    $enteteCmdFournisseur = CommandeFournisseurEntete::where('societe',auth()->user()->societe)->where('id',$this->cmd_entete_id)->get(); 
+                    $enteteCmdFournisseur = CommandeFournisseurEntete::where('societe_id',auth()->user()->societe_id)->where('id',$this->cmd_entete_id)->get(); 
                     foreach($enteteCmdFournisseur as $enteteCmdFournisseurs){
                         // creation et copie entete Facture Client Entete
-                        factureFournisseurEntete::create([                        
+                        $factCltEntet = factureFournisseurEntete::create([                        
                             'code_facture'=>$token_ok,
                             'code_commande'=>$enteteCmdFournisseurs->code_commande,
                             'id_commande_fournisseur_entete'=>$enteteCmdFournisseurs->id,
@@ -1038,13 +1036,14 @@ class DetailReceptionFournisseur extends Component
                             'etat'=>$etat,
                             'etat_reception'=>'Clôturée',
                             'societe'=>auth()->user()->societe,
+                            'societe_id'=>auth()->user()->societe_id,
                             'nom_user'=>auth()->user()->name,
                             'user_id'=>auth()->user()->id]);
                     }
                     // ceci recupere le dernier enregistrement cree a l'instant
-                    $dernier_id = factureFournisseurEntete::where('societe',auth()->user()->societe)->where('user_id',auth()->user()->id)->latest()->first()->id; 
+                    $dernier_id = $factCltEntet->id; 
                 
-                    $ligneCmdFournisseur = ReceptionFournisseurLignePartiel::where('societe',auth()->user()->societe)->where('id_reception_fournisseur_entete',$this->ids)->get(); 
+                    $ligneCmdFournisseur = ReceptionFournisseurLignePartiel::where('societe_id',auth()->user()->societe_id)->where('id_reception_fournisseur_entete',$this->ids)->get(); 
                     foreach($ligneCmdFournisseur as $ligneCmdFournisseurs){
                         // creation et copie entete Expedition Client Ligne
                         factureFournisseurLigne::create([ 
@@ -1075,13 +1074,14 @@ class DetailReceptionFournisseur extends Component
                             'etat'=>$etat,
                             'user_id'=>auth()->user()->id,
                             'nom_user'=>auth()->user()->name,
+                            'societe_id'=>auth()->user()->societe_id,
                             'societe'=>auth()->user()->societe]);
                     }
-                    $factFourniEnteteCount = factureFournisseurEntete::where('societe',auth()->user()->societe)->where('id_commande_fournisseur_entete',$this->cmd_entete_id)->count();
+                    $factFourniEnteteCount = factureFournisseurEntete::where('societe_id',auth()->user()->societe_id)->where('id_commande_fournisseur_entete',$this->cmd_entete_id)->count();
                     $NbrefactFourni = $factFourniEnteteCount + 1;
-                    CommandeFournisseurEntete::where('societe',auth()->user()->societe)->where('id',$this->cmd_entete_id)->update(['nbre_facture'=>$NbrefactFourni,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
-                    ReceptionFournisseurEntete::where('societe',auth()->user()->societe)->where('id',$this->ids)->update(['etat_facture'=>$etat,'code_facture'=>$token_ok,'id_facture_fournisseur_entete'=>$dernier_id,'date_facturation'=>date('Y-m-d'),'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
-                    ReceptionFournisseurLignePartiel::where('societe',auth()->user()->societe)->where('id_reception_fournisseur_entete',$this->ids)->update(['code_facture'=>$token_ok,'id_facture_fournisseur_entete'=>$dernier_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
+                    CommandeFournisseurEntete::where('societe_id',auth()->user()->societe_id)->where('id',$this->cmd_entete_id)->update(['nbre_facture'=>$NbrefactFourni,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
+                    ReceptionFournisseurEntete::where('societe_id',auth()->user()->societe_id)->where('id',$this->ids)->update(['etat_facture'=>$etat,'code_facture'=>$token_ok,'id_facture_fournisseur_entete'=>$dernier_id,'date_facturation'=>date('Y-m-d'),'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
+                    ReceptionFournisseurLignePartiel::where('societe_id',auth()->user()->societe_id)->where('id_reception_fournisseur_entete',$this->ids)->update(['code_facture'=>$token_ok,'id_facture_fournisseur_entete'=>$dernier_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
                                                     
                     $id_activite = $dernier_id;
                     $page = 'factureFournisseur';
@@ -1106,7 +1106,7 @@ class DetailReceptionFournisseur extends Component
                         showConfirmButton: false,
                         position:'top-end',
                     ); 
-                    $enteteFactFourni = factureFournisseurEntete::where('societe',auth()->user()->societe)->where('id_reception_fournisseur_entete',$this->ids)->first();
+                    $enteteFactFourni = factureFournisseurEntete::where('societe_id',auth()->user()->societe_id)->where('id_reception_fournisseur_entete',$this->ids)->first();
                     $id_fact = $enteteFactFourni->id;
                     $code_fact = $enteteFactFourni->code_facture;
                     flash ('Oups, voici la <strong>facture</strong> encours pour cette commande!')->warning();

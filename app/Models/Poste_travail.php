@@ -8,5 +8,5 @@ use Illuminate\Database\Eloquent\Model;
 class Poste_travail extends Model
 {
     use HasFactory;
-    protected $fillable = ['nom_poste','description','societe','nom_user','user_id'];
+    protected $fillable = ['nom_poste','description','societe','societe_id','nom_user','user_id'];
 }

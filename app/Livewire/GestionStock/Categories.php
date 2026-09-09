@@ -41,9 +41,9 @@ class Categories extends Component
     }
     public function mount(){
         
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->consulter_categorie;
             if($autoriser == 0){
                 alert()->error('Oups Désolé', 'Vous n\'êtes pas autorisé à ouvrir cette page !!!')->position('center')->autoClose(5000)->background('#fff')->width('460px')->padding('5px');
@@ -59,7 +59,7 @@ class Categories extends Component
     public function render()
     {
         $dateJour = date('Y-m-d');            
-        $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();
+        $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();
         $jourValid = $entite_mod[0]->validite_mod; 
         $mod_gestion_stock = $entite_mod[0]->mod_gestion_stock;
         $soldeClient = $entite_mod[0]->solde;
@@ -75,20 +75,20 @@ class Categories extends Component
                 $choix = request('choix');
                 $dateJour = date('Y-m-d');
                 toast()->success('Prêt', '')->position('top-right')->autoClose(2000)->background('#fff')->width('220px')->padding('5px');           
-                $categorie = Categorie :: where('societe',auth()->user()->societe)->where('nom_categorie','like','%'.$this->query.'%')->orderBy('nom_categorie','asc')->paginate($this->parPage); 
+                $categorie = Categorie :: where('societe_id',auth()->user()->societe_id)->where('nom_categorie','like','%'.$this->query.'%')->orderBy('nom_categorie','asc')->paginate($this->parPage); 
                 $categoriecount = $categorie->count(); 
                 
-                $resultat = Categorie :: where('societe',auth()->user()->societe)->get();  
+                $resultat = Categorie :: where('societe_id',auth()->user()->societe_id)->get();  
                 $nbreTotalCategorie = $resultat->count(); 
                 $catRestau = $resultat->where('restaurant','Oui')->count(); 
                 
-                $derniereActivite = Categorie::where('societe',auth()->user()->societe)->latest('updated_at')->first();    
+                $derniereActivite = Categorie::where('societe_id',auth()->user()->societe_id)->latest('updated_at')->first();    
                 
                 $page = 'Catégorie'; // Pour evenement lie
-                $log = LogActivityModel::where('user_societe',auth()->user()->societe)->where('page', $page)->limit(5)->orderBy('id','desc')->get();
+                $log = LogActivityModel::where('societe_id',auth()->user()->societe_id)->where('page', $page)->limit(5)->orderBy('id','desc')->get();
                 $logCount = $log->count();
             
-                $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();                      
+                $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();                      
                 $jourValid = $entite_mod[0]->validite_mod; 
                 // ceci pour trouver le nombre de jour restant avant expiration
                 $nbjoursRestant = round((strtotime($jourValid) - strtotime($dateJour))/(60*60*24));
@@ -123,14 +123,14 @@ class Categories extends Component
     public function store(){        
         $this->validate(); 
 
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->creer_categorie;
             if($autoriser == 1){ 
-                Categorie :: create(['nom_categorie'=>$this->nom_categorie,'description'=>$this->description,'restaurant'=>$this->restaurant,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                $cat = Categorie :: create(['nom_categorie'=>$this->nom_categorie,'description'=>$this->description,'restaurant'=>$this->restaurant,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
                 // ceci recupere le dernier enregistrement cree a l'instant
-                $dernier_id = Categorie::where('societe',auth()->user()->societe)->where('user_id',auth()->user()->id)->latest()->first()->id; 
+                $dernier_id = $cat->id; 
                 $id_activite = $dernier_id;   
                 $page = 'Catégorie';    
                 LogActivity::addToLog('Catégorie » '.$this->nom_categorie.' créée', $id_activite, $page); 
@@ -175,13 +175,13 @@ class Categories extends Component
     }
     public function update(){
         $this->validate();        
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->modifier_categorie;
             if($autoriser == 1){  
                 if($this->ids){
-                    Categorie::find($this->ids)->update(['nom_categorie'=>$this->nom_categorie,'description'=>$this->description,'restaurant'=>$this->restaurant,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                    Categorie::find($this->ids)->update(['nom_categorie'=>$this->nom_categorie,'description'=>$this->description,'restaurant'=>$this->restaurant,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
                     $this->dispatch('categorietUpdate');
                     $id_activite = $this->ids; 
                     $page = 'Catégorie';
@@ -224,9 +224,9 @@ class Categories extends Component
         $this->confirmer = $id;        
     } 
     public function supprimer($id){
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){ 
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->supprimer_categorie;
             if($autoriser == 1){   
                 if($id){
@@ -270,15 +270,15 @@ class Categories extends Component
     } 
     // Ceci permet d'activer les categorie du restaurant
     public function activer(){
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){ 
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->modifier_etapeTache;
             if($autoriser == 1){ 
                 
                 // ceci reinitilise dabord 
                 $opacite = 'Non';
-                EtapeTache::where('societe',auth()->user()->societe)->update(['opacite'=>$opacite]);
+                EtapeTache::where('societe_id',auth()->user()->societe_id)->update(['opacite'=>$opacite]);
                 $opacite = 'Oui';
                 EtapeTache::find($this->ids)->update(['opacite'=>$opacite]);                       
                 

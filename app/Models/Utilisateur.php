@@ -12,7 +12,7 @@ class Utilisateur extends Model implements Authenticatable
     use HasFactory;
     use BasicAuthenticatable;
 
-    protected $fillable = ['name','email','confirmer','password','type_user','date_valide','profil','etat','note_interne','sexe','salarie','nom_user','nom_user_modif','user_id','societe','societe_mere',
+    protected $fillable = ['name','email','confirmer','password','type_user','date_valide','profil','etat','note_interne','sexe','salarie','nom_user','nom_user_modif','user_id','societe_id','societe','societe_mere_id','societe_mere',
                             'titre','telephone','departement','departement_id','poste_travail','poste_travail_id','lieu_travail','adresse_travail','manager','validateur_conges','horaire_journalier','horaire_hebdo','horaire_mensuel',
                             'date_naissance','lieu_naissance','nationalite','cni','passeport','etat_civil','nbre_enfant','nom_conjoint','date_nais_conjoint','persone_contact_urgence',
                             'telephone_urgence','type_employe','type_contrat','type_salaire','date_debut_contrat','date_fin_contrat','responsable_rh','salaire','categorie','echelon','niu','cnps','dipe','matricule',

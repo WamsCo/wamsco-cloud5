@@ -196,13 +196,13 @@
                                             @if($this->etat == "Payée" || $this->etat == "Impayée")
                                                 <button type="button" class="pos-primary-action" wire:click="NewCommande()"><i class="fa fa-check-circle"></i> Enregistrer la commande</button>
                                             @else
-                                                <button type="button" class="pos-primary-action" wire:click="AffichePaie()" data-bs-toggle="modal" data-bs-target="#saissieReglementPosModal"><i class="fa fa-money"></i> Paiement</button>
+                                                <button type="button" class="btn btn-lg btn-outline-green fw-bold flex-fill py-2 w-100" wire:click="AffichePaie()" data-bs-toggle="modal" data-bs-target="#saissieReglementPosModal"><i class="fas fa-file-invoice-dollar"></i> Paiement</button>
                                             @endif
                                         </div>
                                     @endif
                                 </section>
                             </div>  
-                            <div class="rightpane d-flex flex-column flex-grow-1 bg-100">
+                            <div class="pos_conteneur_prod d-flex flex-column flex-grow-1 bg-100">
                                 <!-- Catégories -->  
                                 <div class="choix_catg bg-view px-2 py-1">
                                     <div class="categories-wrapper">

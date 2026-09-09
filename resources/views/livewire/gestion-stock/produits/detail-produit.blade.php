@@ -82,7 +82,7 @@
                                                     </tr>                                                
                                                     <tr>
                                                         <td class="text-muted fw-semibold">Catégories</td>
-                                                        <td class="text-muted">{{$produits->categorie}}</td>
+                                                        <td class="text-muted text-success">{{$produits->categorie}}</td>
                                                     </tr>                                                
                                                     <tr>
                                                         <td class="text-muted fw-semibold">Fournisseur</td>

@@ -101,9 +101,9 @@ class DetailPipeline extends Component
         $this->commentaire ='';        
     }
     public function mount(){  
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->detail_opportunite;
             if($autoriser == 0){
                 toast()->error('Oups Désolé', 'Vous n\'êtes pas autorisé à ouvrir cette page!')->position('top-end')->autoClose(5000)->background('#fff')->width('460px')->padding('5px');
@@ -120,7 +120,7 @@ class DetailPipeline extends Component
     public function render(){ 
           
         $dateJour = date('Y-m-d');            
-        $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();
+        $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();
         $jourValid = $entite_mod[0]->validite_mod;
         $mod_crm = $entite_mod[0]->mod_crm;
         $soldeClient = $entite_mod[0]->solde;
@@ -138,9 +138,9 @@ class DetailPipeline extends Component
                 
                 $id = request('id'); // id Pipeline 
                 // ceci au chargement de la page
-                $test_opportunite = Opportunite::where('societe',auth()->user()->societe)->where('id',$id)->count();    
+                $test_opportunite = Opportunite::where('societe_id',auth()->user()->societe_id)->where('id',$id)->count();    
                 if($test_opportunite > 0){
-                    $opportuniter = Opportunite::where('societe',auth()->user()->societe)->where('id',$id)->first();               
+                    $opportuniter = Opportunite::where('societe_id',auth()->user()->societe_id)->where('id',$id)->first();               
                     $this->ids = $opportuniter->id;
                     $this->ids_client = $opportuniter->id_client; 
                     $this->client = $opportuniter->client;                
@@ -171,41 +171,41 @@ class DetailPipeline extends Component
                                                       
                 } 
 
-                $fact = factureClientEntete::where('societe',auth()->user()->societe)->where('id_client',$this->ids_client)->get();               
+                $fact = factureClientEntete::where('societe_id',auth()->user()->societe_id)->where('id_client',$this->ids_client)->get();               
                 $this->FactCount = $fact->count();
                 $this->FactMontant_ttc = $fact->sum('montant_ttc');
                 $this->FactMarge = $fact->sum('marge');
                 $this->FactReste_a_percevoir = $fact->sum('reste_a_percevoir');
 
-                $tier = Tier::where('societe',auth()->user()->societe)->where('id',$this->ids_client)->get(); 
-                $etape = Etape :: where('societe',auth()->user()->societe)->orderBy('id','asc')->get();
-
+                $tier = Tier::where('societe_id',auth()->user()->societe_id)->where('id',$this->ids_client)->get(); 
+                $etape = Etape :: where('societe_id',auth()->user()->societe_id)->orderBy('id','asc')->get();
+                
                 if(auth()->user()->societe == "Administration" && auth()->user()->type_user == "Administrateur"){ 
-
-                    $user = Utilisateur::where('societe',auth()->user()->societe)->orderBy('name','asc')->get();
+                    
+                    $user = Utilisateur::where('societe_id',auth()->user()->societe_id)->orderBy('name','asc')->get();
                 }
                 else{
-
-                    $user = Utilisateur::where('societe',auth()->user()->societe)->where('id', $this->vendeur)->get();
+                    
+                    $user = Utilisateur::where('societe_id',auth()->user()->societe_id)->where('id', $this->vendeur)->get();
                 }  
 
-                $planifier = Note::where('societe',auth()->user()->societe)->where('opportunite_id', $this->ids)->where('sujet','like','%'.$this->ParNote.'%')->limit(50)->orderBy('id','desc')->get();
+                $planifier = Note::where('societe_id',auth()->user()->societe_id)->where('opportunite_id', $this->ids)->where('sujet','like','%'.$this->ParNote.'%')->limit(50)->orderBy('id','desc')->get();
                 $planifierCount = $planifier->count();
 
                 $page = 'Opportunite';
-                $log = LogActivityModel::where('user_societe',auth()->user()->societe)->where('id_activite', $this->ids)->where('page', $page)->where('subject','like','%'.$this->activite.'%')->limit(50)->orderBy('id','desc')->get();
+                $log = LogActivityModel::where('societe_id',auth()->user()->societe_id)->where('id_activite', $this->ids)->where('page', $page)->where('subject','like','%'.$this->activite.'%')->limit(50)->orderBy('id','desc')->get();
                 $logCount = $log->count();
 
-                $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->count();             
+                $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->count();             
                 if($deviseTva == 0){
                     $this->devise = 'FCFA';
                 }
                 else{
-                    $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->get(); 
+                    $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->get(); 
                     $this->devise = $deviseTva[0]->devise;                
                 }  
                 toast()->success('Prêt', '')->position('top-right')->autoClose(2000)->background('#fff')->width('220px')->padding('5px');            
-                $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get(); 
+                $entite_mod = Entite::where('id',auth()->user()->societe_id)->get(); 
                 $jourValid = $entite_mod[0]->validite_mod; 
                 // ceci pour trouver le nombre de jour restant avant expiration
                 $nbjoursRestant = round((strtotime($jourValid) - strtotime($dateJour))/(60*60*24));           
@@ -240,13 +240,13 @@ class DetailPipeline extends Component
     public function searchResult(){ 
         if(!empty($this->client)){
             if(ctype_alpha($this->client)){ // ctype_alpha: cette fonction permet de savoir si le caractere ou mot est une lettre  
-                $this->records = Tier::where('etat',1)->where('societe',auth()->user()->societe)->where('nom','like','%'.$this->client.'%')->orderBy('nom','asc')->limit(8)->get(); 
-                $this->recordCount = Tier::where('etat',1)->where('societe',auth()->user()->societe)->where('nom','like','%'.$this->client.'%')->count();
+                $this->records = Tier::where('etat',1)->where('societe_id',auth()->user()->societe_id)->where('nom','like','%'.$this->client.'%')->orderBy('nom','asc')->limit(8)->get(); 
+                $this->recordCount = Tier::where('etat',1)->where('societe_id',auth()->user()->societe_id)->where('nom','like','%'.$this->client.'%')->count();
                 $this->showdiv = true;
             }
             else{
-                $this->records = Tier::where('etat',1)->where('societe',auth()->user()->societe)->where('telephone','like','%'.$this->client.'%')->orderBy('nom','asc')->limit(8)->get(); 
-                $this->recordCount = Tier::where('etat',1)->where('societe',auth()->user()->societe)->where('telephone','like','%'.$this->client.'%')->count(); 
+                $this->records = Tier::where('etat',1)->where('societe_id',auth()->user()->societe_id)->where('telephone','like','%'.$this->client.'%')->orderBy('nom','asc')->limit(8)->get(); 
+                $this->recordCount = Tier::where('etat',1)->where('societe_id',auth()->user()->societe_id)->where('telephone','like','%'.$this->client.'%')->count(); 
                 $this->showdiv = true;
             }        
         }
@@ -287,19 +287,19 @@ class DetailPipeline extends Component
             'site_web'=>'nullable|max:255', 
             'recommande_par'=>'nullable|max:255', 
         ]);   
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->modifier_opportunite;
             if($autoriser == 1){ 
 
-                $test_tiers = Tier ::where('societe',auth()->user()->societe)->where('id',$this->ids_client)->count();
+                $test_tiers = Tier ::where('societe_id',auth()->user()->societe_id)->where('id',$this->ids_client)->count();
                 if($test_tiers > 0){                    
 
-                    $test_etapes = Etape::where('societe',auth()->user()->societe)->where('id', $this->evolution)->count();
+                    $test_etapes = Etape::where('societe_id',auth()->user()->societe_id)->where('id', $this->evolution)->count();
                     if($test_etapes > 0){
 
-                        $etapes = Etape::where('societe',auth()->user()->societe)->where('id', $this->evolution)->first();
+                        $etapes = Etape::where('societe_id',auth()->user()->societe_id)->where('id', $this->evolution)->first();
                         $nom_etape = $etapes->nom_etape; 
 
                         $position = 0;
@@ -348,8 +348,8 @@ class DetailPipeline extends Component
                     title:'Vous n\'êtes pas autorisé à effectuer cette opération!',
                     timer:3000,
                     icon:'error',
-                    toast:false,
-                    showConfirmButton: true,
+                    toast:true,
+                    showConfirmButton: false,
                     position:'center',
                 ); 
             } 
@@ -369,9 +369,9 @@ class DetailPipeline extends Component
 
         if(auth()->user()->type_user == "Administrateur"){
 
-            $testPrecedant = Opportunite::where('societe',auth()->user()->societe)->where('id','<',$id)->orderBy('id','desc')->count();
+            $testPrecedant = Opportunite::where('societe_id',auth()->user()->societe_id)->where('id','<',$id)->orderBy('id','desc')->count();
             if($testPrecedant > 0){ 
-                $precedant = Opportunite::where('societe',auth()->user()->societe)->where('id','<',$id)->orderBy('id','desc')->first();        
+                $precedant = Opportunite::where('societe_id',auth()->user()->societe_id)->where('id','<',$id)->orderBy('id','desc')->first();        
                 $previous = $precedant->id; 
                 $this->redirect('/detail_pipeline?id='.$previous.'&active=3&champ=3-3&choix=1', navigate: true);                         
             }  
@@ -412,9 +412,9 @@ class DetailPipeline extends Component
 
        if(auth()->user()->type_user == "Administrateur"){
 
-            $testSuivant = Opportunite::where('societe',auth()->user()->societe)->where('id','>',$id)->orderBy('id','asc')->count();
+            $testSuivant = Opportunite::where('societe_id',auth()->user()->societe_id)->where('id','>',$id)->orderBy('id','asc')->count();
             if($testSuivant > 0){
-                $suivant = Opportunite::where('societe',auth()->user()->societe)->where('id','>',$id)->orderBy('id','asc')->first();
+                $suivant = Opportunite::where('societe_id',auth()->user()->societe_id)->where('id','>',$id)->orderBy('id','asc')->first();
                 $next = $suivant->id;             
                 $this->redirect('/detail_pipeline?id='.$next.'&active=3&champ=3-3&choix=1', navigate: true);  
             }  
@@ -456,9 +456,9 @@ class DetailPipeline extends Component
     } 
     public function supprimer(int $id){ 
 
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->supprimer_opportunite;
             if($autoriser == 1){   
                 if($id){  
@@ -514,9 +514,9 @@ class DetailPipeline extends Component
             'note' => 'nullable|string|max:15000',
             'date_cloture'=>'nullable|date|after:today', 
         ]);        
-       $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+       $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->creer_commande;
             if($autoriser == 1){  
 
@@ -543,13 +543,13 @@ class DetailPipeline extends Component
                 $token = bin2hex(random_bytes($length));
                 $token_ok = 'PROF/'.$dates;
                 // $token_ok = 'FACT/'.$dates.'/'.$token;
-                ProformaClientEntete :: create(['code_proforma'=>$token_ok,'nom_client'=>$this->client,'id_client'=>$this->ids_client,'telephone'=>$this->telephone_contact,'date_proforma'=>$date_proforma,'date_livraison'=>$date_livraison,
+                $profCltEntet = ProformaClientEntete :: create(['code_proforma'=>$token_ok,'nom_client'=>$this->client,'id_client'=>$this->ids_client,'telephone'=>$this->telephone_contact,'date_proforma'=>$date_proforma,'date_livraison'=>$date_livraison,
                             'montant_ht'=>$montant_ht,'montant_remise'=>$montant_remise,'montant_tva'=>$montant_tva,'montant_precompte'=>$montant_precompte,'montant_ttc'=>$montant_ttc,'marge'=>$marge,
-                            'montant_recu'=>$montant_recu,'reste_a_percevoir'=>$reste_a_percevoir,'mode_reglement'=>$mode_reglement,'compte_bancaire'=>$compte_bancaire,'note'=>$this->nom_opportunite,'etat'=>$etat,'societe'=>auth()->user()->societe,
-                            'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                            'montant_recu'=>$montant_recu,'reste_a_percevoir'=>$reste_a_percevoir,'mode_reglement'=>$mode_reglement,'compte_bancaire'=>$compte_bancaire,'note'=>$this->nom_opportunite.', Revenu attendu '.$this->montant_attendu,
+                            'etat'=>$etat,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
 
                         // ceci recupere le dernier enregistrement cree a l'instant
-                $dernier_id = ProformaClientEntete::where('societe',auth()->user()->societe)->where('user_id',auth()->user()->id)->latest()->first()->id; 
+                $dernier_id = $profCltEntet->id; 
 
                 $id_activite = $dernier_id;
                 $page = 'ProformaClient';
@@ -599,9 +599,9 @@ class DetailPipeline extends Component
             'note' => 'nullable|string|max:15000',
             'date_cloture'=>'nullable|date|after:today', 
         ]);     
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->creer_facture;
             if($autoriser == 1){   
 
@@ -628,13 +628,13 @@ class DetailPipeline extends Component
                 $token = bin2hex(random_bytes($length));
                 $token_ok = 'FACT/'.$dates;
                 // $token_ok = 'FACT/'.$dates.'/'.$token;
-                factureClientEntete :: create(['code_facture'=>$token_ok,'nom_client'=>$this->client,'id_client'=>$this->ids_client,'telephone'=>$this->telephone_contact,'date_facturation'=>$date_facturation,'date_echeance'=>$date_echeance,
+                $factCltEntet = factureClientEntete :: create(['code_facture'=>$token_ok,'nom_client'=>$this->client,'id_client'=>$this->ids_client,'telephone'=>$this->telephone_contact,'date_facturation'=>$date_facturation,'date_echeance'=>$date_echeance,
                             'montant_ht'=>$montant_ht,'montant_remise'=>$montant_remise,'montant_tva'=>$montant_tva,'montant_precompte'=>$montant_precompte,'montant_ttc'=>$montant_ttc,'marge'=>$marge,
-                            'montant_recu'=>$montant_recu,'reste_a_percevoir'=>$reste_a_percevoir,'mode_reglement'=>$mode_reglement,'compte_bancaire'=>$compte_bancaire,'note'=>$this->nom_opportunite,'etat'=>$etat,'societe'=>auth()->user()->societe,
-                            'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                            'montant_recu'=>$montant_recu,'reste_a_percevoir'=>$reste_a_percevoir,'mode_reglement'=>$mode_reglement,'compte_bancaire'=>$compte_bancaire,'note'=>$this->nom_opportunite.', Revenu attendu '.$this->montant_attendu,
+                            'etat'=>$etat,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
 
-                        // ceci recupere le dernier enregistrement cree a l'instant
-                $dernier_id = factureClientEntete::where('societe',auth()->user()->societe)->where('user_id',auth()->user()->id)->latest()->first()->id; 
+                // ceci recupere le dernier enregistrement cree a l'instant
+                $dernier_id = $factCltEntet->id; 
 
                 $id_activite = $dernier_id;
                 $page = 'factureClient';
@@ -678,9 +678,9 @@ class DetailPipeline extends Component
         $this->validate([
             'note_interne'=>'required|max:255',            
         ]);
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->modifier_opportunite; 
             if($autoriser == 1){ 
                 
@@ -704,8 +704,8 @@ class DetailPipeline extends Component
                     title:'Vous n\'êtes pas autorisé à effectuer cette opération!',
                     timer:3000,
                     icon:'error',
-                    toast:false,
-                    showConfirmButton: true,
+                    toast:true,
+                    showConfirmButton: false,
                     position:'center',
                 ); 
             } 
@@ -723,7 +723,7 @@ class DetailPipeline extends Component
     }
     public function ModifNote(int $id){
         $this->ouvrir = $id;
-        $noteActivite = Note::where('societe',auth()->user()->societe)->where('id',$id)->first();
+        $noteActivite = Note::where('societe_id',auth()->user()->societe_id)->where('id',$id)->first();
         $this->id_act = $noteActivite->id;
         $this->type_activite = $noteActivite->type_activite;
         $this->sujets = $noteActivite->sujet;
@@ -733,9 +733,9 @@ class DetailPipeline extends Component
         $this->validate([
             'commentaires'=>'required|max:255',            
         ]);
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->modifier_opportunite; 
             if($autoriser == 1){ 
                      
@@ -760,8 +760,8 @@ class DetailPipeline extends Component
                     title:'Vous n\'êtes pas autorisé à effectuer cette opération!',
                     timer:3000,
                     icon:'error',
-                    toast:false,
-                    showConfirmButton: true,
+                    toast:true,
+                    showConfirmButton: false,
                     position:'center',
                 ); 
             } 
@@ -784,14 +784,14 @@ class DetailPipeline extends Component
             'date_echeance'=>'required|date',
             'commentaire' => 'nullable|string|max:255',          
         ]);    
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){      
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->modifier_opportunite;
             if($autoriser == 1){                   
                 
                 Note::create(['opportunite_id'=>$this->ids,'type_activite'=>$this->type_activite,'sujet'=>$this->sujet,'date_echeance'=>$this->date_echeance,'commentaire'=>$this->commentaire,
-                'profil'=>auth()->user()->profil,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);                    
+                'profil'=>auth()->user()->profil,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);                    
                     
                     // ceci recupere le dernier enregistrement cree a l'instant
                     $id_activite = $this->ids;
@@ -813,8 +813,8 @@ class DetailPipeline extends Component
                     title:'Vous n\'êtes pas autorisé à effectuer cette opération!',
                     timer:3000,
                     icon:'error',
-                    toast:false,
-                    showConfirmButton: true,
+                    toast:true,
+                    showConfirmButton: false,
                     position:'center',
                 );  
             } 
@@ -834,9 +834,9 @@ class DetailPipeline extends Component
         // $this->validate([
         //     'commentaires'=>'required|max:255',            
         // ]);
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->modifier_opportunite; 
             if($autoriser == 1){ 
                 $statut = 'Terminer';
@@ -861,8 +861,8 @@ class DetailPipeline extends Component
                     title:'Vous n\'êtes pas autorisé à effectuer cette opération!',
                     timer:3000,
                     icon:'error',
-                    toast:false,
-                    showConfirmButton: true,
+                    toast:true,
+                    showConfirmButton: false,
                     position:'center',
                 ); 
             } 
@@ -883,9 +883,9 @@ class DetailPipeline extends Component
     } 
     public function ecraser(int $id){ 
 
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->supprimer_tier;
             if($autoriser == 1){   
                 if($id){                    

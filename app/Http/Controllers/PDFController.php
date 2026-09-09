@@ -130,11 +130,11 @@ class PDFController extends Controller
                 
         $dateJour = date('d-m-Y H:i:s');
 
-        $entite = Entite::where('enseigne',auth()->user()->societe)->where('active',1)->get();
+        $entite = Entite::where('id',auth()->user()->societe_id)->where('active',1)->get();
         $title = 'Facture | '.$entite[0]->raison_sociale;
         $activer_fidelite = $entite[0]->activer_fidelite;        
        
-        $Fact = factureFournisseurEntete::where('societe',auth()->user()->societe)->where('id',$id_fact)->limit(1)->get(); 
+        $Fact = factureFournisseurEntete::where('societe_id',auth()->user()->societe_id)->where('id',$id_fact)->limit(1)->get(); 
         $id_fournisseur = $Fact[0]->id_fournisseur;
         $date_vente = $Fact[0]->created_at;
         $nom_user = $Fact[0]->nom_user;
@@ -145,7 +145,7 @@ class PDFController extends Controller
         $code_commande = $Fact[0]->code_commande;
         
         if($id_fournisseur != 0){
-            $clientTier= Tier ::where('societe',auth()->user()->societe)->where('id',$id_fournisseur)->get(); 
+            $clientTier= Tier ::where('societe_id',auth()->user()->societe_id)->where('id',$id_fournisseur)->get(); 
             $client = $clientTier[0]->nom;
             $clientEmail = $clientTier[0]->email;
             $clientTel = $clientTier[0]->telephone;
@@ -166,7 +166,7 @@ class PDFController extends Controller
             $adresse = '';
         }        
 
-        $listeProd = factureFournisseurLigne ::where('societe',auth()->user()->societe)->where('id_facture_fournisseur_entete',$id_fact)->orderBy('id','asc')->get(); 
+        $listeProd = factureFournisseurLigne ::where('societe_id',auth()->user()->societe_id)->where('id_facture_fournisseur_entete',$id_fact)->orderBy('id','asc')->get(); 
         $montant_ht = $listeProd->sum('montant_ht');  
         $montant_remise = $listeProd->sum('montant_remise');  
         $montant_tva = $listeProd->sum('montant_tva');  
@@ -177,8 +177,8 @@ class PDFController extends Controller
         $NbreProd = $listeProd->sum('quantite');
         $TotalPvente = $listeProd->sum('prix_vente'); 
         
-        $reglement = Reglement_fourni ::where('societe',auth()->user()->societe)->where('id_facture_fournisseur_entete',$id_fact)->orderBy('id','asc')->get(); 
-        $reste_a_percevoir = factureFournisseurEntete::where('societe',auth()->user()->societe)->where('id',$id_fact)->sum('reste_a_percevoir');  
+        $reglement = Reglement_fourni ::where('societe_id',auth()->user()->societe_id)->where('id_facture_fournisseur_entete',$id_fact)->orderBy('id','asc')->get(); 
+        $reste_a_percevoir = factureFournisseurEntete::where('societe_id',auth()->user()->societe_id)->where('id',$id_fact)->sum('reste_a_percevoir');  
         
         // mettre en lettre
         // $montant = $montant_ttc;  
@@ -192,12 +192,12 @@ class PDFController extends Controller
         $montantEnLettres = Number::spell($montant);
         $montant_lettres = ucfirst($montantEnLettres);
                
-        $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->count();             
+        $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->count();             
         if($deviseTva == 0){
             $devise = 'FCFA';
         }
         else{
-            $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->get(); 
+            $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->get(); 
             $devise = $deviseTva[0]->devise;                
         } 
         if($format == 'A4'){
@@ -231,18 +231,18 @@ class PDFController extends Controller
                 
         $dateJour = date('d-m-Y H:i:s');
 
-        $entite = Entite::where('enseigne',auth()->user()->societe)->where('active',1)->get();
+        $entite = Entite::where('id',auth()->user()->societe_id)->where('active',1)->get();
         $title = 'Facture | '.$entite[0]->raison_sociale;
         $activer_fidelite = $entite[0]->activer_fidelite;
         
         if($pos == 'pv'){ 
-            $Fact = PosFactureClientEntete::where('societe',auth()->user()->societe)->where('id',$id_fact)->limit(1)->get();
+            $Fact = PosFactureClientEntete::where('societe_id',auth()->user()->societe_id)->where('id',$id_fact)->limit(1)->get();
         }
-        elseif($pos == 'pv_restau'){
-            $Fact = RestauPosfactureClientEntete::where('societe',auth()->user()->societe)->where('id',$id_fact)->limit(1)->get();
+        elseif($pos == 'pv_restau'){ 
+            $Fact = RestauPosfactureClientEntete::where('societe_id',auth()->user()->societe_id)->where('id',$id_fact)->limit(1)->get();
         }
         else{ 
-            $Fact = factureClientEntete::where('societe',auth()->user()->societe)->where('id',$id_fact)->limit(1)->get(); 
+            $Fact = factureClientEntete::where('societe_id',auth()->user()->societe_id)->where('id',$id_fact)->limit(1)->get(); 
         }
         $client_id = $Fact[0]->id_client;
         $date_vente = $Fact[0]->created_at;
@@ -264,7 +264,7 @@ class PDFController extends Controller
         }
         
         if($client_id != 0){
-            $clientTier= Tier ::where('societe',auth()->user()->societe)->where('id',$client_id)->get(); 
+            $clientTier= Tier ::where('societe_id',auth()->user()->societe_id)->where('id',$client_id)->get(); 
             $client = $clientTier[0]->nom;
             $clientEmail = $clientTier[0]->email;
             $clientTel = $clientTier[0]->telephone;
@@ -287,15 +287,15 @@ class PDFController extends Controller
 
         if($pos == 'pv'){ 
 
-            $listeProd = PosFactureClientLigne ::where('societe',auth()->user()->societe)->where('id_facture_client_entete',$id_fact)->orderBy('id','asc')->get(); 
+            $listeProd = PosFactureClientLigne ::where('societe_id',auth()->user()->societe_id)->where('id_facture_client_entete',$id_fact)->orderBy('id','asc')->get(); 
             $montant_ht = $listeProd->sum('montant_ht');  
             $montant_remise = $listeProd->sum('montant_remise');  
             $montant_tva = $listeProd->sum('montant_tva');  
             $montant_precompte = $listeProd->sum('montant_precompte');  
             $montant_ttc = $listeProd->sum('montant_ttc');  
             $qteTotal = $listeProd->sum('quantite');  
-            $reglement = Reglement ::where('societe',auth()->user()->societe)->where('id_facture_client_entete',$id_fact)->orderBy('id','asc')->get(); 
-            $reste_a_percevoir = PosFactureClientEntete::where('societe',auth()->user()->societe)->where('id',$id_fact)->sum('reste_a_percevoir'); 
+            $reglement = Reglement ::where('societe_id',auth()->user()->societe_id)->where('id_facture_client_entete',$id_fact)->orderBy('id','asc')->get(); 
+            $reste_a_percevoir = PosFactureClientEntete::where('societe_id',auth()->user()->societe_id)->where('id',$id_fact)->sum('reste_a_percevoir'); 
             
             // Pour ticket
             $NbreProd = $listeProd->sum('quantite');
@@ -313,15 +313,15 @@ class PDFController extends Controller
             $montant_lettres = ucfirst($montantEnLettres);
         }
         elseif($pos == 'pv_restau'){
-            $listeProd = RestauPosFactureClientLigne ::where('societe',auth()->user()->societe)->where('id_facture_client_entete',$id_fact)->orderBy('id','asc')->get(); 
+            $listeProd = RestauPosFactureClientLigne ::where('societe_id',auth()->user()->societe_id)->where('id_facture_client_entete',$id_fact)->orderBy('id','asc')->get(); 
             $montant_ht = $listeProd->sum('montant_ht');  
             $montant_remise = $listeProd->sum('montant_remise');  
             $montant_tva = $listeProd->sum('montant_tva');  
             $montant_precompte = $listeProd->sum('montant_precompte');  
             $montant_ttc = $listeProd->sum('montant_ttc');  
             $qteTotal = $listeProd->sum('quantite');  
-            $reglement = Reglement ::where('societe',auth()->user()->societe)->where('id_facture_client_entete',$id_fact)->orderBy('id','asc')->get(); 
-            $reste_a_percevoir = RestauPosfactureClientEntete::where('societe',auth()->user()->societe)->where('id',$id_fact)->sum('reste_a_percevoir'); 
+            $reglement = Reglement ::where('societe_id',auth()->user()->societe_id)->where('id_facture_client_entete',$id_fact)->orderBy('id','asc')->get(); 
+            $reste_a_percevoir = RestauPosfactureClientEntete::where('societe_id',auth()->user()->societe_id)->where('id',$id_fact)->sum('reste_a_percevoir'); 
             
             // Pour ticket
             $NbreProd = $listeProd->sum('quantite');
@@ -340,7 +340,7 @@ class PDFController extends Controller
         }
         else{ 
 
-            $listeProd = factureClientLigne ::where('societe',auth()->user()->societe)->where('id_facture_client_entete',$id_fact)->orderBy('id','asc')->get(); 
+            $listeProd = factureClientLigne ::where('societe_id',auth()->user()->societe_id)->where('id_facture_client_entete',$id_fact)->orderBy('id','asc')->get(); 
             $montant_ht = $listeProd->sum('montant_ht');  
             $montant_remise = $listeProd->sum('montant_remise');  
             $montant_tva = $listeProd->sum('montant_tva');  
@@ -351,8 +351,8 @@ class PDFController extends Controller
             $NbreProd = $listeProd->sum('quantite');
             $TotalPvente = $listeProd->sum('prix_vente'); 
             
-            $reglement = Reglement ::where('societe',auth()->user()->societe)->where('id_facture_client_entete',$id_fact)->orderBy('id','asc')->get(); 
-            $reste_a_percevoir = factureClientEntete::where('societe',auth()->user()->societe)->where('id',$id_fact)->sum('reste_a_percevoir');  
+            $reglement = Reglement ::where('societe_id',auth()->user()->societe_id)->where('id_facture_client_entete',$id_fact)->orderBy('id','asc')->get(); 
+            $reste_a_percevoir = factureClientEntete::where('societe_id',auth()->user()->societe_id)->where('id',$id_fact)->sum('reste_a_percevoir');  
             
             // mettre en lettre
             $montant = $montant_ttc;            
@@ -366,12 +366,12 @@ class PDFController extends Controller
             $montant_lettres = ucfirst($montantEnLettres);
         }         
 
-        $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->count();             
+        $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->count();             
         if($deviseTva == 0){
             $devise = 'FCFA';
         }
         else{
-            $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->get(); 
+            $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->get(); 
             $devise = $deviseTva[0]->devise;                
         } 
         if($format == 'A4'){
@@ -405,11 +405,11 @@ class PDFController extends Controller
                 
         $dateJour = date('d-m-Y H:i:s');
 
-        $entite = Entite::where('enseigne',auth()->user()->societe)->where('active',1)->get();
+        $entite = Entite::where('id',auth()->user()->societe_id)->where('active',1)->get();
         $title = 'Commande | '.$entite[0]->raison_sociale;
         $activer_fidelite = $entite[0]->activer_fidelite;            
         
-        $Cmd = CommandeClientEntete::where('societe',auth()->user()->societe)->where('id',$id_cmd)->limit(1)->get();            
+        $Cmd = CommandeClientEntete::where('societe_id',auth()->user()->societe_id)->where('id',$id_cmd)->limit(1)->get();            
         $client_id = $Cmd[0]->id_client;
         $date_vente = $Cmd[0]->created_at;
         $nom_user = $Cmd[0]->nom_user;
@@ -423,7 +423,7 @@ class PDFController extends Controller
         $code_proformaOk = $Cmd[0]->code_proforma;            
         
         if($client_id != 0){
-            $clientTier= Tier ::where('societe',auth()->user()->societe)->where('id',$client_id)->get(); 
+            $clientTier= Tier ::where('societe_id',auth()->user()->societe_id)->where('id',$client_id)->get(); 
             $client = $clientTier[0]->nom;
             $clientEmail = $clientTier[0]->email;
             $clientTel = $clientTier[0]->telephone;
@@ -446,7 +446,7 @@ class PDFController extends Controller
 
         if($pos == 'pv'){ 
 
-            $listeProd = CommandeClientLigne ::where('societe',auth()->user()->societe)->where('id_commande_client_entete',$id_cmd)->orderBy('id','asc')->get(); 
+            $listeProd = CommandeClientLigne ::where('societe_id',auth()->user()->societe_id)->where('id_commande_client_entete',$id_cmd)->orderBy('id','asc')->get(); 
             $montant_ht = $listeProd->sum('montant_ht');  
             $montant_remise = $listeProd->sum('montant_remise');  
             $montant_tva = $listeProd->sum('montant_tva');  
@@ -470,7 +470,7 @@ class PDFController extends Controller
         }
         else{ 
 
-            $listeProd = CommandeClientLigne ::where('societe',auth()->user()->societe)->where('id_commande_client_entete',$id_cmd)->orderBy('id','asc')->get(); 
+            $listeProd = CommandeClientLigne ::where('societe_id',auth()->user()->societe_id)->where('id_commande_client_entete',$id_cmd)->orderBy('id','asc')->get(); 
             $montant_ht = $listeProd->sum('montant_ht');  
             $montant_remise = $listeProd->sum('montant_remise');  
             $montant_tva = $listeProd->sum('montant_tva');  
@@ -493,12 +493,12 @@ class PDFController extends Controller
             $montant_lettres = ucfirst($montantEnLettres);
         }         
 
-        $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->count();             
+        $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->count();             
         if($deviseTva == 0){
             $devise = 'FCFA';
         }
         else{
-            $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->get(); 
+            $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->get(); 
             $devise = $deviseTva[0]->devise;                
         } 
         if($format == 'A4'){
@@ -536,11 +536,11 @@ class PDFController extends Controller
                 
         $dateJour = date('d-m-Y H:i:s');
 
-        $entite = Entite::where('enseigne',auth()->user()->societe)->where('active',1)->get();
+        $entite = Entite::where('id',auth()->user()->societe_id)->where('active',1)->get();
         $title = 'Commande | '.$entite[0]->raison_sociale;
         $activer_fidelite = $entite[0]->activer_fidelite;            
         
-        $Cmd = ProformaClientEntete::where('societe',auth()->user()->societe)->where('id',$id_cmd)->limit(1)->get();            
+        $Cmd = ProformaClientEntete::where('societe_id',auth()->user()->societe_id)->where('id',$id_cmd)->limit(1)->get();            
         $client_id = $Cmd[0]->id_client;
         $date_vente = $Cmd[0]->created_at;
         $nom_user = $Cmd[0]->nom_user;
@@ -553,7 +553,7 @@ class PDFController extends Controller
         $mode_reglement = $Cmd[0]->mode_reglement;            
         
         if($client_id != 0){
-            $clientTier= Tier ::where('societe',auth()->user()->societe)->where('id',$client_id)->get(); 
+            $clientTier= Tier ::where('societe_id',auth()->user()->societe_id)->where('id',$client_id)->get(); 
             $client = $clientTier[0]->nom;
             $clientEmail = $clientTier[0]->email;
             $clientTel = $clientTier[0]->telephone;
@@ -576,7 +576,7 @@ class PDFController extends Controller
 
         if($pos == 'pv'){ 
 
-            $listeProd = ProformaClientLigne ::where('societe',auth()->user()->societe)->where('id_proforma_client_entete',$id_cmd)->orderBy('id','asc')->get(); 
+            $listeProd = ProformaClientLigne ::where('societe_id',auth()->user()->societe_id)->where('id_proforma_client_entete',$id_cmd)->orderBy('id','asc')->get(); 
             $montant_ht = $listeProd->sum('montant_ht');  
             $montant_remise = $listeProd->sum('montant_remise');  
             $montant_tva = $listeProd->sum('montant_tva');  
@@ -600,7 +600,7 @@ class PDFController extends Controller
         }
         else{ 
 
-            $listeProd = ProformaClientLigne ::where('societe',auth()->user()->societe)->where('id_proforma_client_entete',$id_cmd)->orderBy('id','asc')->get(); 
+            $listeProd = ProformaClientLigne ::where('societe_id',auth()->user()->societe_id)->where('id_proforma_client_entete',$id_cmd)->orderBy('id','asc')->get(); 
             $montant_ht = $listeProd->sum('montant_ht');  
             $montant_remise = $listeProd->sum('montant_remise');  
             $montant_tva = $listeProd->sum('montant_tva');  
@@ -623,12 +623,12 @@ class PDFController extends Controller
             $montant_lettres = ucfirst($montantEnLettres);
         }         
 
-        $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->count();             
+        $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->count();             
         if($deviseTva == 0){
             $devise = 'FCFA';
         }
         else{
-            $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->get(); 
+            $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->get(); 
             $devise = $deviseTva[0]->devise;                
         } 
         if($format == 'A4'){   
@@ -661,12 +661,12 @@ class PDFController extends Controller
 
         $dateJour = date('d-m-Y H:i:s');
 
-        $entite = Entite::where('enseigne',auth()->user()->societe)->where('active',1)->get();
+        $entite = Entite::where('id',auth()->user()->societe_id)->where('active',1)->get();
         $title = 'Tier | '.$entite[0]->raison_sociale;
         $activer_fidelite = $entite[0]->activer_fidelite;  
         $societe = $entite[0]->raison_sociale;  
 
-        $clientTier= SoldeTier ::where('societe',auth()->user()->societe)->where('id',$id)->get(); 
+        $clientTier= SoldeTier ::where('societe_id',auth()->user()->societe_id)->where('id',$id)->get(); 
         $id_solde = $clientTier[0]->id;
         $id_tier = $clientTier[0]->id_tier;
         $client = $clientTier[0]->nom_tier;
@@ -702,12 +702,12 @@ class PDFController extends Controller
         $montantEnLettres = Number::spell($montant);
         $montant_lettres = ucfirst($montantEnLettres);
 
-        $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->count();             
+        $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->count();             
         if($deviseTva == 0){
             $devise = 'FCFA';
         }
         else{
-            $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->get(); 
+            $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->get(); 
             $devise = $deviseTva[0]->devise;                
         } 
         if($format == 'A4'){

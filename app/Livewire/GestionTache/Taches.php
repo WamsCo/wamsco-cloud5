@@ -49,9 +49,9 @@ class Taches extends Component
         $this->priorite = 'Faible';
     }
     public function mount(){  
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->consulter_tache;
             if($autoriser == 0){
                 toast()->error('Oups Désolé', 'Vous n\'êtes pas autorisé à ouvrir cette page!')->position('top-end')->autoClose(5000)->background('#fff')->width('460px')->padding('5px');
@@ -67,7 +67,7 @@ class Taches extends Component
     public function render()
     {
         $dateJour = date('Y-m-d');            
-        $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();
+        $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();
         $jourValid = $entite_mod[0]->validite_mod;
         $mod_tache = $entite_mod[0]->mod_tache;
         $soldeClient = $entite_mod[0]->solde;
@@ -83,31 +83,31 @@ class Taches extends Component
                 $choix = request('choix');
                 $dateJour = date('Y-m-d');             
 
-                $etape = EtapeTache :: where('societe',auth()->user()->societe)->orderBy('id','asc')->get(); 
+                $etape = EtapeTache :: where('societe_id',auth()->user()->societe_id)->orderBy('id','asc')->get(); 
 
                 // if(auth()->user()->societe == "Administration" && auth()->user()->type_user == "Administrateur"){ 
                 if(auth()->user()->type_user == "Administrateur"){ 
-                    $tacher = Tache :: where('societe',auth()->user()->societe)->orderBy('step')->orderBy('position')->get()->groupBy('step');
+                    $tacher = Tache :: where('societe_id',auth()->user()->societe_id)->orderBy('step')->orderBy('position')->get()->groupBy('step');
                 }
                 else{
-                    $tacher = Tache::where('societe',auth()->user()->societe)->where('id_utilisateur', auth()->user()->id)->orderBy('step')->orderBy('position')->get()->groupBy('step');
+                    $tacher = Tache::where('societe_id',auth()->user()->societe_id)->where('id_utilisateur', auth()->user()->id)->orderBy('step')->orderBy('position')->get()->groupBy('step');
                 }
                 $tacherCount = $tacher->count();
-                $user = Utilisateur::where('societe',auth()->user()->societe)->orderBy('name','asc')->get();
+                $user = Utilisateur::where('societe_id',auth()->user()->societe_id)->orderBy('name','asc')->get();
                 
-                $config = Parametre::where('societe',auth()->user()->societe)->limit(1)->get();
+                $config = Parametre::where('societe_id',auth()->user()->societe_id)->limit(1)->get();
                 $this->envoi_mail = $config[0]->envoi_mail;                
                 
-                $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->count();             
+                $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->count();             
                 if($deviseTva == 0){
                     $this->devise = 'FCFA';
                 }
                 else{
-                    $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->get(); 
+                    $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->get(); 
                     $this->devise = $deviseTva[0]->devise;                
                 }  
                 toast()->success('Prêt', '')->position('top-right')->autoClose(2000)->background('#fff')->width('220px')->padding('5px');            
-                $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get(); 
+                $entite_mod = Entite::where('id',auth()->user()->societe_id)->get(); 
                 $jourValid = $entite_mod[0]->validite_mod; 
                 // ceci pour trouver le nombre de jour restant avant expiration
                 $nbjoursRestant = round((strtotime($jourValid) - strtotime($dateJour))/(60*60*24));           
@@ -142,13 +142,13 @@ class Taches extends Component
     public function searchResult(){ 
         if(!empty($this->utilisateur)){
             if(ctype_alpha($this->utilisateur)){ // ctype_alpha: cette fonction permet de savoir si le caractere ou mot est une lettre  
-                $this->records = Utilisateur::where('etat',1)->where('societe',auth()->user()->societe)->where('name','like','%'.$this->utilisateur.'%')->orderBy('name','asc')->limit(8)->get(); 
-                $this->recordCount = Utilisateur::where('etat',1)->where('societe',auth()->user()->societe)->where('name','like','%'.$this->utilisateur.'%')->count();
+                $this->records = Utilisateur::where('etat',1)->where('societe_id',auth()->user()->societe_id)->where('name','like','%'.$this->utilisateur.'%')->orderBy('name','asc')->limit(8)->get(); 
+                $this->recordCount = Utilisateur::where('etat',1)->where('societe_id',auth()->user()->societe_id)->where('name','like','%'.$this->utilisateur.'%')->count();
                 $this->showdiv = true;
             }
             else{
-                $this->records = Utilisateur::where('etat',1)->where('societe',auth()->user()->societe)->where('telephone','like','%'.$this->utilisateur.'%')->orderBy('name','asc')->limit(8)->get(); 
-                $this->recordCount = Utilisateur::where('etat',1)->where('societe',auth()->user()->societe)->where('telephone','like','%'.$this->utilisateur.'%')->count(); 
+                $this->records = Utilisateur::where('etat',1)->where('societe_id',auth()->user()->societe_id)->where('telephone','like','%'.$this->utilisateur.'%')->orderBy('name','asc')->limit(8)->get(); 
+                $this->recordCount = Utilisateur::where('etat',1)->where('societe_id',auth()->user()->societe_id)->where('telephone','like','%'.$this->utilisateur.'%')->count(); 
                 $this->showdiv = true;
             }        
         }
@@ -171,18 +171,18 @@ class Taches extends Component
             'evolution'=>'required|numeric', // id etape
             'priorite'=>'required|max:255', 
         ]);   
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->creer_tache;
             if($autoriser == 1){ 
 
-                $test_user = Utilisateur ::where('societe',auth()->user()->societe)->where('id',$this->ids_utilisateur)->count();               
+                $test_user = Utilisateur ::where('societe_id',auth()->user()->societe_id)->where('id',$this->ids_utilisateur)->count();               
                 if($test_user > 0){                    
-                    $test_etapes = EtapeTache::where('societe',auth()->user()->societe)->where('id', $this->evolution)->count();
+                    $test_etapes = EtapeTache::where('societe_id',auth()->user()->societe_id)->where('id', $this->evolution)->count();
                     if($test_etapes > 0){
 
-                        $etapes = EtapeTache::where('societe',auth()->user()->societe)->where('id', $this->evolution)->first();
+                        $etapes = EtapeTache::where('societe_id',auth()->user()->societe_id)->where('id', $this->evolution)->first();
                         $nom_etape = $etapes->nom_etape; 
                         $date_cloture = date('Y-m-d', strtotime('2 month'));                  
 
@@ -191,11 +191,11 @@ class Taches extends Component
                         $dates = date('dmy/His');  
                         $token_ok = 'TAC/'.$dates;
                         $reference = $token_ok;
-                        Tache :: create(['reference'=>$reference,'utilisateur'=>$this->utilisateur,'id_utilisateur'=>$this->ids_utilisateur,'nom_tache'=>$this->nom_tache,
+                        $tach = Tache :: create(['reference'=>$reference,'utilisateur'=>$this->utilisateur,'id_utilisateur'=>$this->ids_utilisateur,'nom_tache'=>$this->nom_tache,
                         'etape'=>$nom_etape,'id_etape'=>$this->evolution,'step'=>$this->evolution,'position'=>$position,'priorite'=>$this->priorite,'temps_alloue'=>$temps_alloue,
-                        'date_cloture'=>$date_cloture,'assignation_id'=>auth()->user()->id,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->email,'user_id'=>auth()->user()->id]);
+                        'date_cloture'=>$date_cloture,'assignation_id'=>auth()->user()->id,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->email,'user_id'=>auth()->user()->id]);
                         // ceci recupere le dernier enregistrement cree a l'instant
-                        $dernier_id = Tache::where('societe',auth()->user()->societe)->where('user_id',auth()->user()->id)->latest()->first()->id; 
+                        $dernier_id = $tach->id; 
                         $this->dispatch('pipelineStore');
                         $id_activite = $dernier_id;   
                         $page = 'Tache';    
@@ -255,18 +255,18 @@ class Taches extends Component
         }   
     }
     public function tacher(int $id){
-        $etapes = EtapeTache::where('societe',auth()->user()->societe)->where('id', $id)->first();
+        $etapes = EtapeTache::where('societe_id',auth()->user()->societe_id)->where('id', $id)->first();
         $this->evolution = $etapes->id;
     }    
     public function getTotalParTache(int $id_etape){
 
         if(auth()->user()->type_user == "Administrateur"){ 
 
-            return Tache :: where('societe',auth()->user()->societe)->where('id_etape', $id_etape)->count();  
+            return Tache :: where('societe_id',auth()->user()->societe_id)->where('id_etape', $id_etape)->count();  
         }
         else{
 
-            return Tache :: where('societe',auth()->user()->societe)->where('id_utilisateur', auth()->user()->id)->where('id_etape', $id_etape)->count(); 
+            return Tache :: where('societe_id',auth()->user()->societe_id)->where('id_utilisateur', auth()->user()->id)->where('id_etape', $id_etape)->count(); 
         }            
     }      
     public function moveTask($taskId, $newEtape, $newPosition){    
@@ -279,11 +279,11 @@ class Taches extends Component
                 });
 
             // NB:  ceci enregistrer dans Tache l'etape actuelle
-            $Task =  Tache::where('societe',auth()->user()->societe)->where('id',$taskId)->first();
+            $Task =  Tache::where('societe_id',auth()->user()->societe_id)->where('id',$taskId)->first();
             $id_step_task = $Task->step;   
             $id_utilisateur = $Task->id_utilisateur;   
 
-            $etap =  EtapeTache::where('societe',auth()->user()->societe)->where('id',$id_step_task)->first();
+            $etap =  EtapeTache::where('societe_id',auth()->user()->societe_id)->where('id',$id_step_task)->first();
             $nom_etape = $etap->nom_etape;
             
             Tache :: find($taskId)->update(['etape'=>$nom_etape,'id_etape'=>$id_step_task,]);        
@@ -296,8 +296,9 @@ class Taches extends Component
                 $email = $user[0]->email;
                 $name = $user[0]->name;
                 $societe = $user[0]->societe;
+                $societe_id = $user[0]->societe_id;
 
-                $entite_all = Entite::where('enseigne',$societe)->get();
+                $entite_all = Entite::where('id',$societe_id)->get();
                 $logo = $entite_all[0]->logo;
                 
                 // recupere les donnees taches mise a jour

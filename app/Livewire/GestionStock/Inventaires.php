@@ -65,9 +65,9 @@ class Inventaires extends Component
         }
     }
     public function mount(){        
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->consulter_inventaire;
             if($autoriser == 0){
                 alert()->error('Oups Désolé', 'Vous n\'êtes pas autorisé à ouvrir cette page !!!')->position('center')->autoClose(5000)->background('#fff')->width('460px')->padding('5px');
@@ -83,7 +83,7 @@ class Inventaires extends Component
     }
     public function render(){
         $dateJour = date('Y-m-d');            
-        $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();
+        $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();
         $jourValid = $entite_mod[0]->validite_mod; 
         $mod_gestion_stock = $entite_mod[0]->mod_gestion_stock;
         $soldeClient = $entite_mod[0]->solde;
@@ -102,33 +102,33 @@ class Inventaires extends Component
                 $start = Carbon::parse($this->date_debut)->startOfDay(); //2016-09-29 00:00:00.000000
                 $end = Carbon::parse($this->date_fin)->endOfDay();     // 2016-09-29 23:59:59.000000
                 if(!empty($this->parEntrepot)){
-                    $inventaire = Inventaire::where('societe',auth()->user()->societe)->where('reference','like','%'.$this->query.'%')->where('id_entrepot',$this->parEntrepot)->whereBetween('created_at',[$start, $end])->orderBy($this->orderField, $this->orderDirection)->paginate($this->parPage);
+                    $inventaire = Inventaire::where('societe_id',auth()->user()->societe_id)->where('reference','like','%'.$this->query.'%')->where('id_entrepot',$this->parEntrepot)->whereBetween('created_at',[$start, $end])->orderBy($this->orderField, $this->orderDirection)->paginate($this->parPage);
                 }
                 else{
-                    $inventaire = Inventaire::where('societe',auth()->user()->societe)->where('reference','like','%'.$this->query.'%')->whereBetween('created_at',[$start, $end])->orderBy($this->orderField, $this->orderDirection)->paginate($this->parPage);
+                    $inventaire = Inventaire::where('societe_id',auth()->user()->societe_id)->where('reference','like','%'.$this->query.'%')->whereBetween('created_at',[$start, $end])->orderBy($this->orderField, $this->orderDirection)->paginate($this->parPage);
                 }
                 $inventaireCount = $inventaire->count(); 
-                $listedeviseTva = DeviseTva :: where('societe',auth()->user()->societe)->get();
-                $listEntrepot = Entrepot::where('societe',auth()->user()->societe)->where('active',1)->orderBy('nom','asc')->get(); 
+                $listedeviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->get();
+                $listEntrepot = Entrepot::where('societe_id',auth()->user()->societe_id)->where('active',1)->orderBy('nom','asc')->get(); 
 
-                $resultat = Inventaire::where('societe',auth()->user()->societe)->get();  
+                $resultat = Inventaire::where('societe_id',auth()->user()->societe_id)->get();  
                 $nbreTotalInventaire = $resultat->count();     
 
-                $derniereActivite = Inventaire::where('societe',auth()->user()->societe)->latest('updated_at')->first();                
+                $derniereActivite = Inventaire::where('societe_id',auth()->user()->societe_id)->latest('updated_at')->first();                
 
                 $page = 'Inventaire'; // pour evenement lies
-                $log = LogActivityModel::where('user_societe',auth()->user()->societe)->where('page', $page)->limit(50)->orderBy('id','desc')->get();
+                $log = LogActivityModel::where('societe_id',auth()->user()->societe_id)->where('page', $page)->limit(50)->orderBy('id','desc')->get();
                 $logCount = $log->count();
 
-                $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->count(); 
+                $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->count(); 
                 if($deviseTva == 0){
                     $this->devise = 'FCFA';
                 }
                 else{
-                    $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->get(); 
+                    $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->get(); 
                     $this->devise = $deviseTva[0]->devise;
                 }
-                $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();          
+                $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();          
                 $jourValid = $entite_mod[0]->validite_mod; 
                 // ceci pour trouver le nombre de jour restant avant expiration
                 $nbjoursRestant = round((strtotime($jourValid) - strtotime($dateJour))/(60*60*24));
@@ -169,22 +169,22 @@ class Inventaires extends Component
             'date_inventaire'=>'required|max:255',
             'note'=>'nullable|max:255',
         ]);                
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->creer_inventaire;
             if($autoriser == 1){  
 
-                    $dataEntrepot = Entrepot::where('societe',auth()->user()->societe)->where('id',$this->entrepot)->get(); 
+                    $dataEntrepot = Entrepot::where('societe_id',auth()->user()->societe_id)->where('id',$this->entrepot)->get(); 
                     $ide = $dataEntrepot[0]->id;
                     $nameEntrepot = $dataEntrepot[0]->nom;
 
                     $this->etat = 'Brouillon';
-                    Inventaire::create(['reference'=>$this->reference,'libelle'=>$this->libelle,'entrepot'=>$nameEntrepot,'id_entrepot'=>$this->entrepot,'date_inventaire'=>$this->date_inventaire,
-                    'note'=>$this->note,'etat'=>$this->etat,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                    $inventair = Inventaire::create(['reference'=>$this->reference,'libelle'=>$this->libelle,'entrepot'=>$nameEntrepot,'id_entrepot'=>$this->entrepot,'date_inventaire'=>$this->date_inventaire,
+                    'note'=>$this->note,'etat'=>$this->etat,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
                    
                     // ceci recupere le dernier enregistrement cree a l'instant
-                    $dernier_id = Inventaire::where('societe',auth()->user()->societe)->where('user_id',auth()->user()->id)->latest()->first()->id;
+                    $dernier_id = $inventair->id;
                     $id_activite = $dernier_id;
                     $page = 'Inventaire'; // Pour evenement lie
                     LogActivity::addToLog('Entête inventaire » '.$this->reference.' créé', $id_activite, $page); 
@@ -225,9 +225,9 @@ class Inventaires extends Component
         $this->confirmer = $id;      
     } 
     public function supprimer($id){ 
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->supprimer_inventaire;
             if($autoriser == 1){  
                 if($id){                     

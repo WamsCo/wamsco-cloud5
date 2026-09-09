@@ -48,9 +48,9 @@ class StockDate extends Component
         }
     }
     public function mount(){        
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->consulter_produit;
             if($autoriser == 0){
                 alert()->error('Oups Désolé', 'Vous n\'êtes pas autorisé à ouvrir cette page !!!')->position('center')->autoClose(5000)->background('#fff')->width('460px')->padding('5px');
@@ -66,7 +66,7 @@ class StockDate extends Component
     public function render()
     {
         $dateJour = date('Y-m-d');            
-        $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();
+        $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();
         $jourValid = $entite_mod[0]->validite_mod;
         $mod_gestion_stock = $entite_mod[0]->mod_gestion_stock;
         $soldeClient = $entite_mod[0]->solde; 
@@ -84,10 +84,10 @@ class StockDate extends Component
                 
                 // $start = Carbon::parse($this->date_debut)->startOfDay(); //2016-09-29 00:00:00.000000
                 // $end = Carbon::parse($this->date_fin)->endOfDay();     // 2016-09-29 23:59:59.000000
-                $listProduit = Produit::where('societe',auth()->user()->societe)->where('etat',1)->orderBy('nom_produit','asc')->get();
-                $listEntrepot = Entrepot::where('societe',auth()->user()->societe)->where('active',1)->orderBy('nom','asc')->get();
+                $listProduit = Produit::where('societe_id',auth()->user()->societe_id)->where('etat',1)->orderBy('nom_produit','asc')->get();
+                $listEntrepot = Entrepot::where('societe_id',auth()->user()->societe_id)->where('active',1)->orderBy('nom','asc')->get();
                 
-                // $mouvement = Mouvement::where('societe',auth()->user()->societe)->where('reference','like','%'.$this->query.'%')->where('created_at','<=',$start)->orderBy($this->orderField, $this->orderDirection)->paginate($this->parPage);  
+                // $mouvement = Mouvement::where('societe_id',auth()->user()->societe_id)->where('reference','like','%'.$this->query.'%')->where('created_at','<=',$start)->orderBy($this->orderField, $this->orderDirection)->paginate($this->parPage);  
                 if(empty($this->date_debut)){                
                     $date_debut = 0;
                     $mouvement = 'null';
@@ -109,18 +109,18 @@ class StockDate extends Component
                                 SELECT COALESCE(SUM(stocks.quantite), 0)
                                 FROM stocks
                                 WHERE stocks.id_produit = mouvements.id_produit
-                                AND stocks.societe = mouvements.societe
+                                AND stocks.societe_id = mouvements.societe_id
                             ) as stock_actuel'),
                             DB::raw('COUNT(mouvements.id_produit) as nombreFois'),
                             DB::raw('MAX(mouvements.created_at) as created_at')
                         )
-                        ->where('mouvements.societe', auth()->user()->societe)
+                        ->where('mouvements.societe_id', auth()->user()->societe_id)
                         ->where('mouvements.created_at', '<=', $this->date_debut)
                         ->groupBy(
                             'mouvements.id_produit',
                             'mouvements.nom_produit',
                             'mouvements.reference',
-                            'mouvements.societe'
+                            'mouvements.societe_id'
                         )
                         ->orderBy($this->orderField, $this->orderDirection)
                         ->paginate($this->parPage);
@@ -140,19 +140,19 @@ class StockDate extends Component
                                 SELECT COALESCE(SUM(stocks.quantite), 0)
                                 FROM stocks
                                 WHERE stocks.id_produit = mouvements.id_produit
-                                AND stocks.societe = mouvements.societe
+                                AND stocks.societe_id = mouvements.societe_id
                             ) as stock_actuel'),
                             DB::raw('COUNT(mouvements.id_produit) as nombreFois'),
                             DB::raw('MAX(mouvements.created_at) as created_at')
                         )
-                        ->where('mouvements.societe', auth()->user()->societe)
+                        ->where('mouvements.societe_id', auth()->user()->societe_id)
                         ->where('mouvements.id_produit', $this->parProduit)
                         ->where('mouvements.created_at', '<=', $this->date_debut)
                         ->groupBy(
                             'mouvements.id_produit',
                             'mouvements.nom_produit',
                             'mouvements.reference',
-                            'mouvements.societe'
+                            'mouvements.societe_id'
                         )
                         ->orderBy($this->orderField, $this->orderDirection)
                         ->paginate($this->parPage);
@@ -172,19 +172,19 @@ class StockDate extends Component
                                 SELECT COALESCE(SUM(stocks.quantite), 0)
                                 FROM stocks
                                 WHERE stocks.id_produit = mouvements.id_produit
-                                AND stocks.societe = mouvements.societe
+                                AND stocks.societe_id = mouvements.societe_id
                             ) as stock_actuel'),
                             DB::raw('COUNT(mouvements.id_produit) as nombreFois'),
                             DB::raw('MAX(mouvements.created_at) as created_at')
                         )
-                        ->where('mouvements.societe', auth()->user()->societe)
+                        ->where('mouvements.societe_id', auth()->user()->societe_id)
                         ->where('mouvements.id_entrepot', $this->parEntrepot)
                         ->where('mouvements.created_at', '<=', $this->date_debut)
                         ->groupBy(
                             'mouvements.id_produit',
                             'mouvements.nom_produit',
                             'mouvements.reference',
-                            'mouvements.societe'
+                            'mouvements.societe_id'
                         )
                         ->orderBy($this->orderField, $this->orderDirection)
                         ->paginate($this->parPage);
@@ -204,12 +204,12 @@ class StockDate extends Component
                                 SELECT COALESCE(SUM(stocks.quantite), 0)
                                 FROM stocks
                                 WHERE stocks.id_produit = mouvements.id_produit
-                                AND stocks.societe = mouvements.societe
+                                AND stocks.societe_id = mouvements.societe_id
                             ) as stock_actuel'),
                             DB::raw('COUNT(mouvements.id_produit) as nombreFois'),
                             DB::raw('MAX(mouvements.created_at) as created_at')
                         )
-                        ->where('mouvements.societe', auth()->user()->societe)
+                        ->where('mouvements.societe_id', auth()->user()->societe_id)
                         ->where('mouvements.id_produit', $this->parProduit)
                         ->where('mouvements.id_entrepot', $this->parEntrepot)
                         ->where('mouvements.created_at', '<=', $this->date_debut)
@@ -217,7 +217,7 @@ class StockDate extends Component
                             'mouvements.id_produit',
                             'mouvements.nom_produit',
                             'mouvements.reference',
-                            'mouvements.societe'
+                            'mouvements.societe_id'
                         )
                         ->orderBy($this->orderField, $this->orderDirection)
                         ->paginate($this->parPage);
@@ -226,18 +226,18 @@ class StockDate extends Component
                 }           
 
                 $page = 'Stock'; // pour evenement lies
-                $log = LogActivityModel::where('user_societe',auth()->user()->societe)->where('page', $page)->limit(20)->orderBy('id','desc')->get();
+                $log = LogActivityModel::where('societe_id',auth()->user()->societe_id)->where('page', $page)->limit(20)->orderBy('id','desc')->get();
                 $logCount = $log->count();
 
-                $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->count(); 
+                $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->count(); 
                 if($deviseTva == 0){
                     $this->devise = 'FCFA';
                 }
                 else{
-                    $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->get(); 
+                    $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->get(); 
                     $this->devise = $deviseTva[0]->devise;
                 }
-                $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();          
+                $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();          
                 $jourValid = $entite_mod[0]->validite_mod; 
                 // ceci pour trouver le nombre de jour restant avant expiration
                 $nbjoursRestant = round((strtotime($jourValid) - strtotime($dateJour))/(60*60*24));

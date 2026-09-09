@@ -48,9 +48,9 @@ class DetailsTicket extends Component
     // public $fichier_joint;
 
     public function mount(){         
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->consulter_ticket;
             if($autoriser == 0){
                 alert()->error('Oups Désolé', 'Vous n\'êtes pas autorisé à ouvrir cette page !!!')->position('center')->autoClose(5000)->background('#fff')->width('460px')->padding('5px');
@@ -64,7 +64,7 @@ class DetailsTicket extends Component
     }
     public function render(){
         $dateJour = date('Y-m-d');            
-        $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();
+        $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();
         $jourValid = $entite_mod[0]->validite_mod;
         $mod_ticket = $entite_mod[0]->mod_ticket;
         $soldeClient = $entite_mod[0]->solde; 
@@ -85,7 +85,7 @@ class DetailsTicket extends Component
                     $test_ticket = Ticket::where('id',$id)->count();
                 }
                 else{
-                    $test_ticket = Ticket::where('societe',auth()->user()->societe)->where('id',$id)->count();
+                    $test_ticket = Ticket::where('societe_id',auth()->user()->societe_id)->where('id',$id)->count();
                 } 
 
                 if($test_ticket > 0){
@@ -93,7 +93,7 @@ class DetailsTicket extends Component
                         $tickets = Ticket::where('id',$id)->first(); 
                     }
                     else{
-                        $tickets = Ticket::where('societe',auth()->user()->societe)->where('id',$id)->first(); 
+                        $tickets = Ticket::where('societe_id',auth()->user()->societe_id)->where('id',$id)->first(); 
                     }         
                     $this->ids = $tickets->id;
                     $this->reference = $tickets->reference;
@@ -115,9 +115,9 @@ class DetailsTicket extends Component
                     $this->updated_at = $tickets->updated_at;
                 }     
 
-                // $listUser = Utilisateur::where('societe',auth()->user()->societe)->where('etat',1)->orderBy('name','asc')->get(); 
+                // $listUser = Utilisateur::where('societe_id',auth()->user()->societe_id)->where('etat',1)->orderBy('name','asc')->get(); 
                 if(auth()->user()->societe == "Administration"){
-                    $listUser = Utilisateur::where('societe',auth()->user()->societe)->where('etat',1)->orderBy('name','asc')->get();
+                    $listUser = Utilisateur::where('societe_id',auth()->user()->societe_id)->where('etat',1)->orderBy('name','asc')->get();
                 }
                 else{
                     $listUser = Utilisateur::where('email','support@wamsco-cloud.net')->where('etat',1)->orderBy('name','asc')->get(); 
@@ -128,15 +128,15 @@ class DetailsTicket extends Component
                 $log = LogActivityModel::where('user_societe',auth()->user()->societe)->where('id_activite', $this->ids)->where('page', $page)->limit(50)->orderBy('id','desc')->get();
                 $logCount = $log->count();
             
-                $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->count(); 
+                $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->count(); 
                 if($deviseTva == 0){
                     $this->devise = 'FCFA';
                 }
                 else{
-                    $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->get(); 
+                    $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->get(); 
                     $this->devise = $deviseTva[0]->devise;
                 }            
-                $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();          
+                $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();          
                 $jourValid = $entite_mod[0]->validite_mod; 
                 // ceci pour trouver le nombre de jour restant avant expiration
                 $nbjoursRestant = round((strtotime($jourValid) - strtotime($dateJour))/(60*60*24));
@@ -200,20 +200,22 @@ class DetailsTicket extends Component
                 'source'=>'nullable|max:255',              
             ]); 
         }       
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->modifier_ticket;
             if($autoriser == 1){         
                 if(auth()->user()->societe == "Administration"){
 
-                    $TestUser = Utilisateur::where('societe',auth()->user()->societe)->where('id',$this->assignation)->where('etat',1)->orderBy('name','asc')->count(); 
+                    $TestUser = Utilisateur::where('societe_id',auth()->user()->societe_id)->where('id',$this->assignation)->where('etat',1)->orderBy('name','asc')->count(); 
                     if($TestUser > 0){
-                        $User = Utilisateur::where('societe',auth()->user()->societe)->where('id',$this->assignation)->where('etat',1)->orderBy('name','asc')->get();            
+                        $User = Utilisateur::where('societe_id',auth()->user()->societe_id)->where('id',$this->assignation)->where('etat',1)->orderBy('name','asc')->get();            
                         $name = $User[0]->name;
+                        $societe_id = $User[0]->societe_id;
+
                         Ticket::find($this->ids)->update(['nom_ticket'=>$this->nom_ticket,'type_demande'=>$this->type_demande,'priorite'=>$this->priorite,'description'=>$this->description,
                         'assignation'=>$name,'assignation_id'=>$this->assignation,'telephone_user'=>$this->telephone_user,'statut'=>$this->statut,'progression'=>$this->progression,'note'=>$this->note,
-                        'source'=>$this->source,'societe'=>$this->societe,]);
+                        'source'=>$this->source,'societe'=>$this->societe,'societe_id'=>$societe_id]);
 
                         $id_activite = $this->ids;
                         $page = 'Tickets';
@@ -284,7 +286,7 @@ class DetailsTicket extends Component
             $testPrecedant = Ticket::where('id','<',$id)->orderBy('id','desc')->count();
         }
         else{
-            $testPrecedant = Ticket::where('societe',auth()->user()->societe)->where('id','<',$id)->orderBy('id','desc')->count();
+            $testPrecedant = Ticket::where('societe_id',auth()->user()->societe_id)->where('id','<',$id)->orderBy('id','desc')->count();
         }
 
         if($testPrecedant > 0){ 
@@ -292,7 +294,7 @@ class DetailsTicket extends Component
                 $precedant = Ticket::where('id','<',$id)->orderBy('id','desc')->first(); 
             }
             else{
-                $precedant = Ticket::where('societe',auth()->user()->societe)->where('id','<',$id)->orderBy('id','desc')->first();
+                $precedant = Ticket::where('societe_id',auth()->user()->societe_id)->where('id','<',$id)->orderBy('id','desc')->first();
             }
             $previous = $precedant->id; 
             $this->redirect('/detail_ticket?id='.$previous.'&active=13&champ=1-2', navigate: true);              
@@ -314,7 +316,7 @@ class DetailsTicket extends Component
             $testSuivant = Ticket::where('id','>',$id)->orderBy('id','asc')->count();
         }
         else{
-            $testSuivant = Ticket::where('societe',auth()->user()->societe)->where('id','>',$id)->orderBy('id','desc')->count();
+            $testSuivant = Ticket::where('societe_id',auth()->user()->societe_id)->where('id','>',$id)->orderBy('id','desc')->count();
         }
         
         if($testSuivant > 0){
@@ -322,7 +324,7 @@ class DetailsTicket extends Component
                 $suivant = Ticket::where('id','>',$id)->orderBy('id','asc')->first();
             }
             else{
-                $suivant = Ticket::where('societe',auth()->user()->societe)->where('id','>',$id)->orderBy('id','desc')->first();
+                $suivant = Ticket::where('societe_id',auth()->user()->societe_id)->where('id','>',$id)->orderBy('id','desc')->first();
             }            
             $next = $suivant->id;             
             $this->redirect('/detail_ticket?id='.$next.'&active=13&champ=1-2', navigate: true);                     
@@ -343,9 +345,9 @@ class DetailsTicket extends Component
         $this->confirmer = $id;      
     } 
     public function supprimer($id){ 
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->supprimer_ticket;
             if($autoriser == 1){  
                 if($this->ids){                     

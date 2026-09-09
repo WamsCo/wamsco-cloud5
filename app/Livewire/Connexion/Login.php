@@ -105,7 +105,8 @@ class Login extends Component
                     $this->validate(['email'=>'required|email','password'=>'required|min:8']);                    
                     $resultat = auth()->attempt(['email'=>$this->email,'password'=>$this->password]);
                     if($resultat){ 
-                        $societe = Entite::where('enseigne',auth()->user()->societe)->first();
+                        // $societe = Entite::where('enseigne',auth()->user()->societe)->first();
+                        $societe = Entite::where('id',auth()->user()->societe_id)->first();
                         $active = $societe->active;
                         if($active == 1){
                             if(auth()->user()->confirmer == 1){                            

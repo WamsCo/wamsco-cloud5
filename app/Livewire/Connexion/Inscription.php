@@ -3,6 +3,7 @@
 namespace App\Livewire\Connexion;
 
 use Livewire\Component;
+use Illuminate\Support\Str;
 use Livewire\Attributes\Validate; 
 use App\Helpers\LogActivity;
 use Livewire\WithPagination;
@@ -167,7 +168,7 @@ class Inscription extends Component
             'captcha'=>'required|numeric|max:255',            
         ]); 
         if($this->captcha == 9){
-            try {
+                try {
                     $dateJour = date('Y-m-d'); 
                     $nbrJour = 14;            
                     $this->validite_mod = date('Y-m-d',strtotime("+$nbrJour days", strtotime($dateJour)));
@@ -185,9 +186,18 @@ class Inscription extends Component
                     $this->etat_commission = 'Gratuit';
                     $solde = 0;
                     $sexe = 'Non-défini';
-                    $salarie = 0;            
-                                    
-                    Entite :: create(['solde'=>$solde,'enseigne'=>$this->societe,'societe_mere'=>$this->societe,'raison_sociale'=>$this->societe,'telephone'=>$this->telephone,'ville'=>$this->ville,
+                    $salarie = 0;        
+                    
+                    // ceci cree le slug : le lien (sous-domaines dynamiques plutard: boutique-abc.wamsco-cloud.net / supermarche-x.wamsco-cloud.net / pharmacie-y.wamsco-cloud.net.)
+                    $slug = Str::slug($this->societe);
+                    $originalSlug = $slug;
+                    $count = 1;
+
+                    while (Entite::where('slug', $slug)->exists()) {
+                        $slug = $originalSlug . '-' . $count++;
+                    }
+                                 
+                    $entit = Entite :: create(['solde'=>$solde,'enseigne'=>$this->societe,'societe_mere'=>$this->societe,'raison_sociale'=>$this->societe,'slug'=>$slug,'telephone'=>$this->telephone,'ville'=>$this->ville,
                             'pays'=>$this->pays,'active'=>$activer,'mod_pointe_vente'=>$this->mod_pointe_vente,'mod_cuisine'=>$this->mod_cuisine,'mod_administration'=>$this->mod_administration,'mod_gestion_tier'=>$this->mod_gestion_tier,'mod_crm'=>$this->mod_crm,
                             'mod_fabrication'=>$this->mod_fabrication,'mod_gestion_stock'=>$this->mod_gestion_stock,'mod_banque_caisse'=>$this->mod_banque_caisse,'mod_facturation'=>$this->mod_facturation,
                             'mod_cmd'=>$this->mod_cmd,'mod_multisociete'=>$this->mod_multisociete,'mod_ticket'=>$this->mod_ticket,'mod_tache'=>$this->mod_tache,'validite_mod'=>$this->validite_mod,'jour_restant'=>$nbjoursRestant,'nbre_user_max'=>$this->nbre_user_max,
@@ -196,24 +206,25 @@ class Inscription extends Component
                             'nom_user'=>$this->email,'user_id'=>0]); 
 
                     // Recupere dernier Entite creer actuelement
-                    $dernier_id = Entite::where('enseigne',$this->societe)->latest()->first()->id;                     
+                    $dernier_id = $entit->id;   // plus fiable          
 
                     // $moisJour = '12-28';
                     // $date_valide = date('Y-'.$moisJour);
                     $nbreMois = 12;
                     $date_valide = date('Y-m-d', strtotime('+'.$nbreMois.'month'));
-                    Utilisateur:: create(['email'=>$this->email,'name'=>$this->nom_utilisateur,'telephone'=>$this->telephone,'password'=>bcrypt($this->password),'type_user'=>$this->nom,
-                    'date_valide'=>$date_valide,'etat'=>$activer,'sexe'=>$sexe,'salarie'=>$salarie,'societe'=>$this->societe,'societe_mere'=>$this->societe,
+                    
+                    $users = Utilisateur:: create(['email'=>$this->email,'name'=>$this->nom_utilisateur,'telephone'=>$this->telephone,'password'=>bcrypt($this->password),'type_user'=>$this->nom,
+                    'date_valide'=>$date_valide,'etat'=>$activer,'sexe'=>$sexe,'salarie'=>$salarie,'societe'=>$this->societe,'societe_id'=>$dernier_id,'societe_mere'=>$this->societe,'societe_mere_id'=>$dernier_id,
                     'nom_user'=>$this->email,'user_id'=>0]);
 
                     // Recupere dernier utilisateur creer actuelement
-                    $idUser = Utilisateur::where('societe_mere',$this->societe)->latest()->first()->id;              
-                    Utilisateur::find($idUser)->update(['user_id'=>$idUser]); // ceci pour avoir id de celui qui a creer : qui est lui meme
-                    
-                    Entite::find($dernier_id)->update(['user_id'=>$idUser]); 
+                    $idUser = $users->id;  
+
+                    Utilisateur::find($idUser)->update(['user_id'=>$idUser]); // ceci pour avoir id de celui qui a creer : qui est lui meme                    
+                    Entite::find($dernier_id)->update(['user_id'=>$idUser,'societe_mere_id'=>$dernier_id,]); 
 
                     $description_role = $this->description.' '.$this->societe;            
-                    Role::create(['nom'=>$this->nom,'societe'=>$this->societe,'description'=>$description_role,'nom_user'=>$this->nom_utilisateur,'user_id'=>$idUser,
+                    Role::create(['nom'=>$this->nom,'societe'=>$this->societe,'societe_id'=>$dernier_id,'description'=>$description_role,'nom_user'=>$this->nom_utilisateur,'user_id'=>$idUser,
                                 'consulter_tier'=>$this->consulter_tier,'creer_tier'=>$this->creer_tier,'modifier_tier'=>$this->modifier_tier, 'supprimer_tier'=>$this->supprimer_tier,
                                 'consulter_produit'=>$this->consulter_produit,'creer_produit'=>$this->creer_produit,'modifier_produit'=>$this->modifier_produit,'supprimer_produit'=>$this->supprimer_produit,
                                 'consulter_categorie'=>$this->consulter_categorie,'creer_categorie'=>$this->creer_categorie,'modifier_categorie'=>$this->modifier_categorie,'supprimer_categorie'=>$this->supprimer_categorie,
@@ -243,14 +254,14 @@ class Inscription extends Component
                         ]);  
 
                     $nom_categorie = 'Non categorise';
-                    Categorie :: create(['nom_categorie'=>$nom_categorie,'description'=>$nom_categorie,'societe'=>$this->societe,'nom_user'=>$this->email,'user_id'=>$idUser]);
+                    Categorie :: create(['nom_categorie'=>$nom_categorie,'description'=>$nom_categorie,'societe'=>$this->societe,'societe_id'=>$dernier_id,'nom_user'=>$this->email,'user_id'=>$idUser]);
                     
                     $nom_entrepot = 'Magasin defaut';
                     $reference = 'Magasin-defaut';
-                    Entrepot::create(['nom'=>$nom_entrepot,'reference'=>$reference,'active'=>1,'description'=>$nom_entrepot,
-                            'email'=>$this->email,'societe'=>$this->societe,'societe_mere'=>$this->societe,'nom_user'=>$this->nom_utilisateur,'user_id'=>$idUser]);
+                    $entrepots = Entrepot::create(['nom'=>$nom_entrepot,'reference'=>$reference,'active'=>1,'description'=>$nom_entrepot,
+                            'email'=>$this->email,'societe'=>$this->societe,'societe_id'=>$dernier_id,'societe_mere'=>$this->societe,'societe_mere_id'=>$dernier_id,'nom_user'=>$this->nom_utilisateur,'user_id'=>$idUser]);
                     
-                    $dernier_id = Entrepot::where('societe_mere',$this->societe)->latest()->first()->id;  
+                    $dernier_id_entrepot = $entrepots->id;   // plus fiable et rapide 
 
                     $nom_tier = 'John Doe';
                     $type_tiers = 'Fournisseur';
@@ -262,25 +273,26 @@ class Inscription extends Component
                     $solde = 0;
                     Tier::create(['nom'=>$nom_tier,'raison_sociale'=>$nom_tier,'type_tiers'=>$type_tiers,'solde'=>$solde,'etat'=>1,'telephone'=>$this->telephone,'email'=>$this->email,
                                 'sexe'=>$sexe,'pays'=>$pays,'nombre_point'=>$nombre_point,'retrait_point'=>$retrait_point,'objectif_point'=>$objectif_point,
-                                'societe'=>$this->societe,'nom_user'=>$this->nom_utilisateur,'user_id'=>$idUser]); 
+                                'societe'=>$this->societe,'societe_id'=>$dernier_id,'nom_user'=>$this->nom_utilisateur,'user_id'=>$idUser]); 
                     
                     $nom_produit = 'Exemple produit';
                     $reference = 'Exemple-P01';
                     $type_produit = 'Produit';
                     $nature_produit = 'Manufacturé';
-                    Produit::create(['nom_produit'=>$nom_produit,'reference'=>$reference,'type_produit'=>$type_produit,'nature_produit'=>$nature_produit,'description'=>$nom_produit,
-                                    'categorie'=>$nom_categorie,'entrepot'=>$dernier_id,'fournisseur'=>$nom_tier,'prix_achat'=>0,'prix_vente'=>10,'prix_vente_min'=>0,
-                                    'tva'=>0,'limite_stock_alerte'=>5,'pays_origine'=>$pays,'etat'=>1,'quantite_pv'=>0, 'montant_total'=>0,'societe'=>$this->societe,
+                    $produits = Produit::create(['nom_produit'=>$nom_produit,'reference'=>$reference,'type_produit'=>$type_produit,'nature_produit'=>$nature_produit,'description'=>$nom_produit,
+                                    'categorie'=>$nom_categorie,'entrepot'=>$dernier_id_entrepot,'fournisseur'=>$nom_tier,'prix_achat'=>0,'prix_vente'=>10,'prix_vente_min'=>0,
+                                    'tva'=>0,'limite_stock_alerte'=>5,'pays_origine'=>$pays,'etat'=>1,'quantite_pv'=>0, 'montant_total'=>0,'societe'=>$this->societe,'societe_id'=>$dernier_id,
                                     'nom_user'=>$this->nom_utilisateur,'user_id'=>$idUser]);
-                    $dernier_id_prod = Produit::where('societe',$this->societe)->latest()->first()->id;
+
+                    $dernier_id_prod = $produits->id;   // plus fiable et rapide
 
                     $quantite = 0;
                     $valorisation_achat_total = 0;
                     $valeur_vente_total = 0;
                     $limite_stock_alerte_bd = 5;
-                    Stock::create(['id_entrepot'=>$dernier_id,'nom_produit'=>$nom_produit,'id_produit'=>$dernier_id_prod,'reference'=>$reference,'categorie'=>$nom_categorie,'type_produit'=>$type_produit,'nature_produit'=>$nature_produit,'quantite'=>$quantite,
+                    Stock::create(['id_entrepot'=>$dernier_id_entrepot,'nom_produit'=>$nom_produit,'id_produit'=>$dernier_id_prod,'reference'=>$reference,'categorie'=>$nom_categorie,'type_produit'=>$type_produit,'nature_produit'=>$nature_produit,'quantite'=>$quantite,
                     'prix_achat_last'=>0, 'prix_moyen_pondere_achat'=>0, 'valorisation_achat_total'=>$valorisation_achat_total,'prix_vente_unitaire'=>0,'prix_vente_min'=>0,'valeur_vente_total'=>$valeur_vente_total,
-                    'limite_stock_alerte'=>$limite_stock_alerte_bd,'etat'=>1,'societe'=>$this->societe,'nom_user'=>$this->nom_utilisateur,'user_id'=>$idUser]);
+                    'limite_stock_alerte'=>$limite_stock_alerte_bd,'etat'=>1,'societe'=>$this->societe,'societe_id'=>$dernier_id,'nom_user'=>$this->nom_utilisateur,'user_id'=>$idUser]);
 
 
                     // ************* debut envoi email ********************
@@ -289,6 +301,7 @@ class Inscription extends Component
                     $email = $user[0]->email;
                     $name = $user[0]->name;
                     $societe = $user[0]->societe;
+                    $societe_id = $user[0]->societe_id;
                     $created_at = $user[0]->created_at;                       
 
                     $entite_all = Entite::where('enseigne','Administration')->get();
@@ -304,7 +317,7 @@ class Inscription extends Component
                         'lien'=>'http://wamsco-cloud.net/connexion?email='.$email.'&user='.$name.'&active=ok&champ=1-1',
                         'logo'=>'https://wamsco-cloud.net/storage/'.$logo,
                     ];  
-                    Mail::to($email)->send(new ConfirmationMail($body)); 
+                    // Mail::to($email)->send(new ConfirmationMail($body)); 
                     // ********** Fin envoi email ************** 
 
                     flash ('M./Mme <strong>'.$this->nom_utilisateur.'</strong>, votre inscription a été effectuée avec succès. Merci de consulter votre boîte mail pour confirmer!')->success();

@@ -119,9 +119,9 @@ class DetailExpeditionClient extends Component
         }
     }
     public function mount(){
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->consulter_expedition;
             if($autoriser == 0){
                 alert()->error('Oups Désolé', 'Vous n\'êtes pas autorisé à ouvrir cette page !!!')->position('center')->autoClose(5000)->background('#fff')->width('460px')->padding('5px');
@@ -136,7 +136,7 @@ class DetailExpeditionClient extends Component
     public function render(){
     
         $dateJour = date('Y-m-d');            
-        $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();
+        $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();
         $jourValid = $entite_mod[0]->validite_mod; 
         $mod_cmd = $entite_mod[0]->mod_cmd; 
         $soldeClient = $entite_mod[0]->solde;
@@ -155,9 +155,9 @@ class DetailExpeditionClient extends Component
                 $this->id = request('id'); // id entete facture
                 $this->ref_exp = request('ref'); // reference facture
                 //     // ceci au chargement de la page
-                $test_facture = ExpeditionClientEntete::where('societe',auth()->user()->societe)->where('id',$this->id)->count(); 
+                $test_facture = ExpeditionClientEntete::where('societe_id',auth()->user()->societe_id)->where('id',$this->id)->count(); 
                 if($test_facture > 0){
-                    $compte = ExpeditionClientEntete::where('societe',auth()->user()->societe)->where('id',$this->id)->first();               
+                    $compte = ExpeditionClientEntete::where('societe_id',auth()->user()->societe_id)->where('id',$this->id)->first();               
                     $this->ids = $compte->id;                    
                     $this->fact_entete_id = $compte->id_facture_client_entete;
                     $this->codeExpedition = $compte->code_expedition;
@@ -190,9 +190,9 @@ class DetailExpeditionClient extends Component
                     $id_entrepot = $compte->id_entrepot;                    
                     $this->auteur = $compte->nom_user;
 
-                    $essai = Entrepot::where('societe',auth()->user()->societe)->where('id',$id_entrepot)->count();   
+                    $essai = Entrepot::where('societe_id',auth()->user()->societe_id)->where('id',$id_entrepot)->count();   
                     if($essai > 0){
-                        $Entrepo = Entrepot::where('societe',auth()->user()->societe)->where('id',$id_entrepot)->first();               
+                        $Entrepo = Entrepot::where('societe_id',auth()->user()->societe_id)->where('id',$id_entrepot)->first();               
                         $this->entrepot_expedition = $Entrepo->id;
                         $this->nonEntrepot = $Entrepo->nom;
                         $this->idEntrepot = $Entrepo->id;
@@ -203,12 +203,12 @@ class DetailExpeditionClient extends Component
                         $this->idEntrepot = '';
                     }
                 }  
-                $banque = CompteBancaire :: where('societe',auth()->user()->societe)->get(); 
-                $tier = Tier::where('societe',auth()->user()->societe)->where('id',$this->client_id)->get(); 
+                $banque = CompteBancaire :: where('societe_id',auth()->user()->societe_id)->get(); 
+                $tier = Tier::where('societe_id',auth()->user()->societe_id)->where('id',$this->client_id)->get(); 
                 
                 if(!empty($this->fact_entete_id)){
                 
-                    $expeClient_ligne = ExpeditionClientLignePartiel::where('societe',auth()->user()->societe)->where('id_facture_client_entete',$this->fact_entete_id)->orderBy($this->orderField, $this->orderDirection)->get();
+                    $expeClient_ligne = ExpeditionClientLignePartiel::where('societe_id',auth()->user()->societe_id)->where('id_facture_client_entete',$this->fact_entete_id)->orderBy($this->orderField, $this->orderDirection)->get();
                     $expeClientLigneCount = $expeClient_ligne->count();
 
                     $montantHT = $expeClient_ligne->sum('montant_ht');
@@ -219,7 +219,7 @@ class DetailExpeditionClient extends Component
                 }
                 else{
                     
-                    $expeClient_ligne = ExpeditionClientLignePartiel::where('societe',auth()->user()->societe)->where('id_commande_client_entete',$this->cmd_entete_id)->where('code_expedition',$this->codeExpedition)->orderBy($this->orderField, $this->orderDirection)->get();
+                    $expeClient_ligne = ExpeditionClientLignePartiel::where('societe_id',auth()->user()->societe_id)->where('id_commande_client_entete',$this->cmd_entete_id)->where('code_expedition',$this->codeExpedition)->orderBy($this->orderField, $this->orderDirection)->get();
                     $expeClientLigneCount = $expeClient_ligne->count();
                     $montantHT = $expeClient_ligne->sum('montant_ht');
                     $montantTTC = $expeClient_ligne->sum('montant_ttc');
@@ -229,42 +229,42 @@ class DetailExpeditionClient extends Component
                 }
             
                 // Parametre
-                $config = Parametre::where('societe',auth()->user()->societe)->limit(1)->get();
+                $config = Parametre::where('societe_id',auth()->user()->societe_id)->limit(1)->get();
                 $id_entrepot = $config[0]->id_entrepot_fctclt;
 
-                $produit = Stock::where('societe',auth()->user()->societe)->where('id_entrepot',$id_entrepot)->get();
-                $stockProd = Stock::where('societe',auth()->user()->societe)->get();
-                $ListeEntrepot = Entrepot::where('societe',auth()->user()->societe)->get();
+                $produit = Stock::where('societe_id',auth()->user()->societe_id)->where('id_entrepot',$id_entrepot)->get();
+                $stockProd = Stock::where('societe_id',auth()->user()->societe_id)->get();
+                $ListeEntrepot = Entrepot::where('societe_id',auth()->user()->societe_id)->get();
                 
-                $testChoix = Stock::where('societe',auth()->user()->societe)->where('id',$this->choix_produit)->count();
+                $testChoix = Stock::where('societe_id',auth()->user()->societe_id)->where('id',$this->choix_produit)->count();
                 if($testChoix > 0){
                     // ceci permet d'afficher la quantite entrepot origine
-                    $choixProd = Stock::where('societe',auth()->user()->societe)->where('id',$this->choix_produit)->get();
+                    $choixProd = Stock::where('societe_id',auth()->user()->societe_id)->where('id',$this->choix_produit)->get();
                     $this->id_produit = $choixProd[0]->id_produit;                
 
                     // avoir le prix_vente_min 
-                    $prod = Produit::where('societe',auth()->user()->societe)->where('id',$this->id_produit)->first();
+                    $prod = Produit::where('societe_id',auth()->user()->societe_id)->where('id',$this->id_produit)->first();
                     $this->prix_vente_min = $prod->prix_vente_min;                
                 }
 
-                $cmdCltEntete = CommandeClientEntete::where('societe',auth()->user()->societe)->where('id',$this->cmd_entete_id)->orderBy('id','desc')->get();
-                $factCltEntete = factureClientEntete::where('societe',auth()->user()->societe)->where('id',$this->fact_entete_id)->orderBy('id','desc')->get();
+                $cmdCltEntete = CommandeClientEntete::where('societe_id',auth()->user()->societe_id)->where('id',$this->cmd_entete_id)->orderBy('id','desc')->get();
+                $factCltEntete = factureClientEntete::where('societe_id',auth()->user()->societe_id)->where('id',$this->fact_entete_id)->orderBy('id','desc')->get();
 
                 $page = 'ExpeditionClient'; // Pour evenement lie
-                $log = LogActivityModel::where('user_societe',auth()->user()->societe)->where('id_activite', $this->ids)->where('page', $page)->limit(22)->orderBy('id','desc')->get();
+                $log = LogActivityModel::where('societe_id',auth()->user()->societe_id)->where('id_activite', $this->ids)->where('page', $page)->limit(22)->orderBy('id','desc')->get();
                 $logCount = $log->count();
 
-                $taxe = DeviseTva::where('societe',auth()->user()->societe)->orderBy('taux_tva','asc')->get();
+                $taxe = DeviseTva::where('societe_id',auth()->user()->societe_id)->orderBy('taux_tva','asc')->get();
 
-                $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->count(); 
+                $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->count(); 
                 if($deviseTva == 0){
                     $this->devise = 'FCFA';
                 }
                 else{
-                    $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->get(); 
+                    $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->get(); 
                     $this->devise = $deviseTva[0]->devise;
                 }
-                $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();          
+                $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();          
                 $jourValid = $entite_mod[0]->validite_mod; 
                 // ceci pour trouver le nombre de jour restant avant expiration
                 $nbjoursRestant = round((strtotime($jourValid) - strtotime($dateJour))/(60*60*24));
@@ -297,15 +297,15 @@ class DetailExpeditionClient extends Component
         }        
     }
     public function changeDateLivraison(){  
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){ 
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->creer_expedition;
             if($autoriser == 1){
                 $this->validate([            
                     'date_echeance'=>'required|date',            
                 ]);            
-                ExpeditionClientEntete::where('societe',auth()->user()->societe)->where('id',$this->ids)->update(['date_echeance'=>$this->date_echeance,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
+                ExpeditionClientEntete::where('societe_id',auth()->user()->societe_id)->where('id',$this->ids)->update(['date_echeance'=>$this->date_echeance,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
                 $id_activite = $this->ids;
                 $page = 'ExpeditionClient';
                 LogActivity::addToLog('Date livraison (expédition) modifiée', $id_activite, $page); 
@@ -342,15 +342,15 @@ class DetailExpeditionClient extends Component
         }   
     } 
     public function changeMethodeExpedition(){  
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){ 
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->creer_expedition;
             if($autoriser == 1){
                 $this->validate([            
                     'methode_expedition'=>'max:255',            
                 ]);                
-                ExpeditionClientEntete::where('societe',auth()->user()->societe)->where('id',$this->ids)->update(['methode_expedition'=>$this->methode_expedition,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
+                ExpeditionClientEntete::where('societe_id',auth()->user()->societe_id)->where('id',$this->ids)->update(['methode_expedition'=>$this->methode_expedition,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
                  
                 $id_activite = $this->ids;
                 $page = 'ExpeditionClient';
@@ -388,15 +388,15 @@ class DetailExpeditionClient extends Component
         } 
     } 
     public function changeNumeroSuivi(){  
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){ 
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->creer_expedition;
             if($autoriser == 1){
                 $this->validate([            
                     'numero_suivi'=>'max:255',            
                 ]);        
-                ExpeditionClientEntete::where('societe',auth()->user()->societe)->where('id',$this->ids)->update(['numero_suivi'=>$this->numero_suivi,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
+                ExpeditionClientEntete::where('societe_id',auth()->user()->societe_id)->where('id',$this->ids)->update(['numero_suivi'=>$this->numero_suivi,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
                 $id_activite = $this->ids;
                 $page = 'ExpeditionClient';
                 LogActivity::addToLog('Numéro de suivi (expédition) modifiée', $id_activite, $page); 
@@ -433,15 +433,15 @@ class DetailExpeditionClient extends Component
         } 
     } 
     public function changeNote(){  
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){ 
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->creer_expedition;
             if($autoriser == 1){
                 $this->validate([            
                     'note'=>'max:255',            
                 ]);        
-                ExpeditionClientEntete::where('societe',auth()->user()->societe)->where('id',$this->ids)->update(['note'=>$this->note,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
+                ExpeditionClientEntete::where('societe_id',auth()->user()->societe_id)->where('id',$this->ids)->update(['note'=>$this->note,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
                 $id_activite = $this->ids;
                 $page = 'ExpeditionClient';
                 LogActivity::addToLog('Note (expédition) modifiée', $id_activite, $page); 
@@ -478,9 +478,9 @@ class DetailExpeditionClient extends Component
         } 
     }
     public function precedant(){ 
-        $testPrecedant = ExpeditionClientEntete::where('societe',auth()->user()->societe)->where('id','<',$this->ids)->orderBy('id','desc')->count();
+        $testPrecedant = ExpeditionClientEntete::where('societe_id',auth()->user()->societe_id)->where('id','<',$this->ids)->orderBy('id','desc')->count();
         if($testPrecedant > 0){ 
-            $precedant = ExpeditionClientEntete::where('societe',auth()->user()->societe)->where('id','<',$this->ids)->orderBy('id','desc')->first();        
+            $precedant = ExpeditionClientEntete::where('societe_id',auth()->user()->societe_id)->where('id','<',$this->ids)->orderBy('id','desc')->first();        
             $previous = $precedant->id; 
             $this->redirect('/detail_expedition_clt?id='.$previous.'&ref='.$this->reference.'&active=6&champ=1-1&choix=3', navigate: true);              
         }  
@@ -497,9 +497,9 @@ class DetailExpeditionClient extends Component
     }    
     public function suivant(){    
         
-        $testSuivant = ExpeditionClientEntete::where('societe',auth()->user()->societe)->where('id','>',$this->ids)->orderBy('id','asc')->count();
+        $testSuivant = ExpeditionClientEntete::where('societe_id',auth()->user()->societe_id)->where('id','>',$this->ids)->orderBy('id','asc')->count();
         if($testSuivant > 0){
-            $suivant = ExpeditionClientEntete::where('societe',auth()->user()->societe)->where('id','>',$this->ids)->orderBy('id','asc')->first();
+            $suivant = ExpeditionClientEntete::where('societe_id',auth()->user()->societe_id)->where('id','>',$this->ids)->orderBy('id','asc')->first();
             $next = $suivant->id;             
             $this->redirect('/detail_expedition_clt?id='.$next.'&ref='.$this->reference.'&active=6&champ=1-1&choix=3', navigate: true);                     
         }  
@@ -518,14 +518,14 @@ class DetailExpeditionClient extends Component
         $this->confirmer = $id;      
     } 
     public function supprimer(){         
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){ 
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->supprimer_expedition;
             if($autoriser == 1){                 
-                $test_expedition = ExpeditionClientLignePartiel::where('societe',auth()->user()->societe)->where('id_expedition_client_entete',$this->ids)->where('id_commande_client_entete',$this->cmd_entete_id)->count();
+                $test_expedition = ExpeditionClientLignePartiel::where('societe_id',auth()->user()->societe_id)->where('id_expedition_client_entete',$this->ids)->where('id_commande_client_entete',$this->cmd_entete_id)->count();
                 if($test_expedition > 0){ 
-                    $ligneExpedition = ExpeditionClientLignePartiel::where('societe',auth()->user()->societe)->where('id_expedition_client_entete',$this->ids)->where('id_commande_client_entete',$this->cmd_entete_id)->get(); 
+                    $ligneExpedition = ExpeditionClientLignePartiel::where('societe_id',auth()->user()->societe_id)->where('id_expedition_client_entete',$this->ids)->where('id_commande_client_entete',$this->cmd_entete_id)->get(); 
                     foreach($ligneExpedition as $ligneExpeditions){
                             
                         $id_exp = $ligneExpeditions->id;            
@@ -540,7 +540,7 @@ class DetailExpeditionClient extends Component
                         $code_expedition = $ligneExpeditions->code_expedition;
 
                         if($type_produit == 'Produit'){
-                            $stockTrouver = Stock::where('societe',auth()->user()->societe)->where('id_entrepot',$id_entrepot)->where('id_produit',$id_produit)->first();
+                            $stockTrouver = Stock::where('societe_id',auth()->user()->societe_id)->where('id_entrepot',$id_entrepot)->where('id_produit',$id_produit)->first();
                             // $id_produit = $stockTrouver->id_produit;
                             $nom_produit = $stockTrouver->nom_produit;
                             $reference = $stockTrouver->reference;
@@ -548,12 +548,12 @@ class DetailExpeditionClient extends Component
                             $valorisation_achat_total = $stockTrouver->prix_moyen_pondere_achat * $qteSockFinal;
                             $valeur_vente_total = $stockTrouver->prix_vente_unitaire * $qteSockFinal;                   
                             $reste_a_expedier = 0;                    
-                            Stock::where('societe',auth()->user()->societe)->where('id_entrepot',$id_entrepot)->where('id_produit',$id_produit)->update(['quantite'=>$qteSockFinal,'valorisation_achat_total'=>$valorisation_achat_total,'valeur_vente_total'=>$valeur_vente_total,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);   
+                            Stock::where('societe_id',auth()->user()->societe_id)->where('id_entrepot',$id_entrepot)->where('id_produit',$id_produit)->update(['quantite'=>$qteSockFinal,'valorisation_achat_total'=>$valorisation_achat_total,'valeur_vente_total'=>$valeur_vente_total,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);   
                         
                             // retour dans quantite
-                            $testTrouver = ExpeditionClientLigne::where('societe',auth()->user()->societe)->where('id_commande_client_entete',$this->cmd_entete_id)->where('id_entrepot',$id_entrepot)->where('id_produit',$id_produit)->count();
+                            $testTrouver = ExpeditionClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_commande_client_entete',$this->cmd_entete_id)->where('id_entrepot',$id_entrepot)->where('id_produit',$id_produit)->count();
                             if($testTrouver > 0){
-                                $stockTrouver = ExpeditionClientLigne::where('societe',auth()->user()->societe)->where('id_commande_client_entete',$this->cmd_entete_id)->where('id_entrepot',$id_entrepot)->where('id_produit',$id_produit)->first();
+                                $stockTrouver = ExpeditionClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_commande_client_entete',$this->cmd_entete_id)->where('id_entrepot',$id_entrepot)->where('id_produit',$id_produit)->first();
                                 $idExpCltLigne = $stockTrouver->id;
                                 $quantite = $stockTrouver->quantite;
                                 $qteExpediee = $stockTrouver->quantite_expediee;
@@ -569,14 +569,14 @@ class DetailExpeditionClient extends Component
                             }                            
                             // Fin retour
                             
-                            $Entrepo = Entrepot::where('societe',auth()->user()->societe)->where('id',$id_entrepot)->first();                    
+                            $Entrepo = Entrepot::where('societe_id',auth()->user()->societe_id)->where('id',$id_entrepot)->first();                    
                             $nom_entrepot = $Entrepo->nom; 
                         }
                         else{ 
                             // retour dans quantite
-                            $testTrouver = ExpeditionClientLigne::where('societe',auth()->user()->societe)->where('id_commande_client_entete',$this->cmd_entete_id)->where('id_produit',$id_produit)->count();
+                            $testTrouver = ExpeditionClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_commande_client_entete',$this->cmd_entete_id)->where('id_produit',$id_produit)->count();
                             if($testTrouver > 0){
-                                $stockTrouver = ExpeditionClientLigne::where('societe',auth()->user()->societe)->where('id_commande_client_entete',$this->cmd_entete_id)->where('id_produit',$id_produit)->first();
+                                $stockTrouver = ExpeditionClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_commande_client_entete',$this->cmd_entete_id)->where('id_produit',$id_produit)->first();
                                 $idExpCltLigne = $stockTrouver->id;
                                 $quantite = $stockTrouver->quantite;
                                 $qteExpediee = $stockTrouver->quantite_expediee;
@@ -586,30 +586,30 @@ class DetailExpeditionClient extends Component
                                 $reste_a_expedierTotal = $resteAexpedier + $quantite_expediee;
                                 $quantite_expedieeTotal = $quantite - $reste_a_expedierTotal; 
                                 $etats = 'Validée';
-                                ExpeditionClientLigne::where('id',$idExpCltLigne)->update(['quantite_expediee'=>$quantite_expedieeTotal,'reste_a_expedier'=>$reste_a_expedierTotal,                                                                                           
-                                                                                           'etat'=>$etats,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,
-                                                                                           'user_id'=>auth()->user()->id]);   
+                                ExpeditionClientLigne::where('id',$idExpCltLigne)->update(['quantite_expediee'=>$quantite_expedieeTotal,'reste_a_expedier'=>$reste_a_expedierTotal,'etat'=>$etats,'societe'=>auth()->user()->societe,
+                                'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);   
                             }                               
                             // Fin retour
                             $nom_entrepot = 'Pas d\'entrepot (Service)';
                             $id_entrepot = 0;
                         }
                         $vider = NULL;
-                        factureClientEntete::where('societe',auth()->user()->societe)->where('id',$this->fact_entete_id)->update(['id_expedition_client_entete'=>$vider,'code_expedition'=>$vider,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
+                        factureClientEntete::where('societe_id',auth()->user()->societe_id)->where('id',$this->fact_entete_id)->update(['id_expedition_client_entete'=>$vider,'code_expedition'=>$vider,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
 
                         $libele_mouvement = 'Expédition (retour)';           
                         $code_mouvement = date('YmdHis');
                         $statut = 'EXP';
                         if($type_produit == 'Produit'){
                             Mouvement::create(['id_entrepot'=>$id_entrepot,'nom_produit'=>$nom_produit,'id_produit'=>$id_produit,'reference'=>$reference,'quantite'=>$quantite_expediee,'libele_mouvement'=>$libele_mouvement,
-                            'code_mouvement'=>$code_mouvement,'statut'=>$statut,'origine'=>$code_expedition,'id_expedition'=>$this->ids,'entrepot'=>$nom_entrepot,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);                            
+                            'code_mouvement'=>$code_mouvement,'statut'=>$statut,'origine'=>$code_expedition,'id_expedition'=>$this->ids,'entrepot'=>$nom_entrepot,'societe'=>auth()->user()->societe,
+                            'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);                            
                         }
                     }                    
                     // suppression definitive et redirection
                     $page = 'ExpeditionClient';
                     ExpeditionClientEntete::where('id',$this->ids)->delete(); 
                     ExpeditionClientLignePartiel::where('id_expedition_client_entete',$this->ids)->delete();
-                    $verfierExped = ExpeditionClientEntete::where('societe',auth()->user()->societe)->where('id_commande_client_entete',$this->cmd_entete_id)->count();
+                    $verfierExped = ExpeditionClientEntete::where('societe_id',auth()->user()->societe_id)->where('id_commande_client_entete',$this->cmd_entete_id)->count();
                     if($verfierExped > 0){
                         $etat = 'Partiel'; 
                     }
@@ -666,9 +666,9 @@ class DetailExpeditionClient extends Component
         } 
     }
     public function clotureExpedition(){
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){ 
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->creer_expedition;
             if($autoriser == 1){  
                 $etat = 'Clôturée';                
@@ -724,12 +724,12 @@ class DetailExpeditionClient extends Component
         }
     }
     public function creerFacture(){ 
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){ 
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->creer_facture;
             if($autoriser == 1){ 
-                $test_facture = factureClientEntete::where('societe',auth()->user()->societe)->where('id_expedition_client_entete',$this->ids)->count();
+                $test_facture = factureClientEntete::where('societe_id',auth()->user()->societe_id)->where('id_expedition_client_entete',$this->ids)->count();
                 if($test_facture == 0){
                     
                     $etat = 'Brouillon';
@@ -740,10 +740,10 @@ class DetailExpeditionClient extends Component
                     // $token_ok = 'FACT/'.$dates.'/'.$token;
                 
                         // copier la table CommandeClientEntete dans factureClientEntete
-                    $enteteCmdClient = CommandeClientEntete::where('societe',auth()->user()->societe)->where('id',$this->cmd_entete_id)->get(); 
+                    $enteteCmdClient = CommandeClientEntete::where('societe_id',auth()->user()->societe_id)->where('id',$this->cmd_entete_id)->get(); 
                     foreach($enteteCmdClient as $enteteCmdClients){
                         // creation et copie entete Facture Client Entete
-                        factureClientEntete::create([                        
+                        $factCltEntet = factureClientEntete::create([                        
                             'code_facture'=>$token_ok,
                             'code_commande'=>$enteteCmdClients->code_commande,
                             'id_commande_client_entete'=>$enteteCmdClients->id,
@@ -767,13 +767,14 @@ class DetailExpeditionClient extends Component
                             'etat'=>$etat,
                             'etat_expedi'=>'Clôturée',
                             'societe'=>auth()->user()->societe,
+                            'societe_id'=>auth()->user()->societe_id,
                             'nom_user'=>auth()->user()->name,
                             'user_id'=>auth()->user()->id]);
                     }
                     // ceci recupere le dernier enregistrement cree a l'instant
-                    $dernier_id = factureClientEntete::where('societe',auth()->user()->societe)->where('user_id',auth()->user()->id)->latest()->first()->id; 
+                    $dernier_id = $factCltEntet->id; 
                 
-                    $ligneCmdClient = ExpeditionClientLignePartiel::where('societe',auth()->user()->societe)->where('id_expedition_client_entete',$this->ids)->get(); 
+                    $ligneCmdClient = ExpeditionClientLignePartiel::where('societe_id',auth()->user()->societe_id)->where('id_expedition_client_entete',$this->ids)->get(); 
                     foreach($ligneCmdClient as $ligneCmdClients){
                         // creation et copie entete Expedition Client Ligne
                         factureClientLigne::create([ 
@@ -804,13 +805,14 @@ class DetailExpeditionClient extends Component
                             'etat'=>$etat,
                             'user_id'=>auth()->user()->id,
                             'nom_user'=>auth()->user()->name,
+                            'societe_id'=>auth()->user()->societe_id,
                             'societe'=>auth()->user()->societe]);
                     }
-                    $factCltEnteteCount = factureClientEntete::where('societe',auth()->user()->societe)->where('id_commande_client_entete',$this->cmd_entete_id)->count();
+                    $factCltEnteteCount = factureClientEntete::where('societe_id',auth()->user()->societe_id)->where('id_commande_client_entete',$this->cmd_entete_id)->count();
                     $NbrefactClt = $factCltEnteteCount + 1;
-                    CommandeClientEntete::where('societe',auth()->user()->societe)->where('id',$this->cmd_entete_id)->update(['nbre_facture'=>$NbrefactClt,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
-                    ExpeditionClientEntete::where('societe',auth()->user()->societe)->where('id',$this->ids)->update(['etat_facture'=>$etat,'code_facture'=>$token_ok,'id_facture_client_entete'=>$dernier_id,'date_facturation'=>date('Y-m-d'),'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
-                    ExpeditionClientLignePartiel::where('societe',auth()->user()->societe)->where('id_expedition_client_entete',$this->ids)->update(['code_facture'=>$token_ok,'id_facture_client_entete'=>$dernier_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
+                    CommandeClientEntete::where('societe_id',auth()->user()->societe_id)->where('id',$this->cmd_entete_id)->update(['nbre_facture'=>$NbrefactClt,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
+                    ExpeditionClientEntete::where('societe_id',auth()->user()->societe_id)->where('id',$this->ids)->update(['etat_facture'=>$etat,'code_facture'=>$token_ok,'id_facture_client_entete'=>$dernier_id,'date_facturation'=>date('Y-m-d'),'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
+                    ExpeditionClientLignePartiel::where('societe_id',auth()->user()->societe_id)->where('id_expedition_client_entete',$this->ids)->update(['code_facture'=>$token_ok,'id_facture_client_entete'=>$dernier_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
                                                     
                     $id_activite = $dernier_id;
                     $page = 'factureClient';
@@ -835,7 +837,7 @@ class DetailExpeditionClient extends Component
                         showConfirmButton: false,
                         position:'top-end',
                     ); 
-                    $enteteFactClient = factureClientEntete::where('societe',auth()->user()->societe)->where('id_expedition_client_entete',$this->ids)->first();
+                    $enteteFactClient = factureClientEntete::where('societe_id',auth()->user()->societe_id)->where('id_expedition_client_entete',$this->ids)->first();
                     $id_fact = $enteteFactClient->id;
                     $code_fact = $enteteFactClient->code_facture;
                     flash ('Oups, voici la <strong>facture</strong> encours pour cette commande!')->warning();

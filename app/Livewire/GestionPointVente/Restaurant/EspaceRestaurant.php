@@ -42,9 +42,9 @@ class EspaceRestaurant extends Component
         $this->resetPage();
     }
     public function mount(){  
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->consulter_espace;
             if($autoriser == 0){
                 toast()->error('Oups Désolé', 'Vous n\'êtes pas autorisé à ouvrir cette page!')->position('top-end')->autoClose(5000)->background('#fff')->width('460px')->padding('5px');
@@ -59,7 +59,7 @@ class EspaceRestaurant extends Component
     public function render()
     {
         $dateJour = date('Y-m-d');            
-        $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();
+        $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();
         $jourValid = $entite_mod[0]->validite_mod;
         $mod_crm = $entite_mod[0]->mod_crm;
         $soldeClient = $entite_mod[0]->solde;
@@ -74,29 +74,29 @@ class EspaceRestaurant extends Component
                 $champ = request('champ');
                 $choix = request('choix');
                 toast()->success('Prêt', '')->position('top-right')->autoClose(2000)->background('#fff')->width('220px')->padding('5px');           
-                $espace = EspaceRestau :: where('societe',auth()->user()->societe)->where('nom_espace','like','%'.$this->query.'%')->orderBy('id','asc')->paginate($this->parPage); 
+                $espace = EspaceRestau :: where('societe_id',auth()->user()->societe_id)->where('nom_espace','like','%'.$this->query.'%')->orderBy('id','asc')->paginate($this->parPage); 
                 $espaceCount = $espace->count();   
 
-                $resultat = EspaceRestau :: where('societe',auth()->user()->societe)->get();  
+                $resultat = EspaceRestau :: where('societe_id',auth()->user()->societe_id)->get();  
                 $nbreTotalEspaceRestau = $resultat->count(); 
                 // $catRestau = $resultat->where('restaurant','Oui')->count(); 
                 
-                $derniereActivite = EspaceRestau::where('societe',auth()->user()->societe)->latest('updated_at')->first(); 
+                $derniereActivite = EspaceRestau::where('societe_id',auth()->user()->societe_id)->latest('updated_at')->first(); 
 
                 $page = 'EspaceRestau'; // Pour evenement lie
-                $log = LogActivityModel::where('user_societe',auth()->user()->societe)->where('page', $page)->limit(50)->orderBy('id','desc')->get();
+                $log = LogActivityModel::where('societe_id',auth()->user()->societe_id)->where('page', $page)->limit(50)->orderBy('id','desc')->get();
                 $logCount = $log->count();
 
-                $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->count();             
+                $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->count();             
                 if($deviseTva == 0){
                     $this->devise = 'FCFA';
                 }
                 else{
-                    $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->get(); 
+                    $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->get(); 
                     $this->devise = $deviseTva[0]->devise;                
                 }  
                 toast()->success('Prêt', '')->position('top-right')->autoClose(2000)->background('#fff')->width('220px')->padding('5px');            
-                $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get(); 
+                $entite_mod = Entite::where('id',auth()->user()->societe_id)->get(); 
                 $jourValid = $entite_mod[0]->validite_mod; 
                 // ceci pour trouver le nombre de jour restant avant expiration
                 $nbjoursRestant = round((strtotime($jourValid) - strtotime($dateJour))/(60*60*24));           
@@ -131,14 +131,14 @@ class EspaceRestaurant extends Component
     public function store(){   
         $this->validate(); 
 
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->creer_espace;
             if($autoriser == 1){ 
-                EspaceRestau :: create(['nom_espace'=>$this->nom_espace,'description'=>$this->description,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->email,'user_id'=>auth()->user()->id]);
+                $espaceRes = EspaceRestau :: create(['nom_espace'=>$this->nom_espace,'description'=>$this->description,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->email,'user_id'=>auth()->user()->id]);
                 // ceci recupere le dernier enregistrement cree a l'instant
-                $dernier_id = EspaceRestau::where('societe',auth()->user()->societe)->where('user_id',auth()->user()->id)->latest()->first()->id; 
+                $dernier_id = $espaceRes->id; 
                 $id_activite = $dernier_id;   
                 $page = 'EspaceRestau';    
                 LogActivity::addToLog('Espace » '.$this->nom_espace.' créée', $id_activite, $page); 
@@ -182,13 +182,13 @@ class EspaceRestaurant extends Component
     }
     public function update(){
         $this->validate();        
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->modifier_espace;
             if($autoriser == 1){  
                 if($this->ids){
-                    EspaceRestau::find($this->ids)->update(['nom_espace'=>$this->nom_espace,'description'=>$this->description,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->email,'user_id'=>auth()->user()->id]);
+                    EspaceRestau::find($this->ids)->update(['nom_espace'=>$this->nom_espace,'description'=>$this->description,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->email,'user_id'=>auth()->user()->id]);
                     $id_activite = $this->ids; 
                     $page = 'EspaceRestau';
                     LogActivity::addToLog('Espace » '.$this->nom_espace.' modifié', $id_activite, $page);                      
@@ -229,17 +229,16 @@ class EspaceRestaurant extends Component
         $this->confirmer = $id;        
     } 
     public function supprimer($id){
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){ 
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->supprimer_espace;
             if($autoriser == 1){   
                 if($id){
-                    $test_table = TableRestau::where('societe',auth()->user()->societe)->where('id_espace',$id)->count();
+                    $test_table = TableRestau::where('societe_id',auth()->user()->societe_id)->where('id_espace',$id)->count();
                     if($test_table == 0){  
 
                         EspaceRestau::where('id',$id)->delete();
-                        // TableRestau::where('id_espace',$id)->delete();                        
                         
                         $page = 'EspaceRestau'; // Pour evenement lie
                         LogActivityModel::where('id_activite',$id)->where('page',$page)->delete();

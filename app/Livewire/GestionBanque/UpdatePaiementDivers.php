@@ -60,9 +60,9 @@ class UpdatePaiementDivers extends Component
     public $confirmer;
 
     public function mount(){
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->consulter_paie_divers;
             if($autoriser == 0){
                 alert()->error('Oups Désolé', 'Vous n\'êtes pas autorisé à ouvrir cette page !!!')->position('center')->autoClose(5000)->background('#fff')->width('460px')->padding('5px');
@@ -77,7 +77,7 @@ class UpdatePaiementDivers extends Component
     public function render(){    
         $id = request('id'); // id Paiement Divers
         $dateJour = date('Y-m-d');            
-        $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();
+        $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();
         $jourValid = $entite_mod[0]->validite_mod;
         $mod_banque_caisse = $entite_mod[0]->mod_banque_caisse; 
         $soldeClient = $entite_mod[0]->solde;
@@ -93,9 +93,9 @@ class UpdatePaiementDivers extends Component
                 $dateJour = date('Y-m-d');
                 toast()->success('Prêt', '')->position('top-right')->autoClose(2000)->background('#fff')->width('220px')->padding('5px'); 
 
-                $test_paie = PaiementDiver::where('societe',auth()->user()->societe)->where('id',$id)->count();    
+                $test_paie = PaiementDiver::where('societe_id',auth()->user()->societe_id)->where('id',$id)->count();    
                 if($test_paie > 0){
-                    $paie = PaiementDiver::where('societe',auth()->user()->societe)->where('id',$id)->first();                 
+                    $paie = PaiementDiver::where('societe_id',auth()->user()->societe_id)->where('id',$id)->first();                 
                     $this->ids = $paie->id;
                     $this->reference = $paie->reference;
                     $this->date_paiement = $paie->date_paiement;
@@ -123,23 +123,23 @@ class UpdatePaiementDivers extends Component
                         $this->montant = $credit;
                     }
                 } 
-                $compteBancaire = CompteBancaire::where('societe',auth()->user()->societe)->where('etat',1)->get();
+                $compteBancaire = CompteBancaire::where('societe_id',auth()->user()->societe_id)->where('etat',1)->get();
                 $infos = 'Pour le versement utilisez Crédit pour enregistrer un règlement reçu.<br> Pour le retrait, utilisez Débit pour enregistrer un règlement reçu.';
 
                 $page = 'PaiementDiver'; // Pour evenement lie
-                $log = LogActivityModel::where('user_societe',auth()->user()->societe)->where('id_activite', $this->ids)->where('page', $page)->limit(11)->orderBy('id','desc')->get();
+                $log = LogActivityModel::where('societe_id',auth()->user()->societe_id)->where('id_activite', $this->ids)->where('page', $page)->limit(11)->orderBy('id','desc')->get();
                 $logCount = $log->count();           
                 
-                $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->count(); 
+                $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->count(); 
                 if($deviseTva == 0){
                     $this->devise = 'FCFA';
                 }
                 else{
-                    $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->get(); 
+                    $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->get(); 
                     $this->devise = $deviseTva[0]->devise;
                 }  
                 
-                $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();                      
+                $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();                      
                 $jourValid = $entite_mod[0]->validite_mod; 
                 // ceci pour trouver le nombre de jour restant avant expiration
                 $nbjoursRestant = round((strtotime($jourValid) - strtotime($dateJour))/(60*60*24));
@@ -173,17 +173,17 @@ class UpdatePaiementDivers extends Component
     }
     public function update(){
         $this->validate();       
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->modifier_paie_divers;
             if($autoriser == 1){   
                 if($this->ids){ 
                     PaiementDiver::find($this->ids)->update(['date_paiement'=>$this->date_paiement,'date_valeur'=>$this->date_valeur,'libele_paiement'=>$this->libele_paiement,
-                    'mode_reglement'=>$this->mode_reglement,'numero_cheque_virement'=>$this->numero_cheque_virement,
-                    'emetteur'=>$this->emetteur,'note'=>$this->note,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                    'mode_reglement'=>$this->mode_reglement,'numero_cheque_virement'=>$this->numero_cheque_virement,'emetteur'=>$this->emetteur,'note'=>$this->note,
+                    'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
 
-                    EcritureBancaire::where('societe',auth()->user()->societe)->where('id',$this->id_ecriture_bancaire)->update(['date_operation'=>$this->date_paiement,'date_valeur'=>$this->date_valeur,
+                    EcritureBancaire::where('societe_id',auth()->user()->societe_id)->where('id',$this->id_ecriture_bancaire)->update(['date_operation'=>$this->date_paiement,'date_valeur'=>$this->date_valeur,
                                             'description'=>$this->libele_paiement,'type_operation'=>$this->mode_reglement,]);
 
                     $id_activite = $this->ids;
@@ -224,9 +224,9 @@ class UpdatePaiementDivers extends Component
         }       
     }
     public function precedant(int $id){ 
-        $testPrecedant = PaiementDiver::where('societe',auth()->user()->societe)->where('id','<',$id)->orderBy('id','desc')->count();
+        $testPrecedant = PaiementDiver::where('societe_id',auth()->user()->societe_id)->where('id','<',$id)->orderBy('id','desc')->count();
         if($testPrecedant > 0){ 
-            $precedant = PaiementDiver::where('societe',auth()->user()->societe)->where('id','<',$id)->orderBy('id','desc')->first();        
+            $precedant = PaiementDiver::where('societe_id',auth()->user()->societe_id)->where('id','<',$id)->orderBy('id','desc')->first();        
             $previous = $precedant->id; 
             $this->redirect('/update_paie_divers?id='.$previous.'&active=8&champ=1-3', navigate: true);              
         }  
@@ -244,9 +244,9 @@ class UpdatePaiementDivers extends Component
     }    
     public function suivant(int $id){    
         
-        $testSuivant = PaiementDiver::where('societe',auth()->user()->societe)->where('id','>',$id)->orderBy('id','asc')->count();
+        $testSuivant = PaiementDiver::where('societe_id',auth()->user()->societe_id)->where('id','>',$id)->orderBy('id','asc')->count();
         if($testSuivant > 0){
-            $suivant = PaiementDiver::where('societe',auth()->user()->societe)->where('id','>',$id)->orderBy('id','asc')->first();
+            $suivant = PaiementDiver::where('societe_id',auth()->user()->societe_id)->where('id','>',$id)->orderBy('id','asc')->first();
             $next = $suivant->id;             
             $this->redirect('/update_paie_divers?id='.$next.'&active=8&champ=1-3', navigate: true);                     
         }  
@@ -266,15 +266,15 @@ class UpdatePaiementDivers extends Component
         $this->confirmer = $id;      
     } 
     public function supprimer(){ 
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->supprimer_paie_divers;
             if($autoriser == 1){   
                 if($this->ids){                   
                     // supprime le paiement Divers
-                    PaiementDiver::where('societe',auth()->user()->societe)->where('id',$this->ids)->delete(); 
-                    EcritureBancaire::where('societe',auth()->user()->societe)->where('id_type_paiement',$this->ids)->delete(); 
+                    PaiementDiver::where('societe_id',auth()->user()->societe_id)->where('id',$this->ids)->delete(); 
+                    EcritureBancaire::where('societe_id',auth()->user()->societe_id)->where('id_type_paiement',$this->ids)->delete(); 
                     $page = 'PaiementDiver';
                     LogActivityModel::where('id_activite',$this->ids)->where('page',$page)->delete();
 

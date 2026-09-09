@@ -100,7 +100,7 @@ class DetailNomenclature extends Component
     public function render(){    
         $id = request('id'); // id Nomenclature     
         $dateJour = date('Y-m-d');            
-        $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();
+        $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();
         $jourValid = $entite_mod[0]->validite_mod;
         $mod_fabrication = $entite_mod[0]->mod_fabrication;
         $soldeClient = $entite_mod[0]->solde; 
@@ -139,31 +139,30 @@ class DetailNomenclature extends Component
                         $this->entrepotFab = $nomen->entrepot_fabrication;                        
                     } 
                 
-                $produit = Produit::where('societe',auth()->user()->societe)->where('nature_produit','!=','Matière première')->where('etat',1)->orderBy('nom_produit')->get();
-                $entrepot = Entrepot::where('societe',auth()->user()->societe)->where('active',1)->orderBy('nom','asc')->get(); 
-                // $composant_produit = Produit::where('societe',auth()->user()->societe)->where('nature_produit','Matière première')->where('etat',1)->orderBy('nom_produit')->get();
-                $composant_produit = Produit::where('societe',auth()->user()->societe)->where('nature_produit','!=','Manufacturé')->where('etat',1)->orderBy('nom_produit')->get();
+                $produit = Produit::where('societe_id',auth()->user()->societe_id)->where('nature_produit','!=','Matière première')->where('etat',1)->orderBy('nom_produit')->get();
+                $entrepot = Entrepot::where('societe_id',auth()->user()->societe_id)->where('active',1)->orderBy('nom','asc')->get(); 
+                $composant_produit = Produit::where('societe_id',auth()->user()->societe_id)->where('nature_produit','!=','Manufacturé')->where('etat',1)->orderBy('nom_produit')->get();
                 // select
-                $listEntrepot = Entrepot::where('societe',auth()->user()->societe)->orderBy('nom','asc')->where('active',1)->get(); 
-                $stock = Stock::where('societe',auth()->user()->societe)->where('id_produit',$this->choix_composant)->where('type_produit','Produit')->where('etat',1)->get();  
+                $listEntrepot = Entrepot::where('societe_id',auth()->user()->societe_id)->orderBy('nom','asc')->where('active',1)->get(); 
+                $stock = Stock::where('societe_id',auth()->user()->societe_id)->where('id_produit',$this->choix_composant)->where('type_produit','Produit')->where('etat',1)->get();  
                 // Fin select
 
                 $page = 'Nomenclature'; // Pour evenement lie
-                $log = LogActivityModel::where('user_societe',auth()->user()->societe)->where('id_activite', $this->ids)->where('page', $page)->limit(50)->orderBy('id','desc')->get();
+                $log = LogActivityModel::where('societe_id',auth()->user()->societe_id)->where('id_activite', $this->ids)->where('page', $page)->limit(50)->orderBy('id','desc')->get();
                 $logCount = $log->count();
 
-                $listeComposant = ComposantNomenclature ::where('societe',auth()->user()->societe)->where('nomencla_id',$this->ids)->orderBy($this->orderField, $this->orderDirection)->get();
+                $listeComposant = ComposantNomenclature ::where('societe_id',auth()->user()->societe_id)->where('nomencla_id',$this->ids)->orderBy($this->orderField, $this->orderDirection)->get();
                 $listeComposantCount = $listeComposant->count();
                 
-                $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->count(); 
+                $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->count(); 
                 if($deviseTva == 0){
                     $this->devise = 'FCFA';
                 }
                 else{
-                    $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->get(); 
+                    $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->get(); 
                     $this->devise = $deviseTva[0]->devise;
                 }
-                $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();          
+                $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();          
                 $jourValid = $entite_mod[0]->validite_mod; 
                 // ceci pour trouver le nombre de jour restant avant expiration
                 $nbjoursRestant = round((strtotime($jourValid) - strtotime($dateJour))/(60*60*24));
@@ -197,18 +196,18 @@ class DetailNomenclature extends Component
     }
     public function update(){       
         $this->validate(); 
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->modifier_nomencla;
             if($autoriser == 1){ 
                 // recuperer id produit tres important pour envoyer les produits fabriques dans dans le stock 
-                $prod = Produit::where('societe',auth()->user()->societe)->where('id',$this->produit_a_fabrique)->where('etat',1)->orderBy('nom_produit')->first();
+                $prod = Produit::where('societe_id',auth()->user()->societe_id)->where('id',$this->produit_a_fabrique)->where('etat',1)->orderBy('nom_produit')->first();
                 $prods_id =$prod->id;
                 $nom_produit_a_fabriq =$prod->nom_produit;
                 
                 // recuperer id et nom entrepot
-                $entrepo = Entrepot::where('societe',auth()->user()->societe)->where('id',$this->entrepot_fabrication)->where('active',1)->orderBy('nom')->first();
+                $entrepo = Entrepot::where('societe_id',auth()->user()->societe_id)->where('id',$this->entrepot_fabrication)->where('active',1)->orderBy('nom')->first();
                 $entrepo_id =$entrepo->id;
                 $nom_entrepot =$entrepo->nom;
 
@@ -219,7 +218,7 @@ class DetailNomenclature extends Component
 
                 Nomenclature::where('id',$this->ids)->update(['libelle'=>$this->libelle,'produit_id'=>$prods_id,'produit_a_fabrique'=>$nom_produit_a_fabriq,'quantite'=>$this->quantite,'unite_mesure'=>$this->unite_mesure,
                 'entrepot_fabrication'=>$nom_entrepot,'id_entrepot'=>$entrepo_id,'duree'=>$this->duree,'type_nomencla'=>$this->type_nomencla,'description'=>$this->description,'etat'=>$this->etat,'societe'=>auth()->user()->societe,
-                'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
                                                
                 $id_activite = $this->ids;  
                 $page = 'Nomenclature';    
@@ -258,9 +257,9 @@ class DetailNomenclature extends Component
         }   
     }
     public function precedant(int $id){ 
-        $testPrecedant = Nomenclature::where('societe',auth()->user()->societe)->where('id','<',$id)->orderBy('id','desc')->count();
+        $testPrecedant = Nomenclature::where('societe_id',auth()->user()->societe_id)->where('id','<',$id)->orderBy('id','desc')->count();
         if($testPrecedant > 0){ 
-            $precedant = Nomenclature::where('societe',auth()->user()->societe)->where('id','<',$id)->orderBy('id','desc')->first();        
+            $precedant = Nomenclature::where('societe_id',auth()->user()->societe_id)->where('id','<',$id)->orderBy('id','desc')->first();        
             $previous = $precedant->id; 
             $this->redirect('/detail_nomencla?id='.$previous.'&active=9&champ=1-1&choix=2', navigate: true);             
         }  
@@ -278,9 +277,9 @@ class DetailNomenclature extends Component
     }    
     public function suivant(int $id){    
         
-        $testSuivant = Nomenclature::where('societe',auth()->user()->societe)->where('id','>',$id)->orderBy('id','asc')->count();
+        $testSuivant = Nomenclature::where('societe_id',auth()->user()->societe_id)->where('id','>',$id)->orderBy('id','asc')->count();
         if($testSuivant > 0){
-            $suivant = Nomenclature::where('societe',auth()->user()->societe)->where('id','>',$id)->orderBy('id','asc')->first();
+            $suivant = Nomenclature::where('societe_id',auth()->user()->societe_id)->where('id','>',$id)->orderBy('id','asc')->first();
             $next = $suivant->id;             
             $this->redirect('/detail_nomencla?id='.$next.'&active=9&champ=1-1&choix=2', navigate: true);                     
         }  
@@ -304,18 +303,18 @@ class DetailNomenclature extends Component
             'quantite_composant'=>'required|numeric',
             'unite'=>'required|max:10',            
         ]);
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->ajouter_composant;
             if($autoriser == 1){       
                
-                $compos = Produit::where('societe',auth()->user()->societe)->where('id',$this->choix_composant)->first();
+                $compos = Produit::where('societe_id',auth()->user()->societe_id)->where('id',$this->choix_composant)->first();
                 $composant_id = $compos->id;                
                 $nom_composant = $compos->nom_produit;                
                 $cout = $compos->prix_achat;
 
-                $mag = Entrepot::where('societe',auth()->user()->societe)->where('id',$this->magasin)->first();
+                $mag = Entrepot::where('societe_id',auth()->user()->societe_id)->where('id',$this->magasin)->first();
                 $id_magasin = $mag->id;                
                 $nom_magasin = $mag->nom;     
 
@@ -323,7 +322,8 @@ class DetailNomenclature extends Component
                     $quantite_consommer = 0;
                     $coutFinal = $cout * $this->quantite_composant;
                     ComposantNomenclature::create(['composant'=>$nom_composant,'composant_id'=>$composant_id,'nomencla_id'=>$this->ids,'quantite'=>$this->quantite_composant,
-                        'id_entrepot'=>$id_magasin,'nom_entrepot'=>$nom_magasin,'cout'=>$coutFinal,'unite'=>$this->unite,'quantite_consommer'=>$quantite_consommer,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                        'id_entrepot'=>$id_magasin,'nom_entrepot'=>$nom_magasin,'cout'=>$coutFinal,'unite'=>$this->unite,'quantite_consommer'=>$quantite_consommer,'societe'=>auth()->user()->societe,
+                        'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
 
                     $id_activite = $this->ids;  
                     $page = 'Nomenclature';    
@@ -376,9 +376,9 @@ class DetailNomenclature extends Component
         $this->confirmer = $id;        
     } 
     public function supprimer(int $id){
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){ 
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->supprimer_composant;
             if($autoriser == 1){   
                 if($id){ 
@@ -422,9 +422,9 @@ class DetailNomenclature extends Component
         $this->approuver = $id;        
     }
     public function ecraser(){ 
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){ 
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->supprimer_nomencla;
             if($autoriser == 1){
                 Nomenclature::where('id',$this->ids)->delete();

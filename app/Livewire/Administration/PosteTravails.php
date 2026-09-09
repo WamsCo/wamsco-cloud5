@@ -33,9 +33,9 @@ class PosteTravails extends Component
         $this->resetPage();
     }
     public function mount(){ 
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->consulter_depart_poste;
             if($autoriser == 0){
                 alert()->error('Oups Désolé', 'Vous n\'êtes pas autorisé à ouvrir cette page !!!')->position('center')->autoClose(5000)->background('#fff')->width('460px')->padding('5px');
@@ -50,7 +50,7 @@ class PosteTravails extends Component
     public function render()
     {
         $dateJour = date('Y-m-d');            
-        $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();
+        $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();
         $jourValid = $entite_mod[0]->validite_mod; 
         $mod_administration = $entite_mod[0]->mod_administration; 
         $soldeClient = $entite_mod[0]->solde;
@@ -66,27 +66,27 @@ class PosteTravails extends Component
                 $dateJour = date('Y-m-d');
                 toast()->success('Prêt', '')->position('top-right')->autoClose(2000)->background('#fff')->width('220px')->padding('5px');
 
-                $poste_travail = Poste_travail :: where('societe',auth()->user()->societe)->where('nom_poste','like','%'.$this->query.'%')->orderBy('id','desc')->paginate($this->parPage); 
+                $poste_travail = Poste_travail :: where('societe_id',auth()->user()->societe_id)->where('nom_poste','like','%'.$this->query.'%')->orderBy('id','desc')->paginate($this->parPage); 
                 $poste_travailCount = $poste_travail->count();             
                                 
-                $resultat = Poste_travail :: where('societe',auth()->user()->societe)->get();  
+                $resultat = Poste_travail :: where('societe_id',auth()->user()->societe_id)->get();  
                 $nbreTotalPosteTravail = $resultat->count(); 
 
-                $derniereActivite = Poste_travail::where('societe',auth()->user()->societe)->latest('updated_at')->first(); 
+                $derniereActivite = Poste_travail::where('societe_id',auth()->user()->societe_id)->latest('updated_at')->first(); 
 
                 $page = 'Poste_travail'; // Pour evenement lie
-                $log = LogActivityModel::where('user_societe',auth()->user()->societe)->where('page', $page)->limit(50)->orderBy('id','desc')->get();
+                $log = LogActivityModel::where('societe_id',auth()->user()->societe_id)->where('page', $page)->limit(50)->orderBy('id','desc')->get();
                 $logCount = $log->count();
 
-                $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->count(); 
+                $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->count(); 
                 if($deviseTva == 0){
                     $this->devise = 'FCFA';
                 }
                 else{
-                    $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->get(); 
+                    $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->get(); 
                     $this->devise = $deviseTva[0]->devise;
                 }
-                $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();          
+                $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();          
                 $jourValid = $entite_mod[0]->validite_mod; 
                 // ceci pour trouver le nombre de jour restant avant expiration
                 $nbjoursRestant = round((strtotime($jourValid) - strtotime($dateJour))/(60*60*24));
@@ -123,14 +123,14 @@ class PosteTravails extends Component
             'nom_poste'=>'required|max:255',
             'description'=>'required|max:255',
         ]);
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->creer_depart_poste;
             if($autoriser == 1){ 
 
-                Poste_travail :: create(['nom_poste'=>$this->nom_poste,'description'=>$this->description,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
-                $dernier_id = Poste_travail::where('societe',auth()->user()->societe)->where('user_id',auth()->user()->id)->latest()->first()->id;
+                $posteTrav = Poste_travail :: create(['nom_poste'=>$this->nom_poste,'description'=>$this->description,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                $dernier_id = $posteTrav->id;
 
                 $id_activite = $dernier_id;  
                 $page = 'Poste_travail';    
@@ -179,14 +179,14 @@ class PosteTravails extends Component
             'nom_poste'=>'required|max:255',
             'description'=>'required|max:255',     
         ]); 
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->modifier_depart_poste;
             if($autoriser == 1){  
                 if($this->ids){
                     
-                    Poste_travail::find($this->ids)->update(['nom_poste'=>$this->nom_poste,'description'=>$this->description,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name]);
+                    Poste_travail::find($this->ids)->update(['nom_poste'=>$this->nom_poste,'description'=>$this->description,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name]);
                     $id_activite = $this->ids; 
                     $page = 'Poste_travail';
                     LogActivity::addToLog('Poste_travail » '.$this->nom_poste.' modifiée', $id_activite, $page);
@@ -228,9 +228,9 @@ class PosteTravails extends Component
         $this->confirmer = $id;        
     } 
     public function supprimer($id){
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){ 
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->supprimer_depart_poste;
             if($autoriser == 1){   
                 if($id){

@@ -17,7 +17,11 @@
         @include('flash::message')     
         <div class="tab-content p-0">    
             @foreach($entite_mod as $entite_mods)
-                <div class="row">
+                <div class="row">                    
+                    <div>                        
+                        <h5 class="fw-bold mb-0 organisation-title">CRM & Clients</h5>
+                        <p class="mb-2">Gérez vos contacts, développez votre clientèle et suivez vos opportunités.</p>
+                    </div>
                     <div class="col-sm-4 col-lg-3 mb-4">
                         <div class="cardor border-0 bg-white-500 text-white">
                             @if($entite_mods->mod_gestion_tier == 1 && $dateJour <= $entite_mods->validite_mod)
@@ -83,37 +87,43 @@
                             @endif
                         </div>                    
                     </div>
+                    @if(auth()->user()->societe == "Administration")
                     <div class="col-sm-4 col-lg-3 mb-4">
                         <div class="cardor border-0 bg-white-500 text-white">
-                            @if($entite_mods->mod_gestion_stock == 1 && $dateJour <= $entite_mods->validite_mod)
-                                <a href="{{asset('produit?active=4&champ=1-1&choix=2')}}" wire:navigate class="bloc_mod" title="Ensemble des marchandises, matières premières, composants ou produits finis d'une entreprise (Produit, Catégorie, Entrepôt, Mouvements)">
+                            @if($entite_mods->mod_gestion_commercial == 1 && $dateJour <= $entite_mods->validite_mod)
+                                <a href="{{asset('liste_souscription?active=16&champ=1-3')}}" wire:navigate class="bloc_mod" title="Une personne dont le travail consiste à vendre des produits ou des services pour une entreprise.">
                                     <div class="bloc_img_text">
                                         <div class="part_img">
-                                            {{-- <i class="fa fa-users" class=""></i> --}}
-                                            <img src="storage/img_module/6.png" alt="" class="img_mod">
+                                            <img src="storage/img_module/commercial.png" alt="" class="img_mod">
                                         </div>
                                         <div class="part_text">
-                                            <h5 class="card-title"><i class="fa fa-box-open"></i> Stock</h5>
-                                            <p class="truncate_wamsco mb-1">Ensemble des marchandises, matières premières, composants ou produits finis d'une entreprise (Produit, Catégorie, Entrepôt, Mouvements)</p>
-                                            <p class="card-text fw-bold badge bg-green mt-2">Activer</p>
+                                            <h5 class="card-title"><i class="fas fa-sitemap"></i> Commercial</h5>
+                                            <p class="truncate_wamsco mb-1">Une personne dont le travail consiste à vendre des produits ou des services pour une entreprise.</p>
+                                            <p class="card-text fw-bold badge bg-green mt-2">Activer</p> 
                                         </div>
-                                    </div>
+                                    </div>                                    
                                 </a>
                             @else
                                 <a href="{{asset('choix_plan')}}" wire:navigate class="bloc_mod">
                                     <div class="bloc_img_text">
                                         <div class="part_img">
-                                            <img src="storage/img_module/6.png" alt="" class="img_mod">
+                                            <img src="storage/img_module/2.png" alt="" class="img_mod">
                                         </div>
                                         <div class="part_text">
-                                            <h5 class="card-title"><i class="fa fa-box-open"></i> Stock</h5>
-                                            <p class="truncate_wamsco mb-1">Ensemble des marchandises, matières premières, composants ou produits finis d'une entreprise (Produit, Catégorie, Entrepôt, Mouvements)</p>
-                                            <p class="card-text fw-bold badge bg-danger mt-2">Débloquer le module</p>
+                                            <h5 class="card-title"><i class="fas fa-sitemap"></i> Commercial</h5>
+                                            <p class="truncate_wamsco mb-1">Une personne dont le travail consiste à vendre des produits ou des services pour une entreprise..</p>
+                                            <p class="card-text fw-bold badge bg-danger mt-2">Débloquer le module</p> 
                                         </div>
                                     </div>
                                 </a>
                             @endif
                         </div>                    
+                    </div>
+                    @endif 
+                   
+                    <div>                        
+                        <h5 class="fw-bold mb-0 organisation-title">Ventes & Encaissement</h5>
+                        <p class="mb-2">Boostez vos ventes et gérez vos encaissements en toute simplicité.</p>
                     </div>
                     <div class="col-sm-4 col-lg-3 mb-4">
                         <div class="cardor border-0 bg-white-500 text-white">
@@ -145,69 +155,7 @@
                                 </a>
                             @endif
                         </div>                    
-                    </div>
-                    <div class="col-sm-4 col-lg-3 mb-4">
-                        <div class="cardor border-0 bg-white-500 text-white">
-                            @if($entite_mods->mod_restaurant == 1 && $dateJour <= $entite_mods->validite_mod)
-                                <a href="{{asset('restau_sessions?active=5&champ=2-1&choix=1')}}" wire:navigate class="bloc_mod" title="Module permettant la gestion complète des commandes, du suivi de la préparation des repas ainsi que de l’organisation et de l’occupation des tables au sein d’un restaurant.">
-                                    <div class="bloc_img_text">
-                                        <div class="part_img">
-                                            <img src="storage/img_module/restos.jpg" alt="" class="img_mod">
-                                        </div>
-                                        <div class="part_text">
-                                            <h5 class="card-title"><i class="fa fa-cash-register"></i> Restaurant</h5>
-                                            <p class="truncate_wamsco mb-1">Module permettant la gestion complète des commandes, du suivi de la préparation des repas ainsi que de l’organisation et de l’occupation des tables au sein d’un restaurant.</p>
-                                            <p class="card-text fw-bold badge bg-green mt-2">Activer</p>
-                                        </div>
-                                    </div>
-                                </a>
-                            @else
-                                <a href="{{asset('choix_plan')}}" wire:navigate class="bloc_mod">
-                                    <div class="bloc_img_text">
-                                        <div class="part_img">
-                                            <img src="storage/img_module/restos.jpg" alt="" class="img_mod">
-                                        </div>
-                                        <div class="part_text">
-                                            <h5 class="card-title"><i class="fa fa-cash-register"></i> Restaurant</h5>
-                                            <p class="truncate_wamsco mb-1">Module permettant la gestion complète des commandes, du suivi de la préparation des repas ainsi que de l’organisation et de l’occupation des tables au sein d’un restaurant.</p>
-                                            <p class="card-text fw-bold badge bg-danger mt-2">Débloquer le module</p>
-                                        </div>
-                                    </div>
-                                </a>
-                            @endif
-                        </div>                    
-                    </div> 
-                    <div class="col-sm-4 col-lg-3 mb-4">
-                        <div class="cardor border-0 bg-white-500 text-white">
-                            @if($entite_mods->mod_cuisine == 1 && $entite_mods->mod_pointe_vente == 1 && $dateJour <= $entite_mods->validite_mod)
-                                <a href="{{asset('cuisine?active=5&champ=1-3')}}" wire:navigate class="bloc_mod" title="Système d'affichage des commandes en cuisine, leur statut et en temps réel.">
-                                    <div class="bloc_img_text">
-                                        <div class="part_img">
-                                            <img src="storage/img_module/cuisine.jpg" alt="" class="img_mod">
-                                        </div>
-                                        <div class="part_text">
-                                            <h5 class="card-title" style="font-size: 14px;"><i class="fa fa-tv"></i> Ecran cuisine</h5>
-                                            <p class="truncate_wamsco mb-1">Système d'affichage des commandes en cuisine, leur statut et en temps réel.</p>
-                                            <p class="card-text fw-bold badge bg-green mt-2">Activer</p>
-                                        </div>
-                                    </div>
-                                </a>
-                            @else
-                                <a href="{{asset('choix_plan')}}" wire:navigate class="bloc_mod">
-                                    <div class="bloc_img_text">
-                                        <div class="part_img">
-                                            <img src="storage/img_module/cuisine.jpg" alt="" class="img_mod">
-                                        </div>
-                                        <div class="part_text">
-                                            <h5 class="card-title" style="font-size: 14px;"><i class="fa fa-tv"></i> Ecran cuisine</h5>
-                                            <p class="truncate_wamsco mb-1">Système d'affichage des commandes en cuisine, leur statut et en temps réel.</p>
-                                            <p class="card-text fw-bold badge bg-danger mt-2">Débloquer le module</p>
-                                        </div>
-                                    </div>
-                                </a>
-                            @endif
-                        </div>                    
-                    </div>
+                    </div>                    
                     <div class="col-sm-4 col-lg-3 mb-4">
                         <div class="cardor border-0 bg-white-500 text-white">
                             @if($entite_mods->mod_cmd == 1 && $dateJour <= $entite_mods->validite_mod)
@@ -269,7 +217,106 @@
                                 </a>
                             @endif
                         </div>                    
-                    </div>                    
+                    </div> 
+                    <div class="col-sm-4 col-lg-3 mb-4">
+                        <div class="cardor border-0 bg-white-500 text-white">
+                            @if($entite_mods->mod_cmd == 1 && $dateJour <= $entite_mods->validite_mod)
+                                <a href="{{asset('listing_expedition_clt?active=6&champ=1-1&choix=3')}}" wire:navigate class="bloc_mod" title="Opération qui consiste à préparer et envoyer des produits à un client ou à une autre destination.">
+                                    <div class="bloc_img_text">
+                                        <div class="part_img">
+                                            <img src="storage/img_module/expedition.jpg" alt="" class="img_mod">
+                                        </div>
+                                        <div class="part_text">
+                                            <h5 class="card-title"><i class="fa fa-arrows-alt"></i> Expédition</h5>
+                                            <p class="truncate_wamsco mb-1">Opération qui consiste à préparer et envoyer des produits à un client ou à une autre destination.</p>
+                                            <p class="card-text fw-bold badge bg-green mt-2">Activer</p>
+                                        </div>
+                                    </div>
+                                </a>
+                            @else
+                                <a href="{{asset('choix_plan')}}" wire:navigate class="bloc_mod">
+                                    <div class="bloc_img_text">
+                                        <div class="part_img">
+                                            <img src="storage/img_module/expedition.jpg" alt="" class="img_mod">
+                                        </div>
+                                        <div class="part_text">
+                                            <h5 class="card-title"><i class="fa fa-arrows-alt"></i> Expédition</h5>
+                                            <p class="truncate_wamsco mb-1">Opération qui consiste à préparer et envoyer des produits à un client ou à une autre destination.</p>
+                                            <p class="card-text fw-bold badge bg-danger mt-2">Débloquer le module</p>
+                                        </div>
+                                    </div>
+                                </a>
+                            @endif
+                        </div>                    
+                    </div>  
+                    <div class="col-sm-4 col-lg-3 mb-4">
+                        <div class="cardor border-0 bg-white-500 text-white">
+                            @if($entite_mods->mod_facturation == 1 && $dateJour <= $entite_mods->validite_mod)
+                                <a href="{{asset('listing_reception_fourni?active=6&champ=2-1&choix=2')}}" wire:navigate class="bloc_mod" title="Opération qui consiste à enregistrer et contrôler les produits reçus afin de les ajouter au stock.">
+                                    <div class="bloc_img_text">
+                                        <div class="part_img">
+                                            <img src="storage/img_module/reception.jpg" alt="" class="img_mod">
+                                        </div>
+                                        <div class="part_text">
+                                            <h5 class="card-title"><i class="fa fa-repeat"></i> Réception</h5>
+                                            <p class="truncate_wamsco mb-1">Opération qui consiste à enregistrer et contrôler les produits reçus afin de les ajouter au stock.</p>
+                                            <p class="card-text fw-bold badge bg-green mt-2">Activer</p>
+                                        </div>
+                                    </div>
+                                </a>
+                            @else
+                                <a href="{{asset('choix_plan')}}" wire:navigate class="bloc_mod">
+                                    <div class="bloc_img_text">
+                                        <div class="part_img">
+                                            <img src="storage/img_module/reception.jpg" alt="" class="img_mod">
+                                        </div>
+                                        <div class="part_text">
+                                            <h5 class="card-title"><i class="fa fa-repeat"></i> Réception</h5>
+                                            <p class="truncate_wamsco mb-1">Opération qui consiste à enregistrer et contrôler les produits reçus afin de les ajouter au stock.</p>
+                                            <p class="card-text fw-bold badge bg-danger mt-2">Débloquer le module</p>
+                                        </div>
+                                    </div>
+                                </a>
+                            @endif
+                        </div>                    
+                    </div>                   
+
+                    <div>                        
+                        <h5 class="fw-bold mb-0 organisation-title">Stock & Finance</h5>
+                        <p class="mb-2">Maitrisez vos stocks et gérez vos finances en toute sérénité.</p>
+                    </div>   
+                    <div class="col-sm-4 col-lg-3 mb-4">
+                        <div class="cardor border-0 bg-white-500 text-white">
+                            @if($entite_mods->mod_gestion_stock == 1 && $dateJour <= $entite_mods->validite_mod)
+                                <a href="{{asset('produit?active=4&champ=1-1&choix=2')}}" wire:navigate class="bloc_mod" title="Ensemble des marchandises, matières premières, composants ou produits finis d'une entreprise (Produit, Catégorie, Entrepôt, Mouvements)">
+                                    <div class="bloc_img_text">
+                                        <div class="part_img">
+                                            {{-- <i class="fa fa-users" class=""></i> --}}
+                                            <img src="storage/img_module/6.png" alt="" class="img_mod">
+                                        </div>
+                                        <div class="part_text">
+                                            <h5 class="card-title"><i class="fa fa-box-open"></i> Stock</h5>
+                                            <p class="truncate_wamsco mb-1">Ensemble des marchandises, matières premières, composants ou produits finis d'une entreprise (Produit, Catégorie, Entrepôt, Mouvements)</p>
+                                            <p class="card-text fw-bold badge bg-green mt-2">Activer</p>
+                                        </div>
+                                    </div>
+                                </a>
+                            @else
+                                <a href="{{asset('choix_plan')}}" wire:navigate class="bloc_mod">
+                                    <div class="bloc_img_text">
+                                        <div class="part_img">
+                                            <img src="storage/img_module/6.png" alt="" class="img_mod">
+                                        </div>
+                                        <div class="part_text">
+                                            <h5 class="card-title"><i class="fa fa-box-open"></i> Stock</h5>
+                                            <p class="truncate_wamsco mb-1">Ensemble des marchandises, matières premières, composants ou produits finis d'une entreprise (Produit, Catégorie, Entrepôt, Mouvements)</p>
+                                            <p class="card-text fw-bold badge bg-danger mt-2">Débloquer le module</p>
+                                        </div>
+                                    </div>
+                                </a>
+                            @endif
+                        </div>                    
+                    </div>                
                     <div class="col-sm-4 col-lg-3 mb-4">
                         <div class="cardor border-0 bg-white-500 text-white">
                             @if($entite_mods->mod_banque_caisse == 1 && $dateJour <= $entite_mods->validite_mod)
@@ -300,7 +347,74 @@
                                 </a>
                             @endif
                         </div>                    
-                    </div>
+                    </div>   
+                    <div class="col-sm-4 col-lg-3 mb-4">
+                        <div class="cardor border-0 bg-white-500 text-white">
+                            @if($entite_mods->mod_gestion_stock == 1 && $dateJour <= $entite_mods->validite_mod)
+                                <a href="{{asset('inventaires?active=4&champ=3-1&choix=7')}}" wire:navigate class="bloc_mod" title="Opération qui consiste à compter et vérifier les produits disponibles en stock afin de connaître les quantités réellement présentes.">
+                                    <div class="bloc_img_text">
+                                        <div class="part_img">
+                                            <img src="storage/img_module/inventaire.jpg" alt="" class="img_mod">
+                                        </div>
+                                        <div class="part_text">
+                                            <h5 class="card-title" style="font-size: 13px;"><i class="fa fa-cubes"></i> Inventaire</h5>
+                                            <p class="truncate_wamsco mb-1">Opération qui consiste à compter et vérifier les produits disponibles en stock afin de connaître les quantités réellement présentes.</p>
+                                            <p class="card-text fw-bold badge bg-green mt-2">Activer</p>
+                                        </div>
+                                    </div>
+                                </a>
+                            @else
+                                <a href="{{asset('choix_plan')}}" wire:navigate class="bloc_mod">
+                                    <div class="bloc_img_text">
+                                        <div class="part_img">
+                                            <img src="storage/img_module/inventaire.jpg" alt="" class="img_mod">
+                                        </div>
+                                        <div class="part_text">
+                                            <h5 class="card-title" style="font-size: 13px;"><i class="fa fa-cubes"></i> Inventaire</h5>
+                                            <p class="truncate_wamsco mb-1">Opération qui consiste à compter et vérifier les produits disponibles en stock afin de connaître les quantités réellement présentes.</p>
+                                            <p class="card-text fw-bold badge bg-danger mt-2">Débloquer le module</p>
+                                        </div>
+                                    </div>
+                                </a>
+                            @endif
+                        </div>                    
+                    </div> 
+                    <div class="col-sm-4 col-lg-3 mb-4">
+                        <div class="cardor border-0 bg-white-500 text-white">
+                            @if($entite_mods->mod_gestion_stock == 1 && $dateJour <= $entite_mods->validite_mod)
+                                <a href="{{asset('transferts?active=4&champ=3-1&choix=5')}}" wire:navigate class="bloc_mod" title="Opération qui consiste à déplacer des produits d’un stock, magasin ou dépôt vers un autre.">
+                                    <div class="bloc_img_text">
+                                        <div class="part_img">
+                                            <img src="storage/img_module/transfert.jpg" alt="" class="img_mod">
+                                        </div>
+                                        <div class="part_text">
+                                            <h5 class="card-title" style="font-size: 13px;"><i class="fa fa-refresh fa-spin"></i> Transfert</h5>
+                                            <p class="truncate_wamsco mb-1">Opération qui consiste à déplacer des produits d’un stock, magasin ou dépôt vers un autre.</p>
+                                            <p class="card-text fw-bold badge bg-green mt-2">Activer</p>
+                                        </div>
+                                    </div>
+                                </a>
+                            @else
+                                <a href="{{asset('choix_plan')}}" wire:navigate class="bloc_mod">
+                                    <div class="bloc_img_text">
+                                        <div class="part_img">
+                                            <img src="storage/img_module/transfert.jpg" alt="" class="img_mod">
+                                        </div>
+                                        <div class="part_text">
+                                            <h5 class="card-title" style="font-size: 13px;"><i class="fa fa-refresh fa-spin"></i> Transfert</h5>
+                                            <p class="truncate_wamsco mb-1">Opération qui consiste à déplacer des produits d’un stock, magasin ou dépôt vers un autre.</p>
+                                            <p class="card-text fw-bold badge bg-danger mt-2">Débloquer le module</p>
+                                        </div>
+                                    </div>
+                                </a>
+                            @endif
+                        </div>                    
+                    </div>                          
+
+                    <div>                        
+                        <h5 class="fw-bold mb-0 organisation-title">Production & Restaurant</h5>
+                        <p class="mb-2">Obtimisez votre production et offrez la meilleur expérience à vos clients.</p>
+                    </div> 
                     <div class="col-sm-4 col-lg-3 mb-4">
                         <div class="cardor border-0 bg-white-500 text-white">
                             @if($entite_mods->mod_fabrication == 1 && $dateJour <= $entite_mods->validite_mod)
@@ -332,7 +446,236 @@
                                 </a>
                             @endif
                         </div>                    
-                    </div>
+                    </div> 
+                    <div class="col-sm-4 col-lg-3 mb-4">
+                        <div class="cardor border-0 bg-white-500 text-white">
+                            @if($entite_mods->mod_restaurant == 1 && $dateJour <= $entite_mods->validite_mod)
+                                <a href="{{asset('restau_sessions?active=5&champ=2-1&choix=1')}}" wire:navigate class="bloc_mod" title="Module permettant la gestion complète des commandes, du suivi de la préparation des repas ainsi que de l’organisation et de l’occupation des tables au sein d’un restaurant.">
+                                    <div class="bloc_img_text">
+                                        <div class="part_img">
+                                            <img src="storage/img_module/restos.jpg" alt="" class="img_mod">
+                                        </div>
+                                        <div class="part_text">
+                                            <h5 class="card-title"><i class="fa fa-cash-register"></i> Restaurant</h5>
+                                            <p class="truncate_wamsco mb-1">Module permettant la gestion complète des commandes, du suivi de la préparation des repas ainsi que de l’organisation et de l’occupation des tables au sein d’un restaurant.</p>
+                                            <p class="card-text fw-bold badge bg-green mt-2">Activer</p>
+                                        </div>
+                                    </div>
+                                </a>
+                            @else
+                                <a href="{{asset('choix_plan')}}" wire:navigate class="bloc_mod">
+                                    <div class="bloc_img_text">
+                                        <div class="part_img">
+                                            <img src="storage/img_module/restos.jpg" alt="" class="img_mod">
+                                        </div>
+                                        <div class="part_text">
+                                            <h5 class="card-title"><i class="fa fa-cash-register"></i> Restaurant</h5>
+                                            <p class="truncate_wamsco mb-1">Module permettant la gestion complète des commandes, du suivi de la préparation des repas ainsi que de l’organisation et de l’occupation des tables au sein d’un restaurant.</p>
+                                            <p class="card-text fw-bold badge bg-danger mt-2">Débloquer le module</p>
+                                        </div>
+                                    </div>
+                                </a>
+                            @endif
+                        </div>                    
+                    </div> 
+                    <div class="col-sm-4 col-lg-3 mb-4">
+                        <div class="cardor border-0 bg-white-500 text-white">
+                            @if($entite_mods->mod_cuisine == 1 && $entite_mods->mod_pointe_vente == 1 && $dateJour <= $entite_mods->validite_mod)
+                                <a href="{{asset('cuisine?active=5&champ=1-3')}}" wire:navigate class="bloc_mod" title="Système d'affichage des commandes en cuisine, leur statut et en temps réel.">
+                                    <div class="bloc_img_text">
+                                        <div class="part_img">
+                                            <img src="storage/img_module/cuisine.jpg" alt="" class="img_mod">
+                                        </div>
+                                        <div class="part_text">
+                                            <h5 class="card-title" style="font-size: 14px;"><i class="fa fa-tv"></i> Ecran cuisine</h5>
+                                            <p class="truncate_wamsco mb-1">Système d'affichage des commandes en cuisine, leur statut et en temps réel.</p>
+                                            <p class="card-text fw-bold badge bg-green mt-2">Activer</p>
+                                        </div>
+                                    </div>
+                                </a>
+                            @else
+                                <a href="{{asset('choix_plan')}}" wire:navigate class="bloc_mod">
+                                    <div class="bloc_img_text">
+                                        <div class="part_img">
+                                            <img src="storage/img_module/cuisine.jpg" alt="" class="img_mod">
+                                        </div>
+                                        <div class="part_text">
+                                            <h5 class="card-title" style="font-size: 14px;"><i class="fa fa-tv"></i> Ecran cuisine</h5>
+                                            <p class="truncate_wamsco mb-1">Système d'affichage des commandes en cuisine, leur statut et en temps réel.</p>
+                                            <p class="card-text fw-bold badge bg-danger mt-2">Débloquer le module</p>
+                                        </div>
+                                    </div>
+                                </a>
+                            @endif
+                        </div>                    
+                    </div> 
+
+                    <div>                        
+                        <h5 class="fw-bold mb-0 organisation-title">Organisation</h5>
+                        <p class="mb-2">Organisez votre équipe et vos processus.</p>
+                    </div> 
+                    <div class="col-sm-4 col-lg-3 mb-4">
+                        <div class="cardor border-0 bg-white-500 text-white">
+                            @if($entite_mods->mod_tache == 1 && $dateJour <= $entite_mods->validite_mod)
+                                <a href="{{asset('taches?active=14&champ=1-1')}}" class="bloc_mod" title="La gestion des tâches est le processus qui consiste à identifier, suivre et exécuter le travail nécessaire pour atteindre un objectif.">
+                                    <div class="bloc_img_text">
+                                        <div class="part_img">
+                                            <img src="storage/img_module/taches.png" alt="" class="img_mod">
+                                        </div>
+                                        <div class="part_text">
+                                            <h5 class="card-title" style="font-size: 14px;"><i class="fa fa-tasks"></i> Gestion Tâches</h5>
+                                            <p class="truncate_wamsco mb-1">La gestion des tâches est le processus qui consiste à identifier, suivre et exécuter le travail nécessaire pour atteindre un objectif.</p>
+                                            <p class="card-text fw-bold badge bg-green mt-2">Activer</p>
+                                            {{-- <p class="card-text fw-bold badge bg-danger mt-2 blink">New</p> --}}
+                                        </div>
+                                    </div>
+                                </a>
+                            @else
+                                <a href="{{asset('choix_plan')}}" wire:navigate class="bloc_mod">
+                                    <div class="bloc_img_text">
+                                        <div class="part_img">
+                                            <img src="storage/img_module/taches.png" alt="" class="img_mod">
+                                        </div>
+                                        <div class="part_text">
+                                            <h5 class="card-title"><i class="fa fa-tasks"></i> Gestion Tâches</h5>
+                                            <p class="truncate_wamsco mb-1">La gestion des tâches est le processus qui consiste à identifier, suivre et exécuter le travail nécessaire pour atteindre un objectif.</p>
+                                            <p class="card-text fw-bold badge bg-danger mt-2">Débloquer le module</p>
+                                        </div>
+                                    </div>
+                                </a>
+                            @endif
+                        </div>                    
+                    </div> 
+                    <div class="col-sm-4 col-lg-3 mb-4">
+                        <div class="cardor border-0 bg-white-500 text-white">
+                            @if($entite_mods->mod_tache == 1 && $dateJour <= $entite_mods->validite_mod)
+                                <a href="{{asset('#')}}" class="bloc_mod" title="c'est un savant mélange de calculs précis, de respect du droit du travail et de conformité fiscale.">
+                                    <div class="bloc_img_text">
+                                        <div class="part_img">
+                                            <img src="storage/img_module/paie.jpg" alt="" class="img_mod">
+                                        </div>
+                                        <div class="part_text">
+                                            <h5 class="card-title" style="font-size: 14px;"><i class="fab fa-cc-mastercard"></i> Gestion Paie</h5>
+                                            <p class="truncate_wamsco mb-1">C'est un savant mélange de calculs précis, de respect du droit du travail et de conformité fiscale.</p>
+                                            {{-- <p class="card-text fw-bold badge bg-green mt-2">Activer</p> --}}
+                                            <p class="card-text fw-bold badge bg-danger mt-2 blink">Bientôt dispo.</p>
+                                        </div>
+                                    </div>
+                                </a>
+                            @else
+                                <a href="{{asset('choix_plan')}}" wire:navigate class="bloc_mod">
+                                    <div class="bloc_img_text">
+                                        <div class="part_img">
+                                            <img src="storage/img_module/paie.jpg" alt="" class="img_mod">
+                                        </div>
+                                        <div class="part_text">
+                                            <h5 class="card-title"><i class="fab fa-cc-mastercard"></i> Gestion Paie</h5>
+                                            <p class="truncate_wamsco mb-1">C'est un savant mélange de calculs précis, de respect du droit du travail et de conformité fiscale.</p>
+                                            <p class="card-text fw-bold badge bg-danger mt-2">Débloquer le module</p>
+                                        </div>
+                                    </div>
+                                </a>
+                            @endif
+                        </div>                    
+                    </div>                    
+                    <div class="col-sm-4 col-lg-3 mb-4">
+                        <div class="cardor border-0 bg-white-500 text-white">
+                            @if($entite_mods->mod_multisociete == 1 && $dateJour <= $entite_mods->validite_mod)
+                                <a href="{{asset('liste_societe?active=11&champ=1-1')}}" wire:navigate class="bloc_mod" title="Avec WamsCo, gérer plusieurs sociétés sans contrainte au meme endroit et avec un seul compte.">
+                                    <div class="bloc_img_text">
+                                        <div class="part_img">
+                                            <img src="storage/img_module/2.png" alt="" class="img_mod">
+                                        </div>
+                                        <div class="part_text">
+                                            <h5 class="card-title"><i class="fas fa-sitemap"></i> Multi-société</h5>
+                                            <p class="truncate_wamsco mb-1">Avec WamsCo, gérer plusieurs sociétés sans contrainte au meme endroit et avec un seul compte.</p>
+                                            <p class="card-text fw-bold badge bg-green mt-2">Activer</p> 
+                                        </div>
+                                    </div>                                    
+                                </a>
+                            @else
+                                <a href="{{asset('choix_plan')}}" wire:navigate class="bloc_mod">
+                                    <div class="bloc_img_text">
+                                        <div class="part_img">
+                                            <img src="storage/img_module/2.png" alt="" class="img_mod">
+                                        </div>
+                                        <div class="part_text">
+                                            <h5 class="card-title"><i class="fas fa-sitemap"></i> Multi-société</h5>
+                                            <p class="truncate_wamsco mb-1">Avec WamsCo, gérer plusieurs sociétés sans contrainte au meme endroit et avec un seul compte.</p>
+                                            <p class="card-text fw-bold badge bg-danger mt-2">Débloquer le module</p> 
+                                        </div>
+                                    </div>
+                                </a>
+                            @endif
+                        </div>                    
+                    </div> 
+                    {{-- <div class="col-sm-4 col-lg-3 mb-4">
+                        <div class="cardor border-0 bg-white-500 text-white">
+                            @if($entite_mods->mod_gestion_employe == 1 && $dateJour <= $entite_mods->validite_mod)
+                                <a href="{{asset('employes?active=12&champ=1-1&choix=1')}}" class="bloc_mod">
+                                    <div class="bloc_img_text">
+                                        <div class="part_img">
+                                            <img src="storage/img_module/person.jpg" alt="" class="img_mod">
+                                        </div>
+                                        <div class="part_text">
+                                            <h5 class="card-title"><i class="fa fa-users"></i> Employé</h5>
+                                            <p class="truncate_wamsco mb-1">Gérer vos employés, poste de travail etc...</p>
+                                            <p class="card-text fw-bold badge bg-green mt-2">Activer</p>
+                                        </div>
+                                    </div>
+                                </a>
+                            @else
+                                <a href="https://api.whatsapp.com/send?phone=+237654258009&text=Bonjour WamsCo, nous souhaiterons activer ce module (Gestion employés). Quelles sont les modalités? Merci." target="_blank" class="bloc_mod">
+                                    <div class="bloc_img_text">
+                                        <div class="part_img">
+                                            <img src="storage/img_module/person.jpg" alt="" class="img_mod">
+                                        </div>
+                                        <div class="part_text">
+                                            <h5 class="card-title"><i class="fa fa-users"></i> Employés</h5>
+                                            <p class="truncate_wamsco mb-1">Gérer vos employés, poste de travail etc...</p>
+                                            <p class="card-text fw-bold badge bg-danger mt-2">Désactiver</p>
+                                        </div>
+                                    </div>
+                                </a>
+                            @endif
+                        </div>                    
+                    </div> --}}
+
+                    <div>                        
+                        <h5 class="fw-bold mb-0 organisation-title">Administration</h5>
+                        <p class="mb-2">Configurez et sécurisez votre environnement.</p>
+                    </div> 
+                    <div class="col-sm-4 col-lg-3 mb-4">
+                        <div class="cardor border-0 bg-white-500 text-white">
+                            @if($entite_mods->mod_administration == 1 && $dateJour <= $entite_mods->validite_mod)
+                                <a href="{{asset('entite?active=12&champ=1-3')}}" wire:navigate class="bloc_mod" title="Gérer tous vos collaborateurs au meme endroit: utilisateurs, rôles, taxe, devise etc...">
+                                    <div class="bloc_img_text">
+                                        <div class="part_img">
+                                            <img src="storage/img_module/parametre.jpg" alt="" class="img_mod">
+                                        </div>
+                                        <div class="part_text">
+                                            <h5 class="card-title"><i class="fa fa-cog fa-spin"></i> Paramètres</h5>
+                                            <p class="truncate_wamsco mb-1">Gérer tous vos collaborateurs au meme endroit: utilisateurs, rôles, taxe, devise etc...</p>
+                                            <p class="card-text fw-bold badge bg-green mt-2">Activer</p>
+                                        </div>
+                                    </div>
+                                </a>
+                            @else
+                                <a href="{{asset('choix_plan')}}" wire:navigate class="bloc_mod">
+                                    <div class="bloc_img_text">
+                                        <div class="part_img">
+                                            <img src="storage/img_module/parametre.jpg" alt="" class="img_mod">
+                                        </div>
+                                        <div class="part_text">
+                                            <h5 class="card-title"><i class="fa fa-cog fa-spin"></i> Paramètres</h5>
+                                            <p class="truncate_wamsco mb-1">Gérer tous vos collaborateurs au meme endroit: utilisateurs, rôles, taxe, devise etc...</p>
+                                            <p class="card-text fw-bold badge bg-danger mt-2">Débloquer le module</p>
+                                        </div>
+                                    </div>
+                                </a>
+                            @endif
+                        </div>                    
+                    </div> 
                     <div class="col-sm-4 col-lg-3 mb-4">
                         <div class="cardor border-0 bg-white-500 text-white">
                             @if($entite_mods->mod_ticket == 1 && $dateJour <= $entite_mods->validite_mod)
@@ -365,230 +708,6 @@
                             @endif
                         </div>                    
                     </div>
-                    <div class="col-sm-4 col-lg-3 mb-4">
-                        <div class="cardor border-0 bg-white-500 text-white">
-                            @if($entite_mods->mod_tache == 1 && $dateJour <= $entite_mods->validite_mod)
-                                <a href="{{asset('taches?active=14&champ=1-1')}}" class="bloc_mod" title="La gestion des tâches est le processus qui consiste à identifier, suivre et exécuter le travail nécessaire pour atteindre un objectif.">
-                                    <div class="bloc_img_text">
-                                        <div class="part_img">
-                                            <img src="storage/img_module/taches.png" alt="" class="img_mod">
-                                        </div>
-                                        <div class="part_text">
-                                            <h5 class="card-title" style="font-size: 14px;"><i class="fa fa-tasks"></i> Gestion Tâches</h5>
-                                            <p class="truncate_wamsco mb-1">La gestion des tâches est le processus qui consiste à identifier, suivre et exécuter le travail nécessaire pour atteindre un objectif.</p>
-                                            <p class="card-text fw-bold badge bg-green mt-2">Activer</p>
-                                            {{-- <p class="card-text fw-bold badge bg-danger mt-2 blink">New</p> --}}
-                                        </div>
-                                    </div>
-                                </a>
-                            @else
-                                <a href="{{asset('choix_plan')}}" wire:navigate class="bloc_mod">
-                                    <div class="bloc_img_text">
-                                        <div class="part_img">
-                                            <img src="storage/img_module/taches.png" alt="" class="img_mod">
-                                        </div>
-                                        <div class="part_text">
-                                            <h5 class="card-title"><i class="fa fa-tasks"></i> Gestion Tâches</h5>
-                                            <p class="truncate_wamsco mb-1">La gestion des tâches est le processus qui consiste à identifier, suivre et exécuter le travail nécessaire pour atteindre un objectif.</p>
-                                            <p class="card-text fw-bold badge bg-danger mt-2">Débloquer le module</p>
-                                        </div>
-                                    </div>
-                                </a>
-                            @endif
-                        </div>                    
-                    </div>
-                    <div class="col-sm-4 col-lg-3 mb-4">
-                        <div class="cardor border-0 bg-white-500 text-white">
-                            @if($entite_mods->mod_tache == 1 && $dateJour <= $entite_mods->validite_mod)
-                                <a href="{{asset('#')}}" class="bloc_mod" title="c'est un savant mélange de calculs précis, de respect du droit du travail et de conformité fiscale.">
-                                    <div class="bloc_img_text">
-                                        <div class="part_img">
-                                            <img src="storage/img_module/paie.jpg" alt="" class="img_mod">
-                                        </div>
-                                        <div class="part_text">
-                                            <h5 class="card-title" style="font-size: 14px;"><i class="fab fa-cc-mastercard"></i> Gestion Paie</h5>
-                                            <p class="truncate_wamsco mb-1">C'est un savant mélange de calculs précis, de respect du droit du travail et de conformité fiscale.</p>
-                                            {{-- <p class="card-text fw-bold badge bg-green mt-2">Activer</p> --}}
-                                            <p class="card-text fw-bold badge bg-danger mt-2 blink">Bientôt dispo.</p>
-                                        </div>
-                                    </div>
-                                </a>
-                            @else
-                                <a href="{{asset('choix_plan')}}" wire:navigate class="bloc_mod">
-                                    <div class="bloc_img_text">
-                                        <div class="part_img">
-                                            <img src="storage/img_module/paie.jpg" alt="" class="img_mod">
-                                        </div>
-                                        <div class="part_text">
-                                            <h5 class="card-title"><i class="fab fa-cc-mastercard"></i> Gestion Paie</h5>
-                                            <p class="truncate_wamsco mb-1">C'est un savant mélange de calculs précis, de respect du droit du travail et de conformité fiscale.</p>
-                                            <p class="card-text fw-bold badge bg-danger mt-2">Débloquer le module</p>
-                                        </div>
-                                    </div>
-                                </a>
-                            @endif
-                        </div>                    
-                    </div>
-                    @if(auth()->user()->societe == "Administration")
-                    <div class="col-sm-4 col-lg-3 mb-4">
-                        <div class="cardor border-0 bg-white-500 text-white">
-                            @if($entite_mods->mod_gestion_commercial == 1 && $dateJour <= $entite_mods->validite_mod)
-                                <a href="{{asset('liste_souscription?active=16&champ=1-3')}}" wire:navigate class="bloc_mod" title="Une personne dont le travail consiste à vendre des produits ou des services pour une entreprise.">
-                                    <div class="bloc_img_text">
-                                        <div class="part_img">
-                                            <img src="storage/img_module/commercial.png" alt="" class="img_mod">
-                                        </div>
-                                        <div class="part_text">
-                                            <h5 class="card-title"><i class="fas fa-sitemap"></i> Commercial</h5>
-                                            <p class="truncate_wamsco mb-1">Une personne dont le travail consiste à vendre des produits ou des services pour une entreprise.</p>
-                                            <p class="card-text fw-bold badge bg-green mt-2">Activer</p> 
-                                        </div>
-                                    </div>                                    
-                                </a>
-                            @else
-                                <a href="{{asset('choix_plan')}}" wire:navigate class="bloc_mod">
-                                    <div class="bloc_img_text">
-                                        <div class="part_img">
-                                            <img src="storage/img_module/2.png" alt="" class="img_mod">
-                                        </div>
-                                        <div class="part_text">
-                                            <h5 class="card-title"><i class="fas fa-sitemap"></i> Commercial</h5>
-                                            <p class="truncate_wamsco mb-1">Une personne dont le travail consiste à vendre des produits ou des services pour une entreprise..</p>
-                                            <p class="card-text fw-bold badge bg-danger mt-2">Débloquer le module</p> 
-                                        </div>
-                                    </div>
-                                </a>
-                            @endif
-                        </div>                    
-                    </div>
-                    @endif
-                    <div class="col-sm-4 col-lg-3 mb-4">
-                        <div class="cardor border-0 bg-white-500 text-white">
-                            @if($entite_mods->mod_multisociete == 1 && $dateJour <= $entite_mods->validite_mod)
-                                <a href="{{asset('liste_societe?active=11&champ=1-1')}}" wire:navigate class="bloc_mod" title="Avec WamsCo, gérer plusieurs sociétés sans contrainte au meme endroit et avec un seul compte.">
-                                    <div class="bloc_img_text">
-                                        <div class="part_img">
-                                            <img src="storage/img_module/2.png" alt="" class="img_mod">
-                                        </div>
-                                        <div class="part_text">
-                                            <h5 class="card-title"><i class="fas fa-sitemap"></i> Multi-société</h5>
-                                            <p class="truncate_wamsco mb-1">Avec WamsCo, gérer plusieurs sociétés sans contrainte au meme endroit et avec un seul compte.</p>
-                                            <p class="card-text fw-bold badge bg-green mt-2">Activer</p> 
-                                        </div>
-                                    </div>                                    
-                                </a>
-                            @else
-                                <a href="{{asset('choix_plan')}}" wire:navigate class="bloc_mod">
-                                    <div class="bloc_img_text">
-                                        <div class="part_img">
-                                            <img src="storage/img_module/2.png" alt="" class="img_mod">
-                                        </div>
-                                        <div class="part_text">
-                                            <h5 class="card-title"><i class="fas fa-sitemap"></i> Multi-société</h5>
-                                            <p class="truncate_wamsco mb-1">Avec WamsCo, gérer plusieurs sociétés sans contrainte au meme endroit et avec un seul compte.</p>
-                                            <p class="card-text fw-bold badge bg-danger mt-2">Débloquer le module</p> 
-                                        </div>
-                                    </div>
-                                </a>
-                            @endif
-                        </div>                    
-                    </div> 
-                    <div class="col-sm-4 col-lg-3 mb-4">
-                        <div class="cardor border-0 bg-white-500 text-white">
-                            @if($entite_mods->mod_administration == 1 && $dateJour <= $entite_mods->validite_mod)
-                                <a href="{{asset('entite?active=12&champ=1-3')}}" wire:navigate class="bloc_mod" title="Gérer tous vos collaborateurs au meme endroit: utilisateurs, rôles, taxe, devise etc...">
-                                    <div class="bloc_img_text">
-                                        <div class="part_img">
-                                            <img src="storage/img_module/parametre.jpg" alt="" class="img_mod">
-                                        </div>
-                                        <div class="part_text">
-                                            <h5 class="card-title"><i class="fa fa-cog fa-spin"></i> Paramètres</h5>
-                                            <p class="truncate_wamsco mb-1">Gérer tous vos collaborateurs au meme endroit: utilisateurs, rôles, taxe, devise etc...</p>
-                                            <p class="card-text fw-bold badge bg-green mt-2">Activer</p>
-                                        </div>
-                                    </div>
-                                </a>
-                            @else
-                                <a href="{{asset('choix_plan')}}" wire:navigate class="bloc_mod">
-                                    <div class="bloc_img_text">
-                                        <div class="part_img">
-                                            <img src="storage/img_module/parametre.jpg" alt="" class="img_mod">
-                                        </div>
-                                        <div class="part_text">
-                                            <h5 class="card-title"><i class="fa fa-cog fa-spin"></i> Paramètres</h5>
-                                            <p class="truncate_wamsco mb-1">Gérer tous vos collaborateurs au meme endroit: utilisateurs, rôles, taxe, devise etc...</p>
-                                            <p class="card-text fw-bold badge bg-danger mt-2">Débloquer le module</p>
-                                        </div>
-                                    </div>
-                                </a>
-                            @endif
-                        </div>                    
-                    </div>                     
-                    {{-- <div class="col-sm-4 col-lg-3 mb-4">
-                        <div class="cardor border-0 bg-white-500 text-white">
-                            @if($entite_mods->mod_paie == 1 && $dateJour <= $entite_mods->validite_mod)
-                                <a href="#" class="bloc_mod">
-                                    <div class="bloc_img_text">
-                                        <div class="part_img">
-                                            <img src="storage/img_module/paie.jpg" alt="" class="img_mod">
-                                        </div>
-                                        <div class="part_text">
-                                            <h5 class="card-title"><i class="fa fa-money-bill"></i> Paie</h5>
-                                            <p class="truncate_wamsco mb-1">Gérer vos bulletins de paie, congés etc...</p>
-                                            <p class="card-text fw-bold badge bg-green mt-2">Activer</p>
-                                            <p class="card-text fw-bold badge bg-warning mt-2">En cours de dev</p>
-                                        </div>
-                                    </div>
-                                </a>
-                            @else
-                                <a href="https://api.whatsapp.com/send?phone=+237654258009&text=Bonjour WamsCo, nous souhaiterons activer ce module (Gestion de paie). Quelles sont les modalités? Merci." target="_blank" class="bloc_mod">
-                                <a href="#" class="bloc_mod">
-                                    <div class="bloc_img_text">
-                                        <div class="part_img">
-                                            <img src="storage/img_module/paie.jpg" alt="" class="img_mod">
-                                        </div>
-                                        <div class="part_text">
-                                            <h5 class="card-title"><i class="fa fa-money-bill"></i> Paie</h5>
-                                            <p class="truncate_wamsco mb-1">Gérer vos bulletins de paie, congés etc...</p>
-                                            <p class="card-text fw-bold badge bg-danger mt-2">Débloquer le module</p>
-                                            <p class="card-text fw-bold badge bg-warning mt-2">En cours de dev</p>
-                                        </div>
-                                    </div>
-                                </a>
-                            @endif
-                        </div>                    
-                    </div> --}}
-                    {{-- <div class="col-sm-4 col-lg-3 mb-4">
-                        <div class="cardor border-0 bg-white-500 text-white">
-                            @if($entite_mods->mod_gestion_employe == 1 && $dateJour <= $entite_mods->validite_mod)
-                                <a href="{{asset('employes?active=12&champ=1-1&choix=1')}}" class="bloc_mod">
-                                    <div class="bloc_img_text">
-                                        <div class="part_img">
-                                            <img src="storage/img_module/person.jpg" alt="" class="img_mod">
-                                        </div>
-                                        <div class="part_text">
-                                            <h5 class="card-title"><i class="fa fa-users"></i> Employé</h5>
-                                            <p class="truncate_wamsco mb-1">Gérer vos employés, poste de travail etc...</p>
-                                            <p class="card-text fw-bold badge bg-green mt-2">Activer</p>
-                                        </div>
-                                    </div>
-                                </a>
-                            @else
-                                <a href="https://api.whatsapp.com/send?phone=+237654258009&text=Bonjour WamsCo, nous souhaiterons activer ce module (Gestion employés). Quelles sont les modalités? Merci." target="_blank" class="bloc_mod">
-                                    <div class="bloc_img_text">
-                                        <div class="part_img">
-                                            <img src="storage/img_module/person.jpg" alt="" class="img_mod">
-                                        </div>
-                                        <div class="part_text">
-                                            <h5 class="card-title"><i class="fa fa-users"></i> Employés</h5>
-                                            <p class="truncate_wamsco mb-1">Gérer vos employés, poste de travail etc...</p>
-                                            <p class="card-text fw-bold badge bg-danger mt-2">Désactiver</p>
-                                        </div>
-                                    </div>
-                                </a>
-                            @endif
-                        </div>                    
-                    </div> --}}
                     {{-- <div class="col-sm-4 col-lg-3 mb-4">
                         <div class="cardor border-0 bg-white-500 text-white">
                             @if($entite_mods->mod_pressing == 1 && $dateJour <= $entite_mods->validite_mod)
@@ -619,7 +738,7 @@
                                 </a>
                             @endif
                         </div>                    
-                    </div>  --}}                    
+                    </div> --}}
                 </div>
             @endforeach
         </div>

@@ -58,7 +58,7 @@ class ExportExcelToutController extends Controller
     	$file_name = auth()->user()->societe.'_Tiers.xlsx';
 
     	// 3. On récupère données de la table "tiers"
-    	$tiers = Tier::where('societe',auth()->user()->societe)->get();
+    	$tiers = Tier::where('societe_id',auth()->user()->societe_id)->get();
 
     	// 4. $writer : Objet Spatie\SimpleExcel\SimpleExcelWriter
     	$writer = SimpleExcelWriter::streamDownload($file_name);
@@ -78,7 +78,7 @@ class ExportExcelToutController extends Controller
 
     	//  on peut choir l'extension .csv ou .xlsx (excel)    	
     	$file_name = auth()->user()->societe.'_Produits.xlsx';
-    	$produits = Produit::where('societe',auth()->user()->societe)->where('nature_produit','like','%'.$nature.'%')->where('categorie','like','%'.$categorie.'%')->where('nom_produit','like','%'.$produit.'%')->get();
+    	$produits = Produit::where('societe_id',auth()->user()->societe_id)->where('nature_produit','like','%'.$nature.'%')->where('categorie','like','%'.$categorie.'%')->where('nom_produit','like','%'.$produit.'%')->get();
     	$writer = SimpleExcelWriter::streamDownload($file_name);
     	$writer->addRows($produits->toArray());
         $writer->toBrowser();
@@ -94,7 +94,7 @@ class ExportExcelToutController extends Controller
 
     	//  on peut choir l'extension .csv ou .xlsx (excel)    	
     	$file_name = auth()->user()->societe.'_Stock.xlsx';
-    	$stocks = Stock::where('societe',auth()->user()->societe)->where('nature_produit','like','%'.$nature.'%')->where('categorie','like','%'.$categorie.'%')->where('nom_produit','like','%'.$produit.'%')->get();
+    	$stocks = Stock::where('societe_id',auth()->user()->societe_id)->where('nature_produit','like','%'.$nature.'%')->where('categorie','like','%'.$categorie.'%')->where('nom_produit','like','%'.$produit.'%')->get();
     	$writer = SimpleExcelWriter::streamDownload($file_name);
     	$writer->addRows($stocks->toArray());
         $writer->toBrowser();
@@ -107,7 +107,7 @@ class ExportExcelToutController extends Controller
 
     	//  on peut choir l'extension .csv ou .xlsx (excel)    	
     	$file_name = auth()->user()->societe.'_Utilisateur.xlsx';
-    	$users = Utilisateur::where('societe',auth()->user()->societe)->get();
+    	$users = Utilisateur::where('societe_id',auth()->user()->societe_id)->get();
     	$writer = SimpleExcelWriter::streamDownload($file_name);
     	$writer->addRows($users->toArray());
         $writer->toBrowser();
@@ -141,10 +141,10 @@ class ExportExcelToutController extends Controller
     	//  on peut choir l'extension .csv ou .xlsx (excel)    	
     	$file_name = auth()->user()->societe.'_Session_Pos.xlsx';
 		if(empty($user_id)){
-			$sessions = SessionPos::where('societe',auth()->user()->societe)->whereBetween('created_at',[$start, $end])->get();
+			$sessions = SessionPos::where('societe_id',auth()->user()->societe_id)->whereBetween('created_at',[$start, $end])->get();
 		}
 		else{
-			$sessions = SessionPos::where('societe',auth()->user()->societe)->where('user_id', $user_id)->whereBetween('created_at',[$start, $end])->get();
+			$sessions = SessionPos::where('societe_id',auth()->user()->societe_id)->where('user_id', $user_id)->whereBetween('created_at',[$start, $end])->get();
 		}
     	$writer = SimpleExcelWriter::streamDownload($file_name);
     	$writer->addRows($sessions->toArray());
@@ -166,10 +166,10 @@ class ExportExcelToutController extends Controller
     	//  on peut choir l'extension .csv ou .xlsx (excel)    	
     	$file_name = auth()->user()->societe.'_Session_Restau.xlsx';
 		if(empty($user_id)){
-			$sessions = SessionRestau::where('societe',auth()->user()->societe)->whereBetween('created_at',[$start, $end])->get();
+			$sessions = SessionRestau::where('societe_id',auth()->user()->societe_id)->whereBetween('created_at',[$start, $end])->get();
 		}
 		else{
-			$sessions = SessionRestau::where('societe',auth()->user()->societe)->where('user_id', $user_id)->whereBetween('created_at',[$start, $end])->get();
+			$sessions = SessionRestau::where('societe_id',auth()->user()->societe_id)->where('user_id', $user_id)->whereBetween('created_at',[$start, $end])->get();
 		}
     	$writer = SimpleExcelWriter::streamDownload($file_name);
     	$writer->addRows($sessions->toArray());
@@ -183,7 +183,7 @@ class ExportExcelToutController extends Controller
 		
     	//  on peut choir l'extension .csv ou .xlsx (excel)    	
     	$file_name = auth()->user()->societe.'_Emplacement.xlsx';
-    	$emplacement = Emplacement::where('societe',auth()->user()->societe)->get();
+    	$emplacement = Emplacement::where('societe_id',auth()->user()->societe_id)->get();
     	$writer = SimpleExcelWriter::streamDownload($file_name);
     	$writer->addRows($emplacement->toArray());
         $writer->toBrowser();
@@ -205,12 +205,12 @@ class ExportExcelToutController extends Controller
 
     	//  on peut choir l'extension .csv ou .xlsx (excel)    	
     	$file_name = auth()->user()->societe.'_Commande_client.xlsx';
-    	// $cmdClient = CommandeClientLigne::where('societe',auth()->user()->societe)->get();
+    	// $cmdClient = CommandeClientLigne::where('societe_id',auth()->user()->societe_id)->get();
 		if(!empty($statut)){
-			$cmdClient = CommandeClientEntete::where('societe',auth()->user()->societe)->where('nom_client','like','%'.$client.'%')->where('code_commande','like','%'.$ref.'%')->where('etat',$statut)->whereBetween('created_at',[$start, $end])->get();
+			$cmdClient = CommandeClientEntete::where('societe_id',auth()->user()->societe_id)->where('nom_client','like','%'.$client.'%')->where('code_commande','like','%'.$ref.'%')->where('etat',$statut)->whereBetween('created_at',[$start, $end])->get();
 		}
 		else{
-			$cmdClient = CommandeClientEntete::where('societe',auth()->user()->societe)->where('nom_client','like','%'.$client.'%')->where('code_commande','like','%'.$ref.'%')->whereBetween('created_at',[$start, $end])->get();
+			$cmdClient = CommandeClientEntete::where('societe_id',auth()->user()->societe_id)->where('nom_client','like','%'.$client.'%')->where('code_commande','like','%'.$ref.'%')->whereBetween('created_at',[$start, $end])->get();
 		}
     	$writer = SimpleExcelWriter::streamDownload($file_name);
     	$writer->addRows($cmdClient->toArray());
@@ -234,10 +234,10 @@ class ExportExcelToutController extends Controller
     	//  on peut choir l'extension .csv ou .xlsx (excel)    	
     	$file_name = auth()->user()->societe.'_Commande_client_ligne.xlsx';
 		if(!empty($produit_id)){
-			$cmdClient = CommandeClientLigne::where('societe',auth()->user()->societe)->where('nom_client','like','%'.$client.'%')->where('code_commande','like','%'.$ref.'%')->where('id_produit',$produit_id)->whereBetween('created_at',[$start, $end])->get();
+			$cmdClient = CommandeClientLigne::where('societe_id',auth()->user()->societe_id)->where('nom_client','like','%'.$client.'%')->where('code_commande','like','%'.$ref.'%')->where('id_produit',$produit_id)->whereBetween('created_at',[$start, $end])->get();
 		}
 		else{
-			$cmdClient = CommandeClientLigne::where('societe',auth()->user()->societe)->where('nom_client','like','%'.$client.'%')->where('code_commande','like','%'.$ref.'%')->whereBetween('created_at',[$start, $end])->get();
+			$cmdClient = CommandeClientLigne::where('societe_id',auth()->user()->societe_id)->where('nom_client','like','%'.$client.'%')->where('code_commande','like','%'.$ref.'%')->whereBetween('created_at',[$start, $end])->get();
 		}
     	$writer = SimpleExcelWriter::streamDownload($file_name);
     	$writer->addRows($cmdClient->toArray());
@@ -259,12 +259,12 @@ class ExportExcelToutController extends Controller
 
     	//  on peut choir l'extension .csv ou .xlsx (excel)    	
     	$file_name = auth()->user()->societe.'_Expedition_client.xlsx';
-    	// $expClient = ExpeditionClientLigne::where('societe',auth()->user()->societe)->get();
+    	// $expClient = ExpeditionClientLigne::where('societe_id',auth()->user()->societe_id)->get();
 		if(!empty($statut)){
-			$expClient = ExpeditionClientLignePartiel::where('societe',auth()->user()->societe)->where('nom_client','like','%'.$client.'%')->where('code_expedition','like','%'.$ref.'%')->where('etat',$statut)->whereBetween('created_at',[$start, $end])->get();
+			$expClient = ExpeditionClientLignePartiel::where('societe_id',auth()->user()->societe_id)->where('nom_client','like','%'.$client.'%')->where('code_expedition','like','%'.$ref.'%')->where('etat',$statut)->whereBetween('created_at',[$start, $end])->get();
 		}
 		else{
-			$expClient = ExpeditionClientLignePartiel::where('societe',auth()->user()->societe)->where('nom_client','like','%'.$client.'%')->where('code_expedition','like','%'.$ref.'%')->whereBetween('created_at',[$start, $end])->get();
+			$expClient = ExpeditionClientLignePartiel::where('societe_id',auth()->user()->societe_id)->where('nom_client','like','%'.$client.'%')->where('code_expedition','like','%'.$ref.'%')->whereBetween('created_at',[$start, $end])->get();
 		}
     	$writer = SimpleExcelWriter::streamDownload($file_name);
     	$writer->addRows($expClient->toArray());
@@ -286,13 +286,13 @@ class ExportExcelToutController extends Controller
 
     	//  on peut choir l'extension .csv ou .xlsx (excel)    	
     	$file_name = auth()->user()->societe.'_Commande_fournisseur.xlsx';
-    	// $cmdFourni = CommandeFournisseurLigne::where('societe',auth()->user()->societe)->get();
+    	// $cmdFourni = CommandeFournisseurLigne::where('societe_id',auth()->user()->societe_id)->get();
 
 		if(!empty($statut)){ 
-			$cmdFourni = CommandeFournisseurEntete::where('societe',auth()->user()->societe)->where('nom_fournisseur','like','%'.$fournisseur.'%')->where('code_commande','like','%'.$ref.'%')->where('etat',$statut)->whereBetween('created_at',[$start, $end])->get();
+			$cmdFourni = CommandeFournisseurEntete::where('societe_id',auth()->user()->societe_id)->where('nom_fournisseur','like','%'.$fournisseur.'%')->where('code_commande','like','%'.$ref.'%')->where('etat',$statut)->whereBetween('created_at',[$start, $end])->get();
 		}
 		else{
-			$cmdFourni = CommandeFournisseurEntete::where('societe',auth()->user()->societe)->where('nom_fournisseur','like','%'.$fournisseur.'%')->where('code_commande','like','%'.$ref.'%')->whereBetween('created_at',[$start, $end])->get();
+			$cmdFourni = CommandeFournisseurEntete::where('societe_id',auth()->user()->societe_id)->where('nom_fournisseur','like','%'.$fournisseur.'%')->where('code_commande','like','%'.$ref.'%')->whereBetween('created_at',[$start, $end])->get();
 		}
 
     	$writer = SimpleExcelWriter::streamDownload($file_name);
@@ -316,10 +316,10 @@ class ExportExcelToutController extends Controller
     	//  on peut choir l'extension .csv ou .xlsx (excel)    	
     	$file_name = auth()->user()->societe.'_Commande_fournisseur_ligne.xlsx';
 		if(!empty($produit_id)){ 
-			$cmdFourni = CommandeFournisseurLigne::where('societe',auth()->user()->societe)->where('nom_fournisseur','like','%'.$fournisseur.'%')->where('code_commande','like','%'.$ref.'%')->where('id_produit',$produit_id)->whereBetween('created_at',[$start, $end])->get();
+			$cmdFourni = CommandeFournisseurLigne::where('societe_id',auth()->user()->societe_id)->where('nom_fournisseur','like','%'.$fournisseur.'%')->where('code_commande','like','%'.$ref.'%')->where('id_produit',$produit_id)->whereBetween('created_at',[$start, $end])->get();
 		}
 		else{
-			$cmdFourni = CommandeFournisseurLigne::where('societe',auth()->user()->societe)->where('nom_fournisseur','like','%'.$fournisseur.'%')->where('code_commande','like','%'.$ref.'%')->whereBetween('created_at',[$start, $end])->get();
+			$cmdFourni = CommandeFournisseurLigne::where('societe_id',auth()->user()->societe_id)->where('nom_fournisseur','like','%'.$fournisseur.'%')->where('code_commande','like','%'.$ref.'%')->whereBetween('created_at',[$start, $end])->get();
 		}
 
     	$writer = SimpleExcelWriter::streamDownload($file_name);
@@ -342,12 +342,12 @@ class ExportExcelToutController extends Controller
 
     	//  on peut choir l'extension .csv ou .xlsx (excel)    	
     	$file_name = auth()->user()->societe.'_Reception_fournisseur.xlsx';
-    	// $recepFourni = ReceptionFournisseurLigne::where('societe',auth()->user()->societe)->get();
+    	// $recepFourni = ReceptionFournisseurLigne::where('societe_id',auth()->user()->societe_id)->get();
 		if(!empty($statut)){
-			$recepFourni = ReceptionFournisseurLignePartiel::where('societe',auth()->user()->societe)->where('nom_fournisseur','like','%'.$fournisseur.'%')->where('code_reception','like','%'.$ref.'%')->where('etat',$statut)->whereBetween('created_at',[$start, $end])->get();
+			$recepFourni = ReceptionFournisseurLignePartiel::where('societe_id',auth()->user()->societe_id)->where('nom_fournisseur','like','%'.$fournisseur.'%')->where('code_reception','like','%'.$ref.'%')->where('etat',$statut)->whereBetween('created_at',[$start, $end])->get();
 		}
 		else{
-			$recepFourni = ReceptionFournisseurLignePartiel::where('societe',auth()->user()->societe)->where('nom_fournisseur','like','%'.$fournisseur.'%')->where('code_reception','like','%'.$ref.'%')->whereBetween('created_at',[$start, $end])->get();
+			$recepFourni = ReceptionFournisseurLignePartiel::where('societe_id',auth()->user()->societe_id)->where('nom_fournisseur','like','%'.$fournisseur.'%')->where('code_reception','like','%'.$ref.'%')->whereBetween('created_at',[$start, $end])->get();
 		}
     	$writer = SimpleExcelWriter::streamDownload($file_name);
     	$writer->addRows($recepFourni->toArray());
@@ -371,19 +371,19 @@ class ExportExcelToutController extends Controller
 
     	//  on peut choir l'extension .csv ou .xlsx (excel)    	
     	$file_name = auth()->user()->societe.'_Facture_client.xlsx';
-    	// $factClient = factureClientLigne::where('societe',auth()->user()->societe)->get(); 
+    	// $factClient = factureClientLigne::where('societe_id',auth()->user()->societe_id)->get(); 
 
 		if(empty($statut) && empty($user)){
-			$factClient = factureClientEntete::where('societe',auth()->user()->societe)->where('nom_client','like','%'.$client.'%')->where('code_facture','like','%'.$ref.'%')->whereBetween('created_at',[$start, $end])->get();
+			$factClient = factureClientEntete::where('societe_id',auth()->user()->societe_id)->where('nom_client','like','%'.$client.'%')->where('code_facture','like','%'.$ref.'%')->whereBetween('created_at',[$start, $end])->get();
 		}
 		elseif(!empty($statut) && empty($user)){
-			$factClient = factureClientEntete::where('societe',auth()->user()->societe)->where('nom_client','like','%'.$client.'%')->where('code_facture','like','%'.$ref.'%')->where('etat',$statut)->whereBetween('created_at',[$start, $end])->get();
+			$factClient = factureClientEntete::where('societe_id',auth()->user()->societe_id)->where('nom_client','like','%'.$client.'%')->where('code_facture','like','%'.$ref.'%')->where('etat',$statut)->whereBetween('created_at',[$start, $end])->get();
 		}
 		elseif(empty($statut) && !empty($user)){
-			$factClient = factureClientEntete::where('societe',auth()->user()->societe)->where('nom_client','like','%'.$client.'%')->where('code_facture','like','%'.$ref.'%')->where('user_id',$user)->whereBetween('created_at',[$start, $end])->get();
+			$factClient = factureClientEntete::where('societe_id',auth()->user()->societe_id)->where('nom_client','like','%'.$client.'%')->where('code_facture','like','%'.$ref.'%')->where('user_id',$user)->whereBetween('created_at',[$start, $end])->get();
 		}
 		else{ 
-			$factClient = factureClientEntete::where('societe',auth()->user()->societe)->where('nom_client','like','%'.$client.'%')->where('code_facture','like','%'.$ref.'%')->where('etat',$statut)->where('user_id',$user)->whereBetween('created_at',[$start, $end])->get();
+			$factClient = factureClientEntete::where('societe_id',auth()->user()->societe_id)->where('nom_client','like','%'.$client.'%')->where('code_facture','like','%'.$ref.'%')->where('etat',$statut)->where('user_id',$user)->whereBetween('created_at',[$start, $end])->get();
 		}
     	$writer = SimpleExcelWriter::streamDownload($file_name);
     	$writer->addRows($factClient->toArray());
@@ -397,7 +397,7 @@ class ExportExcelToutController extends Controller
 
     	//  on peut choir l'extension .csv ou .xlsx (excel)    	
     	$file_name = auth()->user()->societe.'_Facture_fournisseur.xlsx';
-    	$factFourni = factureFournisseurLigne::where('societe',auth()->user()->societe)->get();
+    	$factFourni = factureFournisseurLigne::where('societe_id',auth()->user()->societe_id)->get();
     	$writer = SimpleExcelWriter::streamDownload($file_name);
     	$writer->addRows($factFourni->toArray());
         $writer->toBrowser();
@@ -410,7 +410,7 @@ class ExportExcelToutController extends Controller
 
     	//  on peut choir l'extension .csv ou .xlsx (excel)    	
     	$file_name = auth()->user()->societe.'_Reglement_client.xlsx';
-    	$regleClient = Reglement::where('societe',auth()->user()->societe)->get();
+    	$regleClient = Reglement::where('societe_id',auth()->user()->societe_id)->get();
     	$writer = SimpleExcelWriter::streamDownload($file_name);
     	$writer->addRows($regleClient->toArray());
         $writer->toBrowser();
@@ -423,7 +423,7 @@ class ExportExcelToutController extends Controller
 
     	//  on peut choir l'extension .csv ou .xlsx (excel)    	
     	$file_name = auth()->user()->societe.'_Reglement_fournisseur.xlsx';
-    	$regleFourni = Reglement_fourni::where('societe',auth()->user()->societe)->get();
+    	$regleFourni = Reglement_fourni::where('societe_id',auth()->user()->societe_id)->get();
     	$writer = SimpleExcelWriter::streamDownload($file_name);
     	$writer->addRows($regleFourni->toArray());
         $writer->toBrowser();
@@ -436,7 +436,7 @@ class ExportExcelToutController extends Controller
 
     	//  on peut choir l'extension .csv ou .xlsx (excel)    	
     	$file_name = auth()->user()->societe.'_Compte_bancaire.xlsx';
-    	$comptBanq = CompteBancaire::where('societe',auth()->user()->societe)->get();
+    	$comptBanq = CompteBancaire::where('societe_id',auth()->user()->societe_id)->get();
     	$writer = SimpleExcelWriter::streamDownload($file_name);
     	$writer->addRows($comptBanq->toArray());
         $writer->toBrowser();
@@ -449,7 +449,7 @@ class ExportExcelToutController extends Controller
 
     	//  on peut choir l'extension .csv ou .xlsx (excel)    	
     	$file_name = auth()->user()->societe.'_Ecriture_bancaire.xlsx';
-    	$ecrisBanq = EcritureBancaire::where('societe',auth()->user()->societe)->get();
+    	$ecrisBanq = EcritureBancaire::where('societe_id',auth()->user()->societe_id)->get();
     	$writer = SimpleExcelWriter::streamDownload($file_name);
     	$writer->addRows($ecrisBanq->toArray());
         $writer->toBrowser();
@@ -462,7 +462,7 @@ class ExportExcelToutController extends Controller
 
     	//  on peut choir l'extension .csv ou .xlsx (excel)    	
     	$file_name = auth()->user()->societe.'_Paiement_divers.xlsx';
-    	$paieDivers = PaiementDiver::where('societe',auth()->user()->societe)->get();
+    	$paieDivers = PaiementDiver::where('societe_id',auth()->user()->societe_id)->get();
     	$writer = SimpleExcelWriter::streamDownload($file_name);
     	$writer->addRows($paieDivers->toArray());
         $writer->toBrowser();		
@@ -475,7 +475,7 @@ class ExportExcelToutController extends Controller
     	
 		//  on peut choir l'extension .csv ou .xlsx (excel)    	
     	$file_name = auth()->user()->societe.'_Grille_salariales.xlsx';
-    	$grille = GrilleSalariale::where('societe',auth()->user()->societe)->get();
+    	$grille = GrilleSalariale::where('societe_id',auth()->user()->societe_id)->get();
     	$writer = SimpleExcelWriter::streamDownload($file_name);
     	$writer->addRows($grille->toArray());
         $writer->toBrowser();		
@@ -495,7 +495,7 @@ class ExportExcelToutController extends Controller
     	
 		//  on peut choir l'extension .csv ou .xlsx (excel)    	
     	$file_name = auth()->user()->societe.'_Mouvements.xlsx';
-    	$mouv = Mouvement::where('societe',auth()->user()->societe)->whereBetween('created_at',[$start, $end])->where('reference','like','%'.$ref.'%')->where('entrepot','like','%'.$mag.'%')->get();
+    	$mouv = Mouvement::where('societe_id',auth()->user()->societe_id)->whereBetween('created_at',[$start, $end])->where('reference','like','%'.$ref.'%')->where('entrepot','like','%'.$mag.'%')->get();
     	$writer = SimpleExcelWriter::streamDownload($file_name);
     	$writer->addRows($mouv->toArray());
         $writer->toBrowser();		
@@ -508,7 +508,7 @@ class ExportExcelToutController extends Controller
     	
 		//  on peut choir l'extension .csv ou .xlsx (excel)    	
     	$file_name = auth()->user()->societe.'_Entrepot.xlsx';
-    	$entrep = Entrepot::where('societe',auth()->user()->societe)->where('nom','like','%'.$nom.'%')->get();
+    	$entrep = Entrepot::where('societe_id',auth()->user()->societe_id)->where('nom','like','%'.$nom.'%')->get();
     	$writer = SimpleExcelWriter::streamDownload($file_name);
     	$writer->addRows($entrep->toArray());
         $writer->toBrowser();		

@@ -152,9 +152,9 @@ class NouvProformaClient extends Component
     }
     public function mount(){
         
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $this->autoriser = $role[0]->voir_marge;
             $autoriser = $role[0]->consulter_commande;
             if($autoriser == 0){
@@ -170,7 +170,7 @@ class NouvProformaClient extends Component
     public function render(){
     
         $dateJour = date('Y-m-d');            
-        $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();
+        $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();
         $jourValid = $entite_mod[0]->validite_mod;
         $mod_cmd = $entite_mod[0]->mod_cmd;
         $soldeClient = $entite_mod[0]->solde; 
@@ -189,9 +189,9 @@ class NouvProformaClient extends Component
                 $this->id = request('id'); // id entete facture
                 $this->ref_cmd = request('ref'); // reference facture
                 //     // ceci au chargement de la page
-                $test_facture = ProformaClientEntete::where('societe',auth()->user()->societe)->where('id',$this->id)->count();    
+                $test_facture = ProformaClientEntete::where('societe_id',auth()->user()->societe_id)->where('id',$this->id)->count();    
                 if($test_facture > 0){
-                    $compte = ProformaClientEntete::where('societe',auth()->user()->societe)->where('id',$this->id)->first();               
+                    $compte = ProformaClientEntete::where('societe_id',auth()->user()->societe_id)->where('id',$this->id)->first();               
                     $this->ids = $compte->id;
                     $this->idp = $compte->id_commande_client_entete; // id_commande_client_entete important  
                     $this->client_id = $compte->id_client;
@@ -212,9 +212,9 @@ class NouvProformaClient extends Component
                     $this->updated_at = $compte->updated_at;                    
                 }              
                        
-                $tier = Tier::where('societe',auth()->user()->societe)->where('id',$this->client_id)->get();   
+                $tier = Tier::where('societe_id',auth()->user()->societe_id)->where('id',$this->client_id)->get();   
 
-                $profClient_ligne = ProformaClientLigne::where('societe',auth()->user()->societe)->where('id_proforma_client_entete',$this->ids)->orderBy($this->orderField, $this->orderDirection)->get();
+                $profClient_ligne = ProformaClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_proforma_client_entete',$this->ids)->orderBy($this->orderField, $this->orderDirection)->get();
                 $factClientLigneCount = $profClient_ligne->count();
 
                 $montantHT = $profClient_ligne->sum('montant_ht');
@@ -229,17 +229,17 @@ class NouvProformaClient extends Component
                 $prixRevient = $montantHT - $montantMarge; // important           
 
                 // Parametre
-                $test_vide = Parametre ::where('societe',auth()->user()->societe)->count();
+                $test_vide = Parametre ::where('societe_id',auth()->user()->societe_id)->count();
                 if($test_vide > 0){                
-                    $config = Parametre::where('societe',auth()->user()->societe)->limit(1)->get();
+                    $config = Parametre::where('societe_id',auth()->user()->societe_id)->limit(1)->get();
                     $id_entrepot = $config[0]->id_entrepot_fctclt;               
                 }
                 else{
                     $id_entrepot = 0;
                 }             
 
-                $produit = Stock::where('societe',auth()->user()->societe)->where('id_entrepot',$id_entrepot)->get();
-                $cmdCltEntete = CommandeClientEntete::where('societe',auth()->user()->societe)->where('id',$this->idp)->orderBy('id','desc')->get(); 
+                $produit = Stock::where('societe_id',auth()->user()->societe_id)->where('id_entrepot',$id_entrepot)->get();
+                $cmdCltEntete = CommandeClientEntete::where('societe_id',auth()->user()->societe_id)->where('id',$this->idp)->orderBy('id','desc')->get(); 
 
                 $page = 'ProformaClient'; // Pour evenement lie
                 $log = LogActivityModel::where('user_societe',auth()->user()->societe)->where('id_activite', $this->ids)->where('page', $page)->limit(50)->orderBy('id','desc')->get();
@@ -249,7 +249,7 @@ class NouvProformaClient extends Component
                 if($this->type_produit == 'Produit'){            
                     $produit_stock = DB::table('stocks')
                                     ->select('id','nom_produit','reference','id_produit','type_produit','nature_produit','categorie',DB::raw('sum(quantite) as quantites, sum(valorisation_achat_total) as valorisationAchatTotal ,sum(valeur_vente_total) as valeurVentetotal, max(limite_stock_alerte) as limite_stock_alerte ,max(updated_at) as updated_at')) // Supposons que vous voulez la dernière date
-                                    ->where('societe',auth()->user()->societe)                            
+                                    ->where('societe_id',auth()->user()->societe_id)                            
                                     ->where('id_entrepot',$id_entrepot)
                                     ->where('type_produit','Produit')
                                     // ->where('type_produit',$this->type_produit)
@@ -266,7 +266,7 @@ class NouvProformaClient extends Component
                 }
                 elseif($this->type_produit == 'Service'){
                     // pour afficher les services
-                    $service_produit = Produit::where('societe',auth()->user()->societe)
+                    $service_produit = Produit::where('societe_id',auth()->user()->societe_id)
                     ->where('type_produit','Service')
                     ->where('nom_produit','like','%'.$this->query.'%')
                     ->where('nature_produit','like','%'.$this->parNature.'%')
@@ -274,28 +274,29 @@ class NouvProformaClient extends Component
                     ->orderBy('nom_produit', 'ASC')
                     ->paginate($this->parPage);
                     $service_produitCount = $service_produit->count();
-                }else{
+                }
+                else{
                     
-                    $produit_stock = Stock::where('societe',auth()->user()->societe)->paginate($this->parPage);
+                    $produit_stock = Stock::where('societe_id',auth()->user()->societe_id)->paginate($this->parPage);
                     $produit_stockCount = 0;
                     $qteStockTotal = 0;
                     $valAchatTotal = 0;
                     $valVenteTotal = 0;
-                    $service_produit = Produit::where('societe',auth()->user()->societe)->paginate($this->parPage);
+                    $service_produit = Produit::where('societe_id',auth()->user()->societe_id)->paginate($this->parPage);
                     $service_produitCount = 0;
                 }
                 
-                $taxe = DeviseTva::where('societe',auth()->user()->societe)->orderBy('taux_tva','asc')->get();
+                $taxe = DeviseTva::where('societe_id',auth()->user()->societe_id)->orderBy('taux_tva','asc')->get();
 
-                $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->count(); 
+                $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->count(); 
                 if($deviseTva == 0){
                     $this->devise = 'FCFA';
                 }
                 else{
-                    $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->get(); 
+                    $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->get(); 
                     $this->devise = $deviseTva[0]->devise;
                 }
-                $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();          
+                $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();          
                 $jourValid = $entite_mod[0]->validite_mod; 
                 // ceci pour trouver le nombre de jour restant avant expiration
                 $nbjoursRestant = round((strtotime($jourValid) - strtotime($dateJour))/(60*60*24));
@@ -342,13 +343,13 @@ class NouvProformaClient extends Component
     public function searchResult(){ 
         if(!empty($this->client)){
             if(ctype_alpha($this->client)){ // ctype_alpha: cette fonction permet de savoir si le caractere ou mot est une lettre  
-                $this->records = Tier::where('etat',1)->where('societe',auth()->user()->societe)->where('nom','like','%'.$this->client.'%')->orderBy('nom','asc')->limit(8)->get(); 
-                $this->recordCount = Tier::where('etat',1)->where('societe',auth()->user()->societe)->where('nom','like','%'.$this->client.'%')->count();
+                $this->records = Tier::where('etat',1)->where('societe_id',auth()->user()->societe_id)->where('nom','like','%'.$this->client.'%')->orderBy('nom','asc')->limit(8)->get(); 
+                $this->recordCount = Tier::where('etat',1)->where('societe_id',auth()->user()->societe_id)->where('nom','like','%'.$this->client.'%')->count();
                 $this->showdiv = true;
             }
             else{
-                $this->records = Tier::where('etat',1)->where('societe',auth()->user()->societe)->where('telephone','like','%'.$this->client.'%')->orderBy('nom','asc')->limit(8)->get(); 
-                $this->recordCount = Tier::where('etat',1)->where('societe',auth()->user()->societe)->where('telephone','like','%'.$this->client.'%')->count(); 
+                $this->records = Tier::where('etat',1)->where('societe_id',auth()->user()->societe_id)->where('telephone','like','%'.$this->client.'%')->orderBy('nom','asc')->limit(8)->get(); 
+                $this->recordCount = Tier::where('etat',1)->where('societe_id',auth()->user()->societe_id)->where('telephone','like','%'.$this->client.'%')->count(); 
                 $this->showdiv = true;
             }        
         }
@@ -365,19 +366,19 @@ class NouvProformaClient extends Component
     }
     public function update(){
         $this->validate();        
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->modifier_commande;
             if($autoriser == 1){  
                     
-                    $test_tiers = Tier ::where('societe',auth()->user()->societe)->where('id',$this->client_id)->count();
+                    $test_tiers = Tier ::where('societe_id',auth()->user()->societe_id)->where('id',$this->client_id)->count();
                     if($test_tiers == 0){
                         if(!empty($this->ids_client)){
                             // recupere le nom du compte bancaire via son id : $this->compte_bancaire
                                                        
                             ProformaClientEntete::find($this->ids)->update(['nom_client'=>$this->client,'id_client'=>$this->ids_client,'telephone'=>$this->telephone,'reference'=>$this->reference,'date_proforma'=>$this->date_proforma,'date_livraison'=>$this->date_livraison,
-                            'mode_reglement'=>$this->mode_reglement,'condition_reglement'=>$this->condition_reglement,'note'=>$this->note,'societe'=>auth()->user()->societe,
+                            'mode_reglement'=>$this->mode_reglement,'condition_reglement'=>$this->condition_reglement,'note'=>$this->note,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,
                             'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
                             
                             $id_activite = $this->ids;
@@ -408,17 +409,17 @@ class NouvProformaClient extends Component
                     elseif($test_tiers >= 0){ 
                         if(empty($this->ids_client)){
                             
-                            $test_tier_nom = Tier ::where('societe',auth()->user()->societe)->where('id',$this->client_id)->first();
+                            $test_tier_nom = Tier ::where('societe_id',auth()->user()->societe_id)->where('id',$this->client_id)->first();
                             $nom = $test_tier_nom->nom;
 
                             if($nom == $this->client){ 
 
-                                // $compteBaq = CompteBancaire::where('societe',auth()->user()->societe)->where('id',$this->compte_bancaire)->first(); 
+                                // $compteBaq = CompteBancaire::where('societe_id',auth()->user()->societe_id)->where('id',$this->compte_bancaire)->first(); 
                                 // $nom_compte_bancaire = $compteBaq->nom_compte_bancaire;
                                 
                                 // client_id de la ProformaClientEntete
                                 ProformaClientEntete::find($this->ids)->update(['nom_client'=>$this->client,'id_client'=>$this->client_id,'telephone'=>$this->telephone,'reference'=>$this->reference,'date_proforma'=>$this->date_proforma,'date_livraison'=>$this->date_livraison,
-                                'mode_reglement'=>$this->mode_reglement,'condition_reglement'=>$this->condition_reglement,'note'=>$this->note,'societe'=>auth()->user()->societe,
+                                'mode_reglement'=>$this->mode_reglement,'condition_reglement'=>$this->condition_reglement,'note'=>$this->note,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,
                                 'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
                                 
                                 $id_activite = $this->ids;
@@ -448,18 +449,18 @@ class NouvProformaClient extends Component
                         }
                         else{
                             
-                            $test_tier_nom = Tier ::where('societe',auth()->user()->societe)->where('id',$this->ids_client)->first();
+                            $test_tier_nom = Tier ::where('societe_id',auth()->user()->societe_id)->where('id',$this->ids_client)->first();
                             $nom = $test_tier_nom->nom;   
 
                             if($this->ids_client != $this->client_id){ 
                                 if($nom == $this->client){ 
 
-                                    // $compteBaq = CompteBancaire::where('societe',auth()->user()->societe)->where('id',$this->compte_bancaire)->first(); 
+                                    // $compteBaq = CompteBancaire::where('societe_id',auth()->user()->societe_id)->where('id',$this->compte_bancaire)->first(); 
                                     // $nom_compte_bancaire = $compteBaq->nom_compte_bancaire;
                                     
                                     // ids_client de ajouterTier
                                     ProformaClientEntete::find($this->ids)->update(['nom_client'=>$this->client,'id_client'=>$this->ids_client,'telephone'=>$this->telephone,'reference'=>$this->reference,'date_proforma'=>$this->date_proforma,'date_livraison'=>$this->date_livraison,
-                                    'mode_reglement'=>$this->mode_reglement,'condition_reglement'=>$this->condition_reglement,'note'=>$this->note,'societe'=>auth()->user()->societe,
+                                    'mode_reglement'=>$this->mode_reglement,'condition_reglement'=>$this->condition_reglement,'note'=>$this->note,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,
                                     'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
                                     
                                     $id_activite = $this->ids;
@@ -529,16 +530,16 @@ class NouvProformaClient extends Component
         $this->parCat = '';
         $this->parNature = '';
         $this->query = '';
-        $compte = ProformaClientEntete::where('societe',auth()->user()->societe)->where('id',$this->ids)->first(); 
+        $compte = ProformaClientEntete::where('societe_id',auth()->user()->societe_id)->where('id',$this->ids)->first(); 
         $this->client_id = $compte->id_client; 
     }
     public function afficheLigne(int $idf){
         $this->ouverture = $idf;
         // $this->choix_produit = $idf;         
-        $testChoix = Stock::where('societe',auth()->user()->societe)->where('id',$idf)->count();
+        $testChoix = Stock::where('societe_id',auth()->user()->societe_id)->where('id',$idf)->count();
         if($testChoix > 0){
             // ceci permet d'afficher la quantite entrepot origine
-            $choixProd = Stock::where('societe',auth()->user()->societe)->where('id',$idf)->get();
+            $choixProd = Stock::where('societe_id',auth()->user()->societe_id)->where('id',$idf)->get();
             $this->prix_moyen_pondere_achat = $choixProd[0]->prix_moyen_pondere_achat;
             $this->prix_vente = $choixProd[0]->prix_vente_unitaire;
             $this->quantite_bd = $choixProd[0]->quantite;
@@ -547,17 +548,17 @@ class NouvProformaClient extends Component
             $this->referenceProd = $choixProd[0]->reference;
             $this->id_entrepot = $choixProd[0]->id_entrepot;
             // avoir le prix_vente_min 
-            $prod = Produit::where('societe',auth()->user()->societe)->where('id',$this->id_produit)->first();
+            $prod = Produit::where('societe_id',auth()->user()->societe_id)->where('id',$this->id_produit)->first();
             $this->prix_vente_min = $prod->prix_vente_min;
         }
     }
     public function afficheLigneService(int $ide){
         $this->ouverture = $ide;
         $this->choix_produit = $ide;         
-        $testChoix = Produit::where('societe',auth()->user()->societe)->where('id',$ide)->count();
+        $testChoix = Produit::where('societe_id',auth()->user()->societe_id)->where('id',$ide)->count();
         if($testChoix > 0){
             // ceci permet d'afficher la quantite entrepot origine
-            $choixProd = Produit::where('societe',auth()->user()->societe)->where('id',$ide)->get();
+            $choixProd = Produit::where('societe_id',auth()->user()->societe_id)->where('id',$ide)->get();
             $this->id_produit = $choixProd[0]->id;
             $this->prix_moyen_pondere_achat = $choixProd[0]->prix_achat;
             $this->prix_vente = $choixProd[0]->prix_vente;
@@ -583,9 +584,9 @@ class NouvProformaClient extends Component
             'condition_reglement'=>'max:255',  // important pour forcer utilisateur a remplir
             
         ]);    
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->modifier_commande;
             if($autoriser == 1){  
                         
@@ -628,18 +629,18 @@ class NouvProformaClient extends Component
                                 ProformaClientLigne::create(['code_proforma'=>$this->reference,'id_proforma_client_entete'=>$this->ids,'produit'=>$this->nom_produit,'id_produit'=>$this->id_produit,'reference'=>$this->referenceProd,'type_produit'=>$typeProd,'prix_achat'=>$this->prix_moyen_pondere_achat,
                                                 'prix_vente'=>$this->prix_vente,'quantite'=>$this->quantite,'quantite_expediee'=>$quantite_expediee,'reste_a_expedier'=>$this->quantite,'remise'=>$this->remise,'montant_remise'=>$remise_montant,
                                                 'tva'=>$this->tva,'montant_tva'=>$tva_montant,'precompte'=>$this->precompte,'montant_precompte'=>$precompte_montant,'montant_ht'=>$montant_remiser_ht,'montant_ttc'=>$montant_ttc,'marge'=>$marge,'id_entrepot'=>$this->id_entrepot,
-                                                'nom_client'=>$this->client,'id_client'=>$this->client_id,'offrir'=>$this->offrir,'etat'=>$this->etat,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);                     
+                                                'nom_client'=>$this->client,'id_client'=>$this->client_id,'offrir'=>$this->offrir,'etat'=>$this->etat,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);                     
                             
-                                $montantHT = ProformaClientLigne::where('societe',auth()->user()->societe)->where('id_proforma_client_entete',$this->ids)->sum('montant_ht');
-                                $montantTTC = ProformaClientLigne::where('societe',auth()->user()->societe)->where('id_proforma_client_entete',$this->ids)->sum('montant_ttc');
-                                $montantRemise = ProformaClientLigne::where('societe',auth()->user()->societe)->where('id_proforma_client_entete',$this->ids)->sum('montant_remise');
-                                $montantTva = ProformaClientLigne::where('societe',auth()->user()->societe)->where('id_proforma_client_entete',$this->ids)->sum('montant_tva');
-                                $montantPrecompte = ProformaClientLigne::where('societe',auth()->user()->societe)->where('id_proforma_client_entete',$this->ids)->sum('montant_precompte');
-                                $marge = ProformaClientLigne::where('societe',auth()->user()->societe)->where('id_proforma_client_entete',$this->ids)->sum('marge');
+                                $montantHT = ProformaClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_proforma_client_entete',$this->ids)->sum('montant_ht');
+                                $montantTTC = ProformaClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_proforma_client_entete',$this->ids)->sum('montant_ttc');
+                                $montantRemise = ProformaClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_proforma_client_entete',$this->ids)->sum('montant_remise');
+                                $montantTva = ProformaClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_proforma_client_entete',$this->ids)->sum('montant_tva');
+                                $montantPrecompte = ProformaClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_proforma_client_entete',$this->ids)->sum('montant_precompte');
+                                $marge = ProformaClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_proforma_client_entete',$this->ids)->sum('marge');
 
                                 // Montant TTC en arrondi en + ou en - 
                                 ProformaClientEntete::find($this->ids)->update(['montant_ht'=>$montantHT,'montant_remise'=>$montantRemise,'montant_tva'=>$montantTva,'montant_precompte'=>$montantPrecompte,'montant_ttc'=>number_format($montantTTC,0,',',''),
-                                                    'marge'=>$marge,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                                                    'marge'=>$marge,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
                             }
                             elseif($this->offrir == 'Oui'){
 
@@ -653,18 +654,18 @@ class NouvProformaClient extends Component
                                 ProformaClientLigne::create(['code_proforma'=>$this->reference,'id_proforma_client_entete'=>$this->ids,'produit'=>$this->nom_produit,'id_produit'=>$this->id_produit,'reference'=>$this->referenceProd,'type_produit'=>$typeProd,'prix_achat'=>$this->prix_moyen_pondere_achat,
                                                 'prix_vente'=>$this->prix_vente,'quantite'=>$this->quantite,'quantite_expediee'=>$quantite_expediee,'reste_a_expedier'=>$this->quantite,'remise'=>$this->remise,'montant_remise'=>$remise_montant,
                                                 'tva'=>$this->tva,'montant_tva'=>$tva_montant,'precompte'=>$this->precompte,'montant_precompte'=>$precompte_montant,'montant_ht'=>$montant_remiser_ht,'montant_ttc'=>$montant_ttc,'marge'=>$marge,'id_entrepot'=>$this->id_entrepot,
-                                                'nom_client'=>$this->client,'id_client'=>$this->client_id,'offrir'=>$this->offrir,'etat'=>$this->etat,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);                     
+                                                'nom_client'=>$this->client,'id_client'=>$this->client_id,'offrir'=>$this->offrir,'etat'=>$this->etat,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);                     
                             
-                                $montantHT = ProformaClientLigne::where('societe',auth()->user()->societe)->where('id_proforma_client_entete',$this->ids)->sum('montant_ht');
-                                $montantTTC = ProformaClientLigne::where('societe',auth()->user()->societe)->where('id_proforma_client_entete',$this->ids)->sum('montant_ttc');
-                                $montantRemise = ProformaClientLigne::where('societe',auth()->user()->societe)->where('id_proforma_client_entete',$this->ids)->sum('montant_remise');
-                                $montantTva = ProformaClientLigne::where('societe',auth()->user()->societe)->where('id_proforma_client_entete',$this->ids)->sum('montant_tva');
-                                $montantPrecompte = ProformaClientLigne::where('societe',auth()->user()->societe)->where('id_proforma_client_entete',$this->ids)->sum('montant_precompte');
-                                $marge = ProformaClientLigne::where('societe',auth()->user()->societe)->where('id_proforma_client_entete',$this->ids)->sum('marge');
+                                $montantHT = ProformaClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_proforma_client_entete',$this->ids)->sum('montant_ht');
+                                $montantTTC = ProformaClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_proforma_client_entete',$this->ids)->sum('montant_ttc');
+                                $montantRemise = ProformaClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_proforma_client_entete',$this->ids)->sum('montant_remise');
+                                $montantTva = ProformaClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_proforma_client_entete',$this->ids)->sum('montant_tva');
+                                $montantPrecompte = ProformaClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_proforma_client_entete',$this->ids)->sum('montant_precompte');
+                                $marge = ProformaClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_proforma_client_entete',$this->ids)->sum('marge');
 
                                 // Montant TTC en arrondi en + ou en - 
                                 ProformaClientEntete::find($this->ids)->update(['montant_ht'=>$montantHT,'montant_remise'=>$montantRemise,'montant_tva'=>$montantTva,'montant_precompte'=>$montantPrecompte,'montant_ttc'=>number_format($montantTTC,0,',',''),
-                                                    'marge'=>$marge,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                                                    'marge'=>$marge,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
                             }
                             $id_activite = $this->ids;
                             $page = 'ProformaClient';
@@ -730,9 +731,9 @@ class NouvProformaClient extends Component
             'condition_reglement'=>'max:255',  // important pour forcer utilisateur a remplir
             
         ]);    
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->modifier_commande;
             if($autoriser == 1){  
                         
@@ -775,18 +776,18 @@ class NouvProformaClient extends Component
                                 ProformaClientLigne::create(['code_proforma'=>$this->reference,'id_proforma_client_entete'=>$this->ids,'produit'=>$this->nom_produit,'id_produit'=>$this->id_produit,'reference'=>$this->referenceProd,'type_produit'=>$typeProd,'prix_achat'=>$this->prix_moyen_pondere_achat,
                                                 'prix_vente'=>$this->prix_vente,'quantite'=>$this->quantite,'quantite_expediee'=>$quantite_expediee,'reste_a_expedier'=>$this->quantite,'remise'=>$this->remise,'montant_remise'=>$remise_montant,
                                                 'tva'=>$this->tva,'montant_tva'=>$tva_montant,'precompte'=>$this->precompte,'montant_precompte'=>$precompte_montant,'montant_ht'=>$montant_remiser_ht,'montant_ttc'=>$montant_ttc,'marge'=>$marge,'id_entrepot'=>$this->id_entrepot,
-                                                'nom_client'=>$this->client,'id_client'=>$this->client_id,'offrir'=>$this->offrir,'etat'=>$this->etat,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);                     
+                                                'nom_client'=>$this->client,'id_client'=>$this->client_id,'offrir'=>$this->offrir,'etat'=>$this->etat,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);                     
                             
-                                $montantHT = ProformaClientLigne::where('societe',auth()->user()->societe)->where('id_proforma_client_entete',$this->ids)->sum('montant_ht');
-                                $montantTTC = ProformaClientLigne::where('societe',auth()->user()->societe)->where('id_proforma_client_entete',$this->ids)->sum('montant_ttc');
-                                $montantRemise = ProformaClientLigne::where('societe',auth()->user()->societe)->where('id_proforma_client_entete',$this->ids)->sum('montant_remise');
-                                $montantTva = ProformaClientLigne::where('societe',auth()->user()->societe)->where('id_proforma_client_entete',$this->ids)->sum('montant_tva');
-                                $montantPrecompte = ProformaClientLigne::where('societe',auth()->user()->societe)->where('id_proforma_client_entete',$this->ids)->sum('montant_precompte');
-                                $marge = ProformaClientLigne::where('societe',auth()->user()->societe)->where('id_proforma_client_entete',$this->ids)->sum('marge');
+                                $montantHT = ProformaClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_proforma_client_entete',$this->ids)->sum('montant_ht');
+                                $montantTTC = ProformaClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_proforma_client_entete',$this->ids)->sum('montant_ttc');
+                                $montantRemise = ProformaClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_proforma_client_entete',$this->ids)->sum('montant_remise');
+                                $montantTva = ProformaClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_proforma_client_entete',$this->ids)->sum('montant_tva');
+                                $montantPrecompte = ProformaClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_proforma_client_entete',$this->ids)->sum('montant_precompte');
+                                $marge = ProformaClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_proforma_client_entete',$this->ids)->sum('marge');
 
                                 // Montant TTC en arrondi en + ou en - 
                                 ProformaClientEntete::find($this->ids)->update(['montant_ht'=>$montantHT,'montant_remise'=>$montantRemise,'montant_tva'=>$montantTva,'montant_precompte'=>$montantPrecompte,'montant_ttc'=>number_format($montantTTC,0,',',''),
-                                                    'marge'=>$marge,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                                                    'marge'=>$marge,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
                             }
                             elseif($this->offrir == 'Oui'){
 
@@ -800,18 +801,18 @@ class NouvProformaClient extends Component
                                 ProformaClientLigne::create(['code_proforma'=>$this->reference,'id_proforma_client_entete'=>$this->ids,'produit'=>$this->nom_produit,'id_produit'=>$this->id_produit,'reference'=>$this->referenceProd,'type_produit'=>$typeProd,'prix_achat'=>$this->prix_moyen_pondere_achat,
                                                 'prix_vente'=>$this->prix_vente,'quantite'=>$this->quantite,'quantite_expediee'=>$quantite_expediee,'reste_a_expedier'=>$this->quantite,'remise'=>$this->remise,'montant_remise'=>$remise_montant,
                                                 'tva'=>$this->tva,'montant_tva'=>$tva_montant,'precompte'=>$this->precompte,'montant_precompte'=>$precompte_montant,'montant_ht'=>$montant_remiser_ht,'montant_ttc'=>$montant_ttc,'marge'=>$marge,'id_entrepot'=>$this->id_entrepot,
-                                                'nom_client'=>$this->client,'id_client'=>$this->client_id,'offrir'=>$this->offrir,'etat'=>$this->etat,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);                     
+                                                'nom_client'=>$this->client,'id_client'=>$this->client_id,'offrir'=>$this->offrir,'etat'=>$this->etat,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);                     
                             
-                                $montantHT = ProformaClientLigne::where('societe',auth()->user()->societe)->where('id_proforma_client_entete',$this->ids)->sum('montant_ht');
-                                $montantTTC = ProformaClientLigne::where('societe',auth()->user()->societe)->where('id_proforma_client_entete',$this->ids)->sum('montant_ttc');
-                                $montantRemise = ProformaClientLigne::where('societe',auth()->user()->societe)->where('id_proforma_client_entete',$this->ids)->sum('montant_remise');
-                                $montantTva = ProformaClientLigne::where('societe',auth()->user()->societe)->where('id_proforma_client_entete',$this->ids)->sum('montant_tva');
-                                $montantPrecompte = ProformaClientLigne::where('societe',auth()->user()->societe)->where('id_proforma_client_entete',$this->ids)->sum('montant_precompte');
-                                $marge = ProformaClientLigne::where('societe',auth()->user()->societe)->where('id_proforma_client_entete',$this->ids)->sum('marge');
+                                $montantHT = ProformaClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_proforma_client_entete',$this->ids)->sum('montant_ht');
+                                $montantTTC = ProformaClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_proforma_client_entete',$this->ids)->sum('montant_ttc');
+                                $montantRemise = ProformaClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_proforma_client_entete',$this->ids)->sum('montant_remise');
+                                $montantTva = ProformaClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_proforma_client_entete',$this->ids)->sum('montant_tva');
+                                $montantPrecompte = ProformaClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_proforma_client_entete',$this->ids)->sum('montant_precompte');
+                                $marge = ProformaClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_proforma_client_entete',$this->ids)->sum('marge');
 
                                 // Montant TTC en arrondi en + ou en - 
                                 ProformaClientEntete::find($this->ids)->update(['montant_ht'=>$montantHT,'montant_remise'=>$montantRemise,'montant_tva'=>$montantTva,'montant_precompte'=>$montantPrecompte,'montant_ttc'=>number_format($montantTTC,0,',',''),
-                                                    'marge'=>$marge,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                                                    'marge'=>$marge,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
                             }
                             $id_activite = $this->ids;
                             $page = 'ProformaClient';
@@ -869,24 +870,24 @@ class NouvProformaClient extends Component
         $this->confirmer = $id;        
     } 
     public function supprimer($id){
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){ 
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->modifier_commande;
             if($autoriser == 1){   
                 if($id){
                     
                     ProformaClientLigne::where('id',$id)->delete();
 
-                    $montantHT = ProformaClientLigne::where('societe',auth()->user()->societe)->where('id_proforma_client_entete',$this->ids)->sum('montant_ht');
-                    $montantTTC = ProformaClientLigne::where('societe',auth()->user()->societe)->where('id_proforma_client_entete',$this->ids)->sum('montant_ttc');
-                    $montantRemise = ProformaClientLigne::where('societe',auth()->user()->societe)->where('id_proforma_client_entete',$this->ids)->sum('montant_remise');
-                    $montantTva = ProformaClientLigne::where('societe',auth()->user()->societe)->where('id_proforma_client_entete',$this->ids)->sum('montant_tva');
-                    $montantPrecompte = ProformaClientLigne::where('societe',auth()->user()->societe)->where('id_proforma_client_entete',$this->ids)->sum('montant_precompte');
-                    $marge = ProformaClientLigne::where('societe',auth()->user()->societe)->where('id_proforma_client_entete',$this->ids)->sum('marge');
+                    $montantHT = ProformaClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_proforma_client_entete',$this->ids)->sum('montant_ht');
+                    $montantTTC = ProformaClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_proforma_client_entete',$this->ids)->sum('montant_ttc');
+                    $montantRemise = ProformaClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_proforma_client_entete',$this->ids)->sum('montant_remise');
+                    $montantTva = ProformaClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_proforma_client_entete',$this->ids)->sum('montant_tva');
+                    $montantPrecompte = ProformaClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_proforma_client_entete',$this->ids)->sum('montant_precompte');
+                    $marge = ProformaClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_proforma_client_entete',$this->ids)->sum('marge');
                                         
                     ProformaClientEntete::find($this->ids)->update(['montant_ht'=>number_format($montantHT,0,',',''),'montant_remise'=>$montantRemise,'montant_tva'=>$montantTva,
-                                        'montant_precompte'=>$montantPrecompte,'marge'=>$marge,'societe'=>auth()->user()->societe,
+                                        'montant_precompte'=>$montantPrecompte,'marge'=>$marge,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,
                                         'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);                    
                     
                     $id_activite = $this->ids;
@@ -925,9 +926,9 @@ class NouvProformaClient extends Component
         }   
     }
       public function valider(){
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->modifier_commande;
             if($autoriser == 1){  
                 $etat = 'Validée';
@@ -988,9 +989,9 @@ class NouvProformaClient extends Component
         $this->redirect('/nouveau_prof_clt?id='.$this->ids.'&active=6&champ=1-1&choix=1', navigate: true);        
     } 
     public function precedant(){ 
-        $testPrecedant = ProformaClientEntete::where('societe',auth()->user()->societe)->where('id','<',$this->ids)->orderBy('id','desc')->count();
+        $testPrecedant = ProformaClientEntete::where('societe_id',auth()->user()->societe_id)->where('id','<',$this->ids)->orderBy('id','desc')->count();
         if($testPrecedant > 0){ 
-            $precedant = ProformaClientEntete::where('societe',auth()->user()->societe)->where('id','<',$this->ids)->orderBy('id','desc')->first();        
+            $precedant = ProformaClientEntete::where('societe_id',auth()->user()->societe_id)->where('id','<',$this->ids)->orderBy('id','desc')->first();        
             $previous = $precedant->id; 
             $this->redirect('/nouveau_prof_clt?id='.$previous.'&ref='.$this->reference.'&active=6&champ=1-1&choix=1', navigate: true);              
         }  
@@ -1007,9 +1008,9 @@ class NouvProformaClient extends Component
     } 
     public function suivant(){    
         
-        $testSuivant = ProformaClientEntete::where('societe',auth()->user()->societe)->where('id','>',$this->ids)->orderBy('id','asc')->count();
+        $testSuivant = ProformaClientEntete::where('societe_id',auth()->user()->societe_id)->where('id','>',$this->ids)->orderBy('id','asc')->count();
         if($testSuivant > 0){
-            $suivant = ProformaClientEntete::where('societe',auth()->user()->societe)->where('id','>',$this->ids)->orderBy('id','asc')->first();
+            $suivant = ProformaClientEntete::where('societe_id',auth()->user()->societe_id)->where('id','>',$this->ids)->orderBy('id','asc')->first();
             $next = $suivant->id;             
             $this->redirect('/nouveau_prof_clt?id='.$next.'&ref='.$this->reference.'&active=6&champ=1-1&choix=1', navigate: true);                     
         }  
@@ -1028,9 +1029,9 @@ class NouvProformaClient extends Component
         $this->approuver = $id;      
     } 
     public function ecraser(){        
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){ 
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->supprimer_commande;
             if($autoriser == 1){   
                 // suppression definitive et redirection
@@ -1074,12 +1075,12 @@ class NouvProformaClient extends Component
         }   
     }
     public function creerCommande(){ 
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){ 
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->creer_facture;
             if($autoriser == 1){
-                $test_facture = CommandeClientEntete::where('societe',auth()->user()->societe)->where('id_proforma_client_entete',$this->ids)->count();
+                $test_facture = CommandeClientEntete::where('societe_id',auth()->user()->societe_id)->where('id_proforma_client_entete',$this->ids)->count();
                 if($test_facture == 0){
                     
                     $etat = 'Brouillon';
@@ -1090,7 +1091,7 @@ class NouvProformaClient extends Component
                     // $token_ok = 'FACT/'.$dates.'/'.$token;
                 
                         // copier la table CommandeClientEntete dans CommandeClientEntete
-                    $enteteProfClient = ProformaClientEntete::where('societe',auth()->user()->societe)->where('id',$this->ids)->get(); 
+                    $enteteProfClient = ProformaClientEntete::where('societe_id',auth()->user()->societe_id)->where('id',$this->ids)->get(); 
                     foreach($enteteProfClient as $enteteProfClients){
                         // creation et copie entete commande Client Entete
                         CommandeClientEntete::create([                        
@@ -1115,13 +1116,14 @@ class NouvProformaClient extends Component
                             'etat'=>$etat,
                             // 'etat_expedi'=>$enteteProfClients->etat_expedi,
                             'societe'=>auth()->user()->societe,
+                            'societe_id'=>auth()->user()->societe_id,
                             'nom_user'=>auth()->user()->name,
                             'user_id'=>auth()->user()->id]);
                     }
                     // ceci recupere le dernier enregistrement cree a l'instant
-                    $dernier_id = CommandeClientEntete::where('societe',auth()->user()->societe)->where('user_id',auth()->user()->id)->latest()->first()->id; 
+                    $dernier_id = CommandeClientEntete::where('societe_id',auth()->user()->societe_id)->where('user_id',auth()->user()->id)->latest()->first()->id; 
                 
-                    $ligneCmdClient = ProformaClientLigne::where('societe',auth()->user()->societe)->where('id_proforma_client_entete',$this->ids)->get(); 
+                    $ligneCmdClient = ProformaClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_proforma_client_entete',$this->ids)->get(); 
                     foreach($ligneCmdClient as $ligneCmdClients){
                         // creation et copie entete Expedition Client Ligne
                         CommandeClientLigne::create([ 
@@ -1154,10 +1156,11 @@ class NouvProformaClient extends Component
                             'etat'=>$etat,
                             'user_id'=>auth()->user()->id,
                             'nom_user'=>auth()->user()->name,
+                            'societe_id'=>auth()->user()->societe_id,
                             'societe'=>auth()->user()->societe]);
                     }
-                    ProformaClientEntete::where('societe',auth()->user()->societe)->where('id',$this->ids)->update(['etat_cmd'=>$etat,'code_commande'=>$token_ok,'id_commande_client_entete'=> $dernier_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
-                    // ExpeditionClientEntete::where('societe',auth()->user()->societe)->where('id_commande_client_entete',$this->ids)->update(['etat_facture'=>$etat,'code_facture'=>$token_ok,'id_facture_client_entete'=> $dernier_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
+                    ProformaClientEntete::where('societe_id',auth()->user()->societe_id)->where('id',$this->ids)->update(['etat_cmd'=>$etat,'code_commande'=>$token_ok,'id_commande_client_entete'=> $dernier_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
+                    // ExpeditionClientEntete::where('societe_id',auth()->user()->societe_id)->where('id_commande_client_entete',$this->ids)->update(['etat_facture'=>$etat,'code_facture'=>$token_ok,'id_facture_client_entete'=> $dernier_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
                     
                     $this->redirect('/nouveau_cmd_clt?id='.$dernier_id.'&ref='.$token_ok.'&active=6&champ=1-1&choix=2', navigate: true);            
                     $id_activite = $dernier_id;
@@ -1207,9 +1210,9 @@ class NouvProformaClient extends Component
     } 
     public function detailCmd(int $idx, $codeCmd_prof){
         // ceci au chargement de la page
-        $test_facture = CommandeClientEntete::where('societe',auth()->user()->societe)->where('id',$idx)->count();    
+        $test_facture = CommandeClientEntete::where('societe_id',auth()->user()->societe_id)->where('id',$idx)->count();    
         if($test_facture > 0){
-            $compte = CommandeClientEntete::where('societe',auth()->user()->societe)->where('id',$idx)->first();               
+            $compte = CommandeClientEntete::where('societe_id',auth()->user()->societe_id)->where('id',$idx)->first();               
             $this->ids = $compte->id;           
             $this->reference = $compte->code_facture; // reference commande
             $this->redirect('/nouveau_cmd_clt?id='.$idx.'&ref='.$this->reference.'&active=6&champ=1-1&choix=2', navigate: true);

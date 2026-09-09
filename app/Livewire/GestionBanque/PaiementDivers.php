@@ -90,9 +90,9 @@ class PaiementDivers extends Component
         $this->reset('ids');
     } 
     public function mount(){
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->consulter_paie_divers;
             if($autoriser == 0){
                 alert()->error('Oups Désolé', 'Vous n\'êtes pas autorisé à ouvrir cette page !!!')->position('center')->autoClose(5000)->background('#fff')->width('460px')->padding('5px');
@@ -112,7 +112,7 @@ class PaiementDivers extends Component
     }
     public function render(){    
         $dateJour = date('Y-m-d');            
-        $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();
+        $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();
         $jourValid = $entite_mod[0]->validite_mod; 
         $mod_banque_caisse = $entite_mod[0]->mod_banque_caisse;
         $soldeClient = $entite_mod[0]->solde;
@@ -127,20 +127,18 @@ class PaiementDivers extends Component
                 $choix = request('choix');
                 $dateJour = date('Y-m-d');
                 toast()->success('Prêt', '')->position('top-right')->autoClose(2000)->background('#fff')->width('220px')->padding('5px');           
-                // $paiementDiv = PaiementDiver :: where('societe',auth()->user()->societe)->where('libele_paiement','like','%'.$this->query.'%')->orderBy($this->orderField, $this->orderDirection)->paginate($this->parPage); 
-                // $paiementDivCount = $paiementDiv->count(); 
 
-                $compte = CompteBancaire::where('societe',auth()->user()->societe)->orderBy('nom_compte_bancaire','Asc')->get();
-                $compteBancaire = CompteBancaire::where('societe',auth()->user()->societe)->where('etat',1)->get();
+                $compte = CompteBancaire::where('societe_id',auth()->user()->societe_id)->orderBy('nom_compte_bancaire','Asc')->get();
+                $compteBancaire = CompteBancaire::where('societe_id',auth()->user()->societe_id)->where('etat',1)->get();
                 $infos = 'Pour le versement utilisez Crédit pour enregistrer un règlement reçu.<br> Pour le retrait, utilisez Débit pour enregistrer un règlement reçu.';
 
                 $start = Carbon::parse($this->date_debut)->startOfDay(); //2016-09-29 00:00:00.000000
                 $end = Carbon::parse($this->date_fin)->endOfDay();     // 2016-09-29 23:59:59.000000
                 if(!empty($this->parCompte)){
-                    $paiementDiv = PaiementDiver::where('societe',auth()->user()->societe)->where('libele_paiement','like','%'.$this->query.'%')->where('reference','like','%'.$this->parRef.'%')->where('nom_compte_bancaire',$this->parCompte)->whereBetween('created_at',[$start, $end])->orderBy($this->orderField, $this->orderDirection)->paginate($this->parPage);
+                    $paiementDiv = PaiementDiver::where('societe_id',auth()->user()->societe_id)->where('libele_paiement','like','%'.$this->query.'%')->where('reference','like','%'.$this->parRef.'%')->where('nom_compte_bancaire',$this->parCompte)->whereBetween('created_at',[$start, $end])->orderBy($this->orderField, $this->orderDirection)->paginate($this->parPage);
                 }
                 else{
-                    $paiementDiv = PaiementDiver::where('societe',auth()->user()->societe)->where('libele_paiement','like','%'.$this->query.'%')->where('reference','like','%'.$this->parRef.'%')->whereBetween('created_at',[$start, $end])->orderBy($this->orderField, $this->orderDirection)->paginate($this->parPage);
+                    $paiementDiv = PaiementDiver::where('societe_id',auth()->user()->societe_id)->where('libele_paiement','like','%'.$this->query.'%')->where('reference','like','%'.$this->parRef.'%')->whereBetween('created_at',[$start, $end])->orderBy($this->orderField, $this->orderDirection)->paginate($this->parPage);
                 }
                 $paiementDivCount = $paiementDiv->count();
                 // Totaux solde
@@ -148,31 +146,31 @@ class PaiementDivers extends Component
                 $soldeCredit = $paiementDiv->sum('credit');
 
                  // KPI
-                $resultat = PaiementDiver :: where('societe',auth()->user()->societe)->get();
+                $resultat = PaiementDiver :: where('societe_id',auth()->user()->societe_id)->get();
                 $TotalDebit = $resultat->sum('debit'); 
                 $TotalCredit = $resultat->sum('credit');
                 $soldeTotal = $TotalCredit - $TotalDebit; 
                 // Fin KPI
 
-                $resultat = PaiementDiver::where('societe',auth()->user()->societe)->get();  
+                $resultat = PaiementDiver::where('societe_id',auth()->user()->societe_id)->get();  
                 $nbreTotalPaiementDiver = $resultat->count();     
 
-                $derniereActivite = PaiementDiver::where('societe',auth()->user()->societe)->latest('updated_at')->first();
+                $derniereActivite = PaiementDiver::where('societe_id',auth()->user()->societe_id)->latest('updated_at')->first();
                 
                 $page = 'PaiementDiver'; // Pour evenement lie
-                $log = LogActivityModel::where('user_societe',auth()->user()->societe)->where('page', $page)->limit(50)->orderBy('id','desc')->get();
+                $log = LogActivityModel::where('societe_id',auth()->user()->societe_id)->where('page', $page)->limit(50)->orderBy('id','desc')->get();
                 $logCount = $log->count();
                 
-                $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->count(); 
+                $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->count(); 
                 if($deviseTva == 0){
                     $this->devise = 'FCFA';
                 }
                 else{
-                    $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->get(); 
+                    $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->get(); 
                     $this->devise = $deviseTva[0]->devise;
                 }  
                 
-                $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();                      
+                $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();                      
                 $jourValid = $entite_mod[0]->validite_mod; 
                 // ceci pour trouver le nombre de jour restant avant expiration
                 $nbjoursRestant = round((strtotime($jourValid) - strtotime($dateJour))/(60*60*24));
@@ -206,22 +204,22 @@ class PaiementDivers extends Component
     }
     public function store(){
         $this->validate();        
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->creer_paie_divers;
             if($autoriser == 1){                       
                     
-                    $test_compte = CompteBancaire::where('societe',auth()->user()->societe)->where('id',$this->nom_compte_bancaire)->count();    
+                    $test_compte = CompteBancaire::where('societe_id',auth()->user()->societe_id)->where('id',$this->nom_compte_bancaire)->count();    
                     if($test_compte > 0){
-                        $compte = CompteBancaire::where('societe',auth()->user()->societe)->where('id',$this->nom_compte_bancaire)->first();               
+                        $compte = CompteBancaire::where('societe_id',auth()->user()->societe_id)->where('id',$this->nom_compte_bancaire)->first();               
                         $this->ids = $compte->id;
                         $this->compte_bancaire = $compte->nom_compte_bancaire;
                     }           
 
                     // ceci calcul le solde
-                    $soldeCredit = EcritureBancaire::where('societe',auth()->user()->societe)->where('id_compte_bancaire',$this->ids)->sum('credit');
-                    $soldeDebit = EcritureBancaire::where('societe',auth()->user()->societe)->where('id_compte_bancaire',$this->ids)->sum('debit');  
+                    $soldeCredit = EcritureBancaire::where('societe_id',auth()->user()->societe_id)->where('id_compte_bancaire',$this->ids)->sum('credit');
+                    $soldeDebit = EcritureBancaire::where('societe_id',auth()->user()->societe_id)->where('id_compte_bancaire',$this->ids)->sum('debit');  
                     $solde = $soldeCredit - $soldeDebit;
 
                     $type_paiement = 'PaiementDivers';
@@ -231,42 +229,42 @@ class PaiementDivers extends Component
                         $solde_net = $solde - $this->montant;
                         // Creation et enregistrement ecriture bancaire  
                         $credit = 0;
-                        EcritureBancaire::create(['id_compte_bancaire'=>$this->ids,'nom_compte_bancaire'=>$this->compte_bancaire,'reference'=>$this->reference,'description'=>$this->libele_paiement,'date_operation'=>$this->date_paiement,'date_valeur'=>$this->date_valeur,
-                        'type_operation'=>$this->mode_reglement,'debit'=>$this->montant,'credit'=>$credit,'solde'=>$solde_net,'type_paiement'=>$type_paiement,'id_type_paiement'=>0,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);      
+                        $ecriturBanq = EcritureBancaire::create(['id_compte_bancaire'=>$this->ids,'nom_compte_bancaire'=>$this->compte_bancaire,'reference'=>$this->reference,'description'=>$this->libele_paiement,'date_operation'=>$this->date_paiement,'date_valeur'=>$this->date_valeur,
+                        'type_operation'=>$this->mode_reglement,'debit'=>$this->montant,'credit'=>$credit,'solde'=>$solde_net,'type_paiement'=>$type_paiement,'id_type_paiement'=>0,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);      
                          // ceci recupere le dernier enregistrement cree a l'instant
-                        $dernier_id = EcritureBancaire::where('societe',auth()->user()->societe)->where('user_id',auth()->user()->id)->latest()->first()->id; 
+                        $dernier_id = $ecriturBanq->id; 
 
-                        PaiementDiver::create(['reference'=>$this->reference,'date_paiement'=>$this->date_paiement,'date_valeur'=>$this->date_valeur,'libele_paiement'=>$this->libele_paiement,
+                        $paieDiver = PaiementDiver::create(['reference'=>$this->reference,'date_paiement'=>$this->date_paiement,'date_valeur'=>$this->date_valeur,'libele_paiement'=>$this->libele_paiement,
                                                'id_ecriture_bancaire'=>$dernier_id,'nom_compte_bancaire'=>$this->compte_bancaire,'id_compte_bancaire'=>$this->ids,'mode_reglement'=>$this->mode_reglement,'numero_cheque_virement'=>$this->numero_cheque_virement,
-                                               'emetteur'=>$this->emetteur,'nom_banque'=>$this->nom_banque,'debit'=>$this->montant,'credit'=>$credit,'note'=>$this->note,'sens'=>$this->sens,'societe'=>auth()->user()->societe,
+                                               'emetteur'=>$this->emetteur,'nom_banque'=>$this->nom_banque,'debit'=>$this->montant,'credit'=>$credit,'note'=>$this->note,'sens'=>$this->sens,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,
                                                'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
 
                         // ajout id
-                        $last_id = PaiementDiver::where('societe',auth()->user()->societe)->where('user_id',auth()->user()->id)->latest()->first()->id; 
-                        EcritureBancaire::where('societe',auth()->user()->societe)->where('id',$dernier_id)->update(['id_type_paiement'=>$last_id]); 
+                        $last_id = $paieDiver->id; 
+                        EcritureBancaire::where('societe_id',auth()->user()->societe_id)->where('id',$dernier_id)->update(['id_type_paiement'=>$last_id]); 
 
-                        CompteBancaire::where('societe',auth()->user()->societe)->where('id',$this->ids)->update(['solde'=>$solde_net]); 
+                        CompteBancaire::where('societe_id',auth()->user()->societe_id)->where('id',$this->ids)->update(['solde'=>$solde_net]); 
                     }
                     elseif($this->sens == 'Crédit'){
 
                         $solde_net = $solde + $this->montant;                       
                         // Creation et enregistrement ecriture bancaire  
                         $debit = 0;
-                        EcritureBancaire::create(['id_compte_bancaire'=>$this->ids,'nom_compte_bancaire'=>$this->compte_bancaire,'reference'=>$this->reference,'description'=>$this->libele_paiement,'date_operation'=>$this->date_paiement,'date_valeur'=>$this->date_valeur,
-                                                  'type_operation'=>$this->mode_reglement,'debit'=>$debit,'credit'=>$this->montant,'solde'=>$solde_net,'type_paiement'=>$type_paiement,'id_type_paiement'=>0,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);      
+                        $ecriturBanq = EcritureBancaire::create(['id_compte_bancaire'=>$this->ids,'nom_compte_bancaire'=>$this->compte_bancaire,'reference'=>$this->reference,'description'=>$this->libele_paiement,'date_operation'=>$this->date_paiement,'date_valeur'=>$this->date_valeur,
+                                                  'type_operation'=>$this->mode_reglement,'debit'=>$debit,'credit'=>$this->montant,'solde'=>$solde_net,'type_paiement'=>$type_paiement,'id_type_paiement'=>0,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);      
                         
-                        $dernier_id = EcritureBancaire::where('societe',auth()->user()->societe)->where('user_id',auth()->user()->id)->latest()->first()->id;
+                        $dernier_id = $ecriturBanq->id;
 
-                        PaiementDiver::create(['reference'=>$this->reference,'date_paiement'=>$this->date_paiement,'date_valeur'=>$this->date_valeur,'libele_paiement'=>$this->libele_paiement,
+                        $paieDiver = PaiementDiver::create(['reference'=>$this->reference,'date_paiement'=>$this->date_paiement,'date_valeur'=>$this->date_valeur,'libele_paiement'=>$this->libele_paiement,
                                                'id_ecriture_bancaire'=>$dernier_id,'nom_compte_bancaire'=>$this->compte_bancaire,'id_compte_bancaire'=>$this->ids,'mode_reglement'=>$this->mode_reglement,'numero_cheque_virement'=>$this->numero_cheque_virement,
-                                               'emetteur'=>$this->emetteur,'nom_banque'=>$this->nom_banque,'debit'=>$debit,'credit'=>$this->montant,'note'=>$this->note,'sens'=>$this->sens,'societe'=>auth()->user()->societe,
+                                               'emetteur'=>$this->emetteur,'nom_banque'=>$this->nom_banque,'debit'=>$debit,'credit'=>$this->montant,'note'=>$this->note,'sens'=>$this->sens,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,
                                                'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
 
                         // ajout id
-                        $last_id = PaiementDiver::where('societe',auth()->user()->societe)->where('user_id',auth()->user()->id)->latest()->first()->id; 
-                        EcritureBancaire::where('societe',auth()->user()->societe)->where('id',$dernier_id)->update(['id_type_paiement'=>$last_id]); 
+                        $last_id = $paieDiver->id; 
+                        EcritureBancaire::where('societe_id',auth()->user()->societe_id)->where('id',$dernier_id)->update(['id_type_paiement'=>$last_id]); 
 
-                        CompteBancaire::where('societe',auth()->user()->societe)->where('id',$this->ids)->update(['solde'=>$solde_net]); 
+                        CompteBancaire::where('societe_id',auth()->user()->societe_id)->where('id',$this->ids)->update(['solde'=>$solde_net]); 
                     }
                     else{
                         $this->dispatch('alert',                    
@@ -281,7 +279,7 @@ class PaiementDivers extends Component
                   
                     $id_activite = $last_id;
                     $page = 'PaiementDiver';
-                    LogActivity::addToLog('Paiement divers » '.$this->libele_paiement.' créé', $id_activite, $page);    
+                    LogActivity::addToLog('Paiement divers » '.$this->libele_paiement.' crée', $id_activite, $page);    
                     $this->dispatch('alert',                    
                         title:'paiement divers ('.$this->libele_paiement.') enregistré!',
                         timer:3000,
@@ -291,7 +289,7 @@ class PaiementDivers extends Component
                         position:'top-end',
                     );  
                     // $this->resetinputFields();  
-                    flash ('Paiement divers <strong>'.$this->libele_paiement.'</strong> créé')->success();
+                    flash ('Paiement divers <strong>'.$this->libele_paiement.'</strong> crée')->success();
                     $this->redirect('/listing_paie_divers?active=8&champ=1-3', navigate: true);  
             }
             else{                 
@@ -320,15 +318,15 @@ class PaiementDivers extends Component
         $this->confirmer = $id;      
     } 
     public function supprimer($id){ 
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->supprimer_paie_divers;
             if($autoriser == 1){   
                 if($id){                   
                     // supprime le paiement Divers
-                    PaiementDiver::where('societe',auth()->user()->societe)->where('id',$id)->delete(); 
-                    EcritureBancaire::where('societe',auth()->user()->societe)->where('id_type_paiement',$id)->delete(); 
+                    PaiementDiver::where('societe_id',auth()->user()->societe_id)->where('id',$id)->delete(); 
+                    EcritureBancaire::where('societe_id',auth()->user()->societe_id)->where('id_type_paiement',$id)->delete(); 
                     $page = 'PaiementDiver';
                     LogActivityModel::where('id_activite',$id)->where('page',$page)->delete();
 

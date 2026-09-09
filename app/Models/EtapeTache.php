@@ -8,5 +8,5 @@ use Illuminate\Database\Eloquent\Model;
 class EtapeTache extends Model
 {
     use HasFactory;
-    protected $fillable = ['nom_etape','description','opacite','societe','nom_user','user_id'];
+    protected $fillable = ['nom_etape','description','opacite','societe','societe_id','nom_user','user_id'];
 }

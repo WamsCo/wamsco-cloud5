@@ -9,5 +9,5 @@ class Agenda extends Model
 {
     use HasFactory;
     protected $keyType = 'string';
-    protected $fillable = ['title','societe','nom_user','user_id','start', 'end',];
+    protected $fillable = ['title','societe','societe_id','nom_user','user_id','start', 'end',];
 }

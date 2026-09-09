@@ -157,9 +157,9 @@ class NouvFactureFournisseur extends Component
         $this->offrir = 'Non';
     }
     public function mount(){        
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();            
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();            
             $autoriser = $role[0]->consulter_fact_fourni;
             if($autoriser == 0){
                 alert()->error('Oups Désolé', 'Vous n\'êtes pas autorisé à ouvrir cette page !!!')->position('center')->autoClose(5000)->background('#fff')->width('460px')->padding('5px');
@@ -176,7 +176,7 @@ class NouvFactureFournisseur extends Component
     public function render(){
     
         $dateJour = date('Y-m-d');            
-        $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();
+        $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();
         $jourValid = $entite_mod[0]->validite_mod;
         $mod_facturation = $entite_mod[0]->mod_facturation;
         $soldeClient = $entite_mod[0]->solde; 
@@ -195,9 +195,9 @@ class NouvFactureFournisseur extends Component
                 $this->id = request('id'); // id entete facture
                 $this->ref_fact = request('ref'); // reference facture
                 //     // ceci au chargement de la page
-                $test_facture = factureFournisseurEntete::where('societe',auth()->user()->societe)->where('id',$this->id)->count();    
+                $test_facture = factureFournisseurEntete::where('societe_id',auth()->user()->societe_id)->where('id',$this->id)->count();    
                 if($test_facture > 0){
-                    $compte = factureFournisseurEntete::where('societe',auth()->user()->societe)->where('id',$this->id)->first();               
+                    $compte = factureFournisseurEntete::where('societe_id',auth()->user()->societe_id)->where('id',$this->id)->first();               
                     $this->ids = $compte->id;
                     $this->reference = $compte->code_facture; // reference facture
                     $this->id_cmd_fourni_entete = $compte->id_commande_fournisseur_entete; 
@@ -216,13 +216,12 @@ class NouvFactureFournisseur extends Component
                     $this->etat_reception = $compte->etat_reception;
                     $this->auteur = $compte->nom_user;
                     $this->created_at = $compte->created_at;
-                    $this->updated_at = $compte->updated_at;
-                    
+                    $this->updated_at = $compte->updated_at;                    
                 }  
-                $tier = Tier::where('societe',auth()->user()->societe)->where('id',$this->fournisseur_id)->get(); 
-                $banque = CompteBancaire :: where('societe',auth()->user()->societe)->where('etat',1)->get();  
+                $tier = Tier::where('societe_id',auth()->user()->societe_id)->where('id',$this->fournisseur_id)->get(); 
+                $banque = CompteBancaire :: where('societe_id',auth()->user()->societe_id)->where('etat',1)->get();  
                 
-                $factFournisseur_ligne = factureFournisseurLigne::where('societe',auth()->user()->societe)->where('id_facture_fournisseur_entete',$this->ids)->orderBy($this->orderField, $this->orderDirection)->get();
+                $factFournisseur_ligne = factureFournisseurLigne::where('societe_id',auth()->user()->societe_id)->where('id_facture_fournisseur_entete',$this->ids)->orderBy($this->orderField, $this->orderDirection)->get();
                 $factFournisseurLigneCount = $factFournisseur_ligne->count();
 
                 $montantHT = $factFournisseur_ligne->sum('montant_ht');
@@ -231,16 +230,16 @@ class NouvFactureFournisseur extends Component
                 $montantTva = $factFournisseur_ligne->sum('montant_tva');
                 $montantPrecompte = $factFournisseur_ligne->sum('montant_precompte');
                             
-                $reglementFournisseur = Reglement_fourni::where('societe',auth()->user()->societe)->where('id_facture_fournisseur_entete',$this->ids)->get();
-                $dejaRegler = Reglement_fourni::where('societe',auth()->user()->societe)->where('id_facture_fournisseur_entete',$this->ids)->sum('montant_regler');
+                $reglementFournisseur = Reglement_fourni::where('societe_id',auth()->user()->societe_id)->where('id_facture_fournisseur_entete',$this->ids)->get();
+                $dejaRegler = Reglement_fourni::where('societe_id',auth()->user()->societe_id)->where('id_facture_fournisseur_entete',$this->ids)->sum('montant_regler');
                 $reglemtCount = $reglementFournisseur->count();
                 
                 $this->reste_a_percevoir = number_format($montantTTC - $dejaRegler,0,',','');
 
                 // Parametre
-                $test_vide = Parametre ::where('societe',auth()->user()->societe)->count();
+                $test_vide = Parametre ::where('societe_id',auth()->user()->societe_id)->count();
                 if($test_vide > 0){                
-                    $config = Parametre::where('societe',auth()->user()->societe)->limit(1)->get();
+                    $config = Parametre::where('societe_id',auth()->user()->societe_id)->limit(1)->get();
                     $id_entrepot = $config[0]->id_entrepot_fctfourni;               
                 }
                 else{
@@ -251,9 +250,8 @@ class NouvFactureFournisseur extends Component
                 if($this->type_produit == 'Produit'){ 
                 $produit_stock = DB::table('stocks')
                                 ->select('id','nom_produit','reference','id_produit','type_produit','nature_produit','categorie',DB::raw('sum(quantite) as quantites, sum(valorisation_achat_total) as valorisationAchatTotal, sum(prix_vente_unitaire) as prixVenteUnitaire ,sum(valeur_vente_total) as valeurVentetotal, max(limite_stock_alerte) as limite_stock_alerte ,max(updated_at) as updated_at')) // Supposons que vous voulez la dernière date
-                                ->where('societe',auth()->user()->societe)
+                                ->where('societe_id',auth()->user()->societe_id)
                                 ->where('id_entrepot',$id_entrepot)
-                                // ->where('type_produit','Produit')
                                 ->where('type_produit',$this->type_produit)
                                 ->where('nom_produit','like','%'.$this->query.'%')
                                 ->where('nature_produit','like','%'.$this->parNature.'%')
@@ -269,7 +267,7 @@ class NouvFactureFournisseur extends Component
                 }
                 elseif($this->type_produit == 'Service'){
                     // pour afficher les services
-                    $service_produit = Produit::where('societe',auth()->user()->societe)
+                    $service_produit = Produit::where('societe_id',auth()->user()->societe_id)
                     ->where('type_produit','Service')
                     ->where('nom_produit','like','%'.$this->query.'%')
                     ->where('nature_produit','like','%'.$this->parNature.'%')
@@ -278,40 +276,39 @@ class NouvFactureFournisseur extends Component
                     ->paginate($this->parPage);
                     $service_produitCount = $service_produit->count();
 
-                }else{
+                }
+                else{
                     
-                    $produit_stock = Stock::where('societe',auth()->user()->societe)->paginate($this->parPage);
+                    $produit_stock = Stock::where('societe_id',auth()->user()->societe_id)->paginate($this->parPage);
                     $produit_stockCount = 0;
                     $qteStockTotal = 0;
                     $valAchatTotal = 0;
                     $valPrixVenteUnitaire = 0;
                     $valVenteTotal = 0;
-                    $service_produit = Produit::where('societe',auth()->user()->societe)->paginate($this->parPage);
+                    $service_produit = Produit::where('societe_id',auth()->user()->societe_id)->paginate($this->parPage);
                     $service_produitCount = 0;
                 }
 
-                $taxe = DeviseTva::where('societe',auth()->user()->societe)->orderBy('taux_tva','asc')->get();
-                $cmdFourniEntete = CommandeFournisseurEntete::where('societe',auth()->user()->societe)->where('id',$this->id_cmd_fourni_entete)->orderBy('id','desc')->get();
-                $recpCltEntete = ReceptionFournisseurEntete::where('societe',auth()->user()->societe)->where('id',$this->id_recept_fourni_entete)->orderBy('id','desc')->get(); 
+                $taxe = DeviseTva::where('societe_id',auth()->user()->societe_id)->orderBy('taux_tva','asc')->get();
+                $cmdFourniEntete = CommandeFournisseurEntete::where('societe_id',auth()->user()->societe_id)->where('id',$this->id_cmd_fourni_entete)->orderBy('id','desc')->get();
+                $recpCltEntete = ReceptionFournisseurEntete::where('societe_id',auth()->user()->societe_id)->where('id',$this->id_recept_fourni_entete)->orderBy('id','desc')->get(); 
 
                 $page = 'factureFournisseur'; // Pour evenement lie
-                $log = LogActivityModel::where('user_societe',auth()->user()->societe)->where('id_activite', $this->ids)->where('page', $page)->limit(22)->orderBy('id','desc')->get();
+                $log = LogActivityModel::where('societe_id',auth()->user()->societe_id)->where('id_activite', $this->ids)->where('page', $page)->limit(22)->orderBy('id','desc')->get();
                 $logCount = $log->count();
 
-                $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->count(); 
+                $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->count(); 
                 if($deviseTva == 0){
                     $this->devise = 'FCFA';
                 }
                 else{
-                    $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->get(); 
+                    $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->get(); 
                     $this->devise = $deviseTva[0]->devise;
                 }
-                $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();          
+                $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();          
                 $jourValid = $entite_mod[0]->validite_mod; 
                 // ceci pour trouver le nombre de jour restant avant expiration
                 $nbjoursRestant = round((strtotime($jourValid) - strtotime($dateJour))/(60*60*24));
-                // return view('livewire.gestion-facturation.fournisseur.nouv-facture-fournisseur',compact('title_fils','module','lien','dateJour','banque','factFournisseur_ligne','factFournisseurLigneCount','produit_stock','produit_stockCount','qteStockTotal','valAchatTotal','valVenteTotal','taxe','log','logCount',
-                // 'montantHT','montantTTC','montantRemise','montantTva','montantPrecompte','reglementFournisseur','dejaRegler','reglemtCount'))->layout('components.layouts.app',compact('title','active','champ','choix','entite_mod','dateJour','soldeClient','nbjoursRestant'));
 
                 if($this->type_produit == 'Produit'){  
                     return view('livewire.gestion-facturation.fournisseur.nouv-facture-fournisseur',compact('title_fils','module','lien','dateJour','tier','banque','factFournisseur_ligne','factFournisseurLigneCount','produit_stock','produit_stockCount','qteStockTotal','valAchatTotal','valPrixVenteUnitaire','valVenteTotal','taxe','cmdFourniEntete','recpCltEntete','log','logCount',
@@ -355,13 +352,13 @@ class NouvFactureFournisseur extends Component
     public function searchResult(){ 
         if(!empty($this->fournisseur)){
             if(ctype_alpha($this->fournisseur)){ // ctype_alpha: cette fonction permet de savoir si le caractere ou mot est une lettre  
-                $this->records = Tier::where('etat',1)->where('societe',auth()->user()->societe)->where('nom','like','%'.$this->fournisseur.'%')->orderBy('nom','asc')->limit(8)->get(); 
-                $this->recordCount = Tier::where('etat',1)->where('societe',auth()->user()->societe)->where('nom','like','%'.$this->fournisseur.'%')->count();
+                $this->records = Tier::where('etat',1)->where('societe_id',auth()->user()->societe_id)->where('nom','like','%'.$this->fournisseur.'%')->orderBy('nom','asc')->limit(8)->get(); 
+                $this->recordCount = Tier::where('etat',1)->where('societe_id',auth()->user()->societe_id)->where('nom','like','%'.$this->fournisseur.'%')->count();
                 $this->showdiv = true;
             }
             else{
-                $this->records = Tier::where('etat',1)->where('societe',auth()->user()->societe)->where('telephone','like','%'.$this->fournisseur.'%')->orderBy('nom','asc')->limit(8)->get(); 
-                $this->recordCount = Tier::where('etat',1)->where('societe',auth()->user()->societe)->where('telephone','like','%'.$this->fournisseur.'%')->count(); 
+                $this->records = Tier::where('etat',1)->where('societe_id',auth()->user()->societe_id)->where('telephone','like','%'.$this->fournisseur.'%')->orderBy('nom','asc')->limit(8)->get(); 
+                $this->recordCount = Tier::where('etat',1)->where('societe_id',auth()->user()->societe_id)->where('telephone','like','%'.$this->fournisseur.'%')->count(); 
                 $this->showdiv = true;
             }        
         }
@@ -377,21 +374,21 @@ class NouvFactureFournisseur extends Component
     }
     public function update(){
         $this->validate();        
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->modifier_fact_fourni;
             if($autoriser == 1){  
                     
-                    $test_tiers = Tier ::where('societe',auth()->user()->societe)->where('id',$this->fournisseur_id)->count();
+                    $test_tiers = Tier ::where('societe_id',auth()->user()->societe_id)->where('id',$this->fournisseur_id)->count();
                     if($test_tiers == 0){
                         if(!empty($this->ids_fournisseur)){
                             // recupere le nom du compte bancaire via son id : $this->compte_bancaire
-                            $compteBaq = CompteBancaire::where('societe',auth()->user()->societe)->where('id',$this->compte_bancaire)->first(); 
+                            $compteBaq = CompteBancaire::where('societe_id',auth()->user()->societe_id)->where('id',$this->compte_bancaire)->first(); 
                             $nom_compte_bancaire = $compteBaq->nom_compte_bancaire;
                             
                             factureFournisseurEntete::find($this->ids)->update(['nom_fournisseur'=>$this->fournisseur,'id_fournisseur'=>$this->ids_fournisseur,'reference'=>$this->reference,'date_facturation'=>$this->date_facturation,'date_echeance'=>$this->date_echeance,
-                            'mode_reglement'=>$this->mode_reglement,'compte_bancaire'=>$nom_compte_bancaire,'id_compte_bancaire'=>$this->compte_bancaire,'note'=>$this->note,'societe'=>auth()->user()->societe,
+                            'mode_reglement'=>$this->mode_reglement,'compte_bancaire'=>$nom_compte_bancaire,'id_compte_bancaire'=>$this->compte_bancaire,'note'=>$this->note,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,
                             'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
                             
                             $id_activite = $this->ids;
@@ -422,17 +419,17 @@ class NouvFactureFournisseur extends Component
                     elseif($test_tiers >= 0){ 
                         if(empty($this->ids_fournisseur)){
                             
-                            $test_tier_nom = Tier ::where('societe',auth()->user()->societe)->where('id',$this->fournisseur_id)->first();
+                            $test_tier_nom = Tier ::where('societe_id',auth()->user()->societe_id)->where('id',$this->fournisseur_id)->first();
                             $nom = $test_tier_nom->nom;
 
                             if($nom == $this->fournisseur){ 
 
-                                $compteBaq = CompteBancaire::where('societe',auth()->user()->societe)->where('id',$this->compte_bancaire)->first(); 
+                                $compteBaq = CompteBancaire::where('societe_id',auth()->user()->societe_id)->where('id',$this->compte_bancaire)->first(); 
                                 $nom_compte_bancaire = $compteBaq->nom_compte_bancaire;
                                 
                                 // fournisseur_id de la factureFournisseurEntete
                                 factureFournisseurEntete::find($this->ids)->update(['nom_fournisseur'=>$this->fournisseur,'id_fournisseur'=>$this->fournisseur_id,'reference'=>$this->reference,'date_facturation'=>$this->date_facturation,'date_echeance'=>$this->date_echeance,
-                                'mode_reglement'=>$this->mode_reglement,'compte_bancaire'=>$nom_compte_bancaire,'id_compte_bancaire'=>$this->compte_bancaire,'note'=>$this->note,'societe'=>auth()->user()->societe,
+                                'mode_reglement'=>$this->mode_reglement,'compte_bancaire'=>$nom_compte_bancaire,'id_compte_bancaire'=>$this->compte_bancaire,'note'=>$this->note,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,
                                 'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
                                 
                                 $id_activite = $this->ids;
@@ -462,18 +459,18 @@ class NouvFactureFournisseur extends Component
                         }
                         else{
                             
-                            $test_tier_nom = Tier ::where('societe',auth()->user()->societe)->where('id',$this->ids_fournisseur)->first();
+                            $test_tier_nom = Tier ::where('societe_id',auth()->user()->societe_id)->where('id',$this->ids_fournisseur)->first();
                             $nom = $test_tier_nom->nom;   
 
                             if($this->ids_fournisseur != $this->fournisseur_id){ 
                                 if($nom == $this->fournisseur){ 
 
-                                    $compteBaq = CompteBancaire::where('societe',auth()->user()->societe)->where('id',$this->compte_bancaire)->first(); 
+                                    $compteBaq = CompteBancaire::where('societe_id',auth()->user()->societe_id)->where('id',$this->compte_bancaire)->first(); 
                                     $nom_compte_bancaire = $compteBaq->nom_compte_bancaire;
                                     
                                     // ids_fournisseur de ajouterTier
                                     factureFournisseurEntete::find($this->ids)->update(['nom_fournisseur'=>$this->fournisseur,'id_fournisseur'=>$this->ids_fournisseur,'reference'=>$this->reference,'date_facturation'=>$this->date_facturation,'date_echeance'=>$this->date_echeance,
-                                    'mode_reglement'=>$this->mode_reglement,'compte_bancaire'=>$nom_compte_bancaire,'id_compte_bancaire'=>$this->compte_bancaire,'note'=>$this->note,'societe'=>auth()->user()->societe,
+                                    'mode_reglement'=>$this->mode_reglement,'compte_bancaire'=>$nom_compte_bancaire,'id_compte_bancaire'=>$this->compte_bancaire,'note'=>$this->note,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,
                                     'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
                                     
                                     $id_activite = $this->ids;
@@ -540,12 +537,12 @@ class NouvFactureFournisseur extends Component
             $this->validate([            
             'note'=>'max:255',            
         ]);    
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){ 
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->modifier_fact_fourni;
             if($autoriser == 1){  
-                factureFournisseurEntete::find($this->ids)->update(['note'=>$this->note,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                factureFournisseurEntete::find($this->ids)->update(['note'=>$this->note,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
                 $id_activite = $this->ids;
                 $page = 'factureFournisseur';
                 LogActivity::addToLog('Note facture fourni. modifiée', $id_activite, $page);   
@@ -586,17 +583,16 @@ class NouvFactureFournisseur extends Component
         $this->parCat = '';
         $this->parNature = '';
         $this->query = '';
-        $compte = factureFournisseurEntete::where('societe',auth()->user()->societe)->where('id',$this->ids)->first(); 
+        $compte = factureFournisseurEntete::where('societe_id',auth()->user()->societe_id)->where('id',$this->ids)->first(); 
         $this->fournisseur_id = $compte->id_fournisseur;
     }
     public function afficheLigne(int $idf){
         $this->ouverture = $idf;
         $this->choix_produit = $idf;         
-        $testChoix = Stock::where('societe',auth()->user()->societe)->where('id',$idf)->count();
+        $testChoix = Stock::where('societe_id',auth()->user()->societe_id)->where('id',$idf)->count();
         if($testChoix > 0){
             // ceci permet d'afficher la quantite entrepot origine
-            $choixProd = Stock::where('societe',auth()->user()->societe)->where('id',$idf)->get();
-            // $this->id_stock = $choixProd[0]->id;
+            $choixProd = Stock::where('societe_id',auth()->user()->societe_id)->where('id',$idf)->get();
             $this->prix_moyen_pondere_achat = $choixProd[0]->prix_moyen_pondere_achat;
             $this->prix_vente = $choixProd[0]->prix_vente_unitaire;
             $this->prix_achat = $choixProd[0]->prix_achat_last;
@@ -606,17 +602,17 @@ class NouvFactureFournisseur extends Component
             $this->id_entrepot = $choixProd[0]->id_entrepot;
             $this->referenceProd = $choixProd[0]->reference;
             // avoir le prix_vente_min 
-            $prod = Produit::where('societe',auth()->user()->societe)->where('id',$this->id_produit)->first();
+            $prod = Produit::where('societe_id',auth()->user()->societe_id)->where('id',$this->id_produit)->first();
             $this->prix_vente_min = $prod->prix_vente_min;
         }
     }   
     public function afficheLigneService(int $ide){
         $this->ouverture = $ide;
         $this->choix_produit = $ide;         
-        $testChoix = Produit::where('societe',auth()->user()->societe)->where('id',$ide)->count();
+        $testChoix = Produit::where('societe_id',auth()->user()->societe_id)->where('id',$ide)->count();
         if($testChoix > 0){
             // ceci permet d'afficher la quantite entrepot origine
-            $choixProd = Produit::where('societe',auth()->user()->societe)->where('id',$ide)->get();
+            $choixProd = Produit::where('societe_id',auth()->user()->societe_id)->where('id',$ide)->get();
             $this->id_produit = $choixProd[0]->id;
             $this->prix_moyen_pondere_achat = $choixProd[0]->prix_achat;
             $this->prix_achat = $choixProd[0]->prix_achat;
@@ -624,7 +620,6 @@ class NouvFactureFournisseur extends Component
             $this->prix_vente_min = $choixProd[0]->prix_vente_min;
             $this->nom_produit = $choixProd[0]->nom_produit;
             $this->referenceProd = $choixProd[0]->reference;
-            // $this->id_entrepot = $choixProd[0]->id_entrepot;
         }
     }  
     public function ajouter(){
@@ -642,9 +637,9 @@ class NouvFactureFournisseur extends Component
             'mode_reglement'=>'required',   // important pour forcer utilisateur a remplir
             // 'compte_bancaire'=>'required',  // important pour forcer utilisateur a remplir            
         ]);    
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->modifier_fact_fourni;
             if($autoriser == 1){                        
                 if($this->quantite > 0 && $this->prix_achat > 0){ 
@@ -675,18 +670,18 @@ class NouvFactureFournisseur extends Component
                         factureFournisseurLigne::create(['code_facture'=>$this->reference,'id_facture_fournisseur_entete'=>$this->ids,'produit'=>$this->nom_produit,'id_produit'=>$this->id_produit,'reference'=>$this->referenceProd,'type_produit'=>$typeProd,'prix_achat'=>$this->prix_achat,
                                         'prix_vente'=>$this->prix_vente,'quantite'=>$this->quantite,'quantite_recue'=>$quantite_recue,'reste_a_recevoir'=>$reste_a_recevoir,'remise'=>$this->remise,'montant_remise'=>$remise_montant,
                                         'tva'=>$this->tva,'montant_tva'=>$tva_montant,'precompte'=>$this->precompte,'montant_precompte'=>$precompte_montant,'montant_ht'=>$montant_remiser_ht,'montant_ttc'=>$montant_ttc,'marge'=>$marge,'id_entrepot'=>$this->id_entrepot,
-                                        'nom_fournisseur'=>$this->fournisseur,'id_fournisseur'=>$this->fournisseur_id,'offrir'=>$this->offrir,'etat'=>$this->etat,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);                     
+                                        'nom_fournisseur'=>$this->fournisseur,'id_fournisseur'=>$this->fournisseur_id,'offrir'=>$this->offrir,'etat'=>$this->etat,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);                     
                     
-                        $montantHT = factureFournisseurLigne::where('societe',auth()->user()->societe)->where('id_facture_fournisseur_entete',$this->ids)->sum('montant_ht');
-                        $montantTTC = factureFournisseurLigne::where('societe',auth()->user()->societe)->where('id_facture_fournisseur_entete',$this->ids)->sum('montant_ttc');
-                        $montantRemise = factureFournisseurLigne::where('societe',auth()->user()->societe)->where('id_facture_fournisseur_entete',$this->ids)->sum('montant_remise');
-                        $montantTva = factureFournisseurLigne::where('societe',auth()->user()->societe)->where('id_facture_fournisseur_entete',$this->ids)->sum('montant_tva');
-                        $montantPrecompte = factureFournisseurLigne::where('societe',auth()->user()->societe)->where('id_facture_fournisseur_entete',$this->ids)->sum('montant_precompte');
-                        $marge = factureFournisseurLigne::where('societe',auth()->user()->societe)->where('id_facture_fournisseur_entete',$this->ids)->sum('marge');
+                        $montantHT = factureFournisseurLigne::where('societe_id',auth()->user()->societe_id)->where('id_facture_fournisseur_entete',$this->ids)->sum('montant_ht');
+                        $montantTTC = factureFournisseurLigne::where('societe_id',auth()->user()->societe_id)->where('id_facture_fournisseur_entete',$this->ids)->sum('montant_ttc');
+                        $montantRemise = factureFournisseurLigne::where('societe_id',auth()->user()->societe_id)->where('id_facture_fournisseur_entete',$this->ids)->sum('montant_remise');
+                        $montantTva = factureFournisseurLigne::where('societe_id',auth()->user()->societe_id)->where('id_facture_fournisseur_entete',$this->ids)->sum('montant_tva');
+                        $montantPrecompte = factureFournisseurLigne::where('societe_id',auth()->user()->societe_id)->where('id_facture_fournisseur_entete',$this->ids)->sum('montant_precompte');
+                        $marge = factureFournisseurLigne::where('societe_id',auth()->user()->societe_id)->where('id_facture_fournisseur_entete',$this->ids)->sum('marge');
 
                         // Montant TTC en arrondi en + ou en - 
                         factureFournisseurEntete::find($this->ids)->update(['montant_ht'=>$montantHT,'montant_remise'=>$montantRemise,'montant_tva'=>$montantTva,'montant_precompte'=>$montantPrecompte,'montant_ttc'=>number_format($montantTTC,0,',',''),
-                                            'reste_a_percevoir'=>number_format($montantTTC,0,',',''),'marge'=>$marge,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                                            'reste_a_percevoir'=>number_format($montantTTC,0,',',''),'marge'=>$marge,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
                     }
                     elseif($this->offrir == 'Oui'){
 
@@ -700,18 +695,18 @@ class NouvFactureFournisseur extends Component
                         factureFournisseurLigne::create(['code_facture'=>$this->reference,'id_facture_fournisseur_entete'=>$this->ids,'produit'=>$this->nom_produit,'id_produit'=>$this->id_produit,'reference'=>$this->referenceProd,'type_produit'=>$typeProd,'prix_achat'=>$this->prix_achat,
                                         'prix_vente'=>$this->prix_vente,'quantite'=>$this->quantite,'quantite_recue'=>$quantite_recue,'reste_a_recevoir'=>$reste_a_recevoir,'remise'=>$this->remise,'montant_remise'=>$remise_montant,
                                         'tva'=>$this->tva,'montant_tva'=>$tva_montant,'precompte'=>$this->precompte,'montant_precompte'=>$precompte_montant,'montant_ht'=>$montant_remiser_ht,'montant_ttc'=>$montant_ttc,'marge'=>$marge,'id_entrepot'=>$this->id_entrepot,
-                                        'nom_fournisseur'=>$this->fournisseur,'id_fournisseur'=>$this->fournisseur_id,'offrir'=>$this->offrir,'etat'=>$this->etat,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);                     
+                                        'nom_fournisseur'=>$this->fournisseur,'id_fournisseur'=>$this->fournisseur_id,'offrir'=>$this->offrir,'etat'=>$this->etat,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);                     
                     
-                        $montantHT = factureFournisseurLigne::where('societe',auth()->user()->societe)->where('id_facture_fournisseur_entete',$this->ids)->sum('montant_ht');
-                        $montantTTC = factureFournisseurLigne::where('societe',auth()->user()->societe)->where('id_facture_fournisseur_entete',$this->ids)->sum('montant_ttc');
-                        $montantRemise = factureFournisseurLigne::where('societe',auth()->user()->societe)->where('id_facture_fournisseur_entete',$this->ids)->sum('montant_remise');
-                        $montantTva = factureFournisseurLigne::where('societe',auth()->user()->societe)->where('id_facture_fournisseur_entete',$this->ids)->sum('montant_tva');
-                        $montantPrecompte = factureFournisseurLigne::where('societe',auth()->user()->societe)->where('id_facture_fournisseur_entete',$this->ids)->sum('montant_precompte');
-                        $marge = factureFournisseurLigne::where('societe',auth()->user()->societe)->where('id_facture_fournisseur_entete',$this->ids)->sum('marge');
+                        $montantHT = factureFournisseurLigne::where('societe_id',auth()->user()->societe_id)->where('id_facture_fournisseur_entete',$this->ids)->sum('montant_ht');
+                        $montantTTC = factureFournisseurLigne::where('societe_id',auth()->user()->societe_id)->where('id_facture_fournisseur_entete',$this->ids)->sum('montant_ttc');
+                        $montantRemise = factureFournisseurLigne::where('societe_id',auth()->user()->societe_id)->where('id_facture_fournisseur_entete',$this->ids)->sum('montant_remise');
+                        $montantTva = factureFournisseurLigne::where('societe_id',auth()->user()->societe_id)->where('id_facture_fournisseur_entete',$this->ids)->sum('montant_tva');
+                        $montantPrecompte = factureFournisseurLigne::where('societe_id',auth()->user()->societe_id)->where('id_facture_fournisseur_entete',$this->ids)->sum('montant_precompte');
+                        $marge = factureFournisseurLigne::where('societe_id',auth()->user()->societe_id)->where('id_facture_fournisseur_entete',$this->ids)->sum('marge');
 
                         // Montant TTC en arrondi en + ou en - 
                         factureFournisseurEntete::find($this->ids)->update(['montant_ht'=>$montantHT,'montant_remise'=>$montantRemise,'montant_tva'=>$montantTva,'montant_precompte'=>$montantPrecompte,'montant_ttc'=>number_format($montantTTC,0,',',''),
-                                            'reste_a_percevoir'=>number_format($montantTTC,0,',',''),'marge'=>$marge,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                                            'reste_a_percevoir'=>number_format($montantTTC,0,',',''),'marge'=>$marge,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
                     }
                     $id_activite = $this->ids;
                     $page = 'factureFournisseur';
@@ -776,9 +771,9 @@ class NouvFactureFournisseur extends Component
             'mode_reglement'=>'required',   // important pour forcer utilisateur a remplir
             // 'compte_bancaire'=>'required',  // important pour forcer utilisateur a remplir            
         ]);    
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->modifier_fact_fourni;
             if($autoriser == 1){                        
                 if($this->quantite > 0 && $this->prix_achat > 0){ 
@@ -809,18 +804,18 @@ class NouvFactureFournisseur extends Component
                         factureFournisseurLigne::create(['code_facture'=>$this->reference,'id_facture_fournisseur_entete'=>$this->ids,'produit'=>$this->nom_produit,'id_produit'=>$this->id_produit,'reference'=>$this->referenceProd,'type_produit'=>$typeProd,'prix_achat'=>$this->prix_achat,
                                         'prix_vente'=>$this->prix_vente,'quantite'=>$this->quantite,'quantite_recue'=>$quantite_recue,'reste_a_recevoir'=>$reste_a_recevoir,'remise'=>$this->remise,'montant_remise'=>$remise_montant,
                                         'tva'=>$this->tva,'montant_tva'=>$tva_montant,'precompte'=>$this->precompte,'montant_precompte'=>$precompte_montant,'montant_ht'=>$montant_remiser_ht,'montant_ttc'=>$montant_ttc,'marge'=>$marge,'id_entrepot'=>$this->id_entrepot,
-                                        'nom_fournisseur'=>$this->fournisseur,'id_fournisseur'=>$this->fournisseur_id,'offrir'=>$this->offrir,'etat'=>$this->etat,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);                     
+                                        'nom_fournisseur'=>$this->fournisseur,'id_fournisseur'=>$this->fournisseur_id,'offrir'=>$this->offrir,'etat'=>$this->etat,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);                     
                     
-                        $montantHT = factureFournisseurLigne::where('societe',auth()->user()->societe)->where('id_facture_fournisseur_entete',$this->ids)->sum('montant_ht');
-                        $montantTTC = factureFournisseurLigne::where('societe',auth()->user()->societe)->where('id_facture_fournisseur_entete',$this->ids)->sum('montant_ttc');
-                        $montantRemise = factureFournisseurLigne::where('societe',auth()->user()->societe)->where('id_facture_fournisseur_entete',$this->ids)->sum('montant_remise');
-                        $montantTva = factureFournisseurLigne::where('societe',auth()->user()->societe)->where('id_facture_fournisseur_entete',$this->ids)->sum('montant_tva');
-                        $montantPrecompte = factureFournisseurLigne::where('societe',auth()->user()->societe)->where('id_facture_fournisseur_entete',$this->ids)->sum('montant_precompte');
-                        $marge = factureFournisseurLigne::where('societe',auth()->user()->societe)->where('id_facture_fournisseur_entete',$this->ids)->sum('marge');
+                        $montantHT = factureFournisseurLigne::where('societe_id',auth()->user()->societe_id)->where('id_facture_fournisseur_entete',$this->ids)->sum('montant_ht');
+                        $montantTTC = factureFournisseurLigne::where('societe_id',auth()->user()->societe_id)->where('id_facture_fournisseur_entete',$this->ids)->sum('montant_ttc');
+                        $montantRemise = factureFournisseurLigne::where('societe_id',auth()->user()->societe_id)->where('id_facture_fournisseur_entete',$this->ids)->sum('montant_remise');
+                        $montantTva = factureFournisseurLigne::where('societe_id',auth()->user()->societe_id)->where('id_facture_fournisseur_entete',$this->ids)->sum('montant_tva');
+                        $montantPrecompte = factureFournisseurLigne::where('societe_id',auth()->user()->societe_id)->where('id_facture_fournisseur_entete',$this->ids)->sum('montant_precompte');
+                        $marge = factureFournisseurLigne::where('societe_id',auth()->user()->societe_id)->where('id_facture_fournisseur_entete',$this->ids)->sum('marge');
 
                         // Montant TTC en arrondi en + ou en - 
                         factureFournisseurEntete::find($this->ids)->update(['montant_ht'=>$montantHT,'montant_remise'=>$montantRemise,'montant_tva'=>$montantTva,'montant_precompte'=>$montantPrecompte,'montant_ttc'=>number_format($montantTTC,0,',',''),
-                                            'reste_a_percevoir'=>number_format($montantTTC,0,',',''),'marge'=>$marge,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                                            'reste_a_percevoir'=>number_format($montantTTC,0,',',''),'marge'=>$marge,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
                     }
                     elseif($this->offrir == 'Oui'){
 
@@ -834,18 +829,18 @@ class NouvFactureFournisseur extends Component
                         factureFournisseurLigne::create(['code_facture'=>$this->reference,'id_facture_fournisseur_entete'=>$this->ids,'produit'=>$this->nom_produit,'id_produit'=>$this->id_produit,'reference'=>$this->referenceProd,'type_produit'=>$typeProd,'prix_achat'=>$this->prix_achat,
                                         'prix_vente'=>$this->prix_vente,'quantite'=>$this->quantite,'quantite_recue'=>$quantite_recue,'reste_a_recevoir'=>$reste_a_recevoir,'remise'=>$this->remise,'montant_remise'=>$remise_montant,
                                         'tva'=>$this->tva,'montant_tva'=>$tva_montant,'precompte'=>$this->precompte,'montant_precompte'=>$precompte_montant,'montant_ht'=>$montant_remiser_ht,'montant_ttc'=>$montant_ttc,'marge'=>$marge,'id_entrepot'=>$this->id_entrepot,
-                                        'nom_fournisseur'=>$this->fournisseur,'id_fournisseur'=>$this->fournisseur_id,'offrir'=>$this->offrir,'etat'=>$this->etat,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);                     
+                                        'nom_fournisseur'=>$this->fournisseur,'id_fournisseur'=>$this->fournisseur_id,'offrir'=>$this->offrir,'etat'=>$this->etat,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);                     
                     
-                        $montantHT = factureFournisseurLigne::where('societe',auth()->user()->societe)->where('id_facture_fournisseur_entete',$this->ids)->sum('montant_ht');
-                        $montantTTC = factureFournisseurLigne::where('societe',auth()->user()->societe)->where('id_facture_fournisseur_entete',$this->ids)->sum('montant_ttc');
-                        $montantRemise = factureFournisseurLigne::where('societe',auth()->user()->societe)->where('id_facture_fournisseur_entete',$this->ids)->sum('montant_remise');
-                        $montantTva = factureFournisseurLigne::where('societe',auth()->user()->societe)->where('id_facture_fournisseur_entete',$this->ids)->sum('montant_tva');
-                        $montantPrecompte = factureFournisseurLigne::where('societe',auth()->user()->societe)->where('id_facture_fournisseur_entete',$this->ids)->sum('montant_precompte');
-                        $marge = factureFournisseurLigne::where('societe',auth()->user()->societe)->where('id_facture_fournisseur_entete',$this->ids)->sum('marge');
+                        $montantHT = factureFournisseurLigne::where('societe_id',auth()->user()->societe_id)->where('id_facture_fournisseur_entete',$this->ids)->sum('montant_ht');
+                        $montantTTC = factureFournisseurLigne::where('societe_id',auth()->user()->societe_id)->where('id_facture_fournisseur_entete',$this->ids)->sum('montant_ttc');
+                        $montantRemise = factureFournisseurLigne::where('societe_id',auth()->user()->societe_id)->where('id_facture_fournisseur_entete',$this->ids)->sum('montant_remise');
+                        $montantTva = factureFournisseurLigne::where('societe_id',auth()->user()->societe_id)->where('id_facture_fournisseur_entete',$this->ids)->sum('montant_tva');
+                        $montantPrecompte = factureFournisseurLigne::where('societe_id',auth()->user()->societe_id)->where('id_facture_fournisseur_entete',$this->ids)->sum('montant_precompte');
+                        $marge = factureFournisseurLigne::where('societe_id',auth()->user()->societe_id)->where('id_facture_fournisseur_entete',$this->ids)->sum('marge');
 
                         // Montant TTC en arrondi en + ou en - 
                         factureFournisseurEntete::find($this->ids)->update(['montant_ht'=>$montantHT,'montant_remise'=>$montantRemise,'montant_tva'=>$montantTva,'montant_precompte'=>$montantPrecompte,'montant_ttc'=>number_format($montantTTC,0,',',''),
-                                            'reste_a_percevoir'=>number_format($montantTTC,0,',',''),'marge'=>$marge,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                                            'reste_a_percevoir'=>number_format($montantTTC,0,',',''),'marge'=>$marge,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
                     }
                     $id_activite = $this->ids;
                     $page = 'factureFournisseur';
@@ -902,27 +897,27 @@ class NouvFactureFournisseur extends Component
         $this->confirmer = $id;        
     } 
     public function supprimer($id){
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){ 
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->modifier_fact_fourni;
             if($autoriser == 1){   
                 if($id){                    
                     factureFournisseurLigne::where('id',$id)->delete();
 
-                    $montantHT = factureFournisseurLigne::where('societe',auth()->user()->societe)->where('id_facture_fournisseur_entete',$this->ids)->sum('montant_ht');
-                    $montantTTC = factureFournisseurLigne::where('societe',auth()->user()->societe)->where('id_facture_fournisseur_entete',$this->ids)->sum('montant_ttc');
-                    $montantRemise = factureFournisseurLigne::where('societe',auth()->user()->societe)->where('id_facture_fournisseur_entete',$this->ids)->sum('montant_remise');
-                    $montantTva = factureFournisseurLigne::where('societe',auth()->user()->societe)->where('id_facture_fournisseur_entete',$this->ids)->sum('montant_tva');
-                    $montantPrecompte = factureFournisseurLigne::where('societe',auth()->user()->societe)->where('id_facture_fournisseur_entete',$this->ids)->sum('montant_precompte');
-                    $marge = factureFournisseurLigne::where('societe',auth()->user()->societe)->where('id_facture_fournisseur_entete',$this->ids)->sum('marge');
+                    $montantHT = factureFournisseurLigne::where('societe_id',auth()->user()->societe_id)->where('id_facture_fournisseur_entete',$this->ids)->sum('montant_ht');
+                    $montantTTC = factureFournisseurLigne::where('societe_id',auth()->user()->societe_id)->where('id_facture_fournisseur_entete',$this->ids)->sum('montant_ttc');
+                    $montantRemise = factureFournisseurLigne::where('societe_id',auth()->user()->societe_id)->where('id_facture_fournisseur_entete',$this->ids)->sum('montant_remise');
+                    $montantTva = factureFournisseurLigne::where('societe_id',auth()->user()->societe_id)->where('id_facture_fournisseur_entete',$this->ids)->sum('montant_tva');
+                    $montantPrecompte = factureFournisseurLigne::where('societe_id',auth()->user()->societe_id)->where('id_facture_fournisseur_entete',$this->ids)->sum('montant_precompte');
+                    $marge = factureFournisseurLigne::where('societe_id',auth()->user()->societe_id)->where('id_facture_fournisseur_entete',$this->ids)->sum('marge');
 
-                    $dejaRegler = Reglement_fourni::where('societe',auth()->user()->societe)->where('id_facture_fournisseur_entete',$this->ids)->sum('montant_regler');
+                    $dejaRegler = Reglement_fourni::where('societe_id',auth()->user()->societe_id)->where('id_facture_fournisseur_entete',$this->ids)->sum('montant_regler');
                     $reste_a_percevoir = $montantTTC - $dejaRegler;
                     
                     factureFournisseurEntete::find($this->ids)->update(['montant_ht'=>number_format($montantHT,0,',',''),'montant_remise'=>$montantRemise,'montant_tva'=>$montantTva,
                                         'montant_precompte'=>$montantPrecompte,'marge'=>$marge,'montant_ttc'=>number_format($reste_a_percevoir,0,',',''),'societe'=>auth()->user()->societe,
-                                        'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);                    
+                                        'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);                    
                     
                     $id_activite = $this->ids;
                     $page = 'factureFournisseur';
@@ -960,26 +955,25 @@ class NouvFactureFournisseur extends Component
         }   
     }    
     public function valider(){ 
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->modifier_fact_fourni;
             if($autoriser == 1){
                 $etat = 'Impayée';
                 $statut = 0;  // tres important pour permettre a la commande de passer a une nouvelle facture au niveau de creer commande
                 factureFournisseurEntete::find($this->ids)->update(['etat'=>$etat,'statut'=>$statut,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);      
                 factureFournisseurLigne::where('id_facture_fournisseur_entete',$this->ids)->update(['etat'=>$etat,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
-                // ExpeditionClientEntete::where('societe',auth()->user()->societe)->where('id_facture_fournisseur_entete',$this->ids)->update(['etat_facture'=>$etat,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
                 
                 $etats = 'Validée';
                 $dates = date('dmy/His');
                 // $length = 2;
                 // $token = bin2hex(random_bytes($length));          
                 $token_ok = 'FACT-RCP/'.$dates;
-                ReceptionFournisseurLigne::where('societe',auth()->user()->societe)->where('id_facture_fournisseur_entete',$this->ids)->delete();
+                ReceptionFournisseurLigne::where('societe_id',auth()->user()->societe_id)->where('id_facture_fournisseur_entete',$this->ids)->delete();
                 
                 // Creer ligne expedition dans commande                
-                $ligneFactFournisseur = factureFournisseurLigne::where('societe',auth()->user()->societe)->where('id_facture_fournisseur_entete',$this->ids)->get(); 
+                $ligneFactFournisseur = factureFournisseurLigne::where('societe_id',auth()->user()->societe_id)->where('id_facture_fournisseur_entete',$this->ids)->get(); 
                 foreach($ligneFactFournisseur as $ligneFactFournisseurs){
                     // creation et copie entete Expedition Client Ligne
                     ReceptionFournisseurLigne::create([ 
@@ -1015,6 +1009,7 @@ class NouvFactureFournisseur extends Component
                         'etat_facture'=>$ligneFactFournisseurs->etat, 
                         'user_id'=>auth()->user()->id,
                         'nom_user'=>auth()->user()->name,
+                        'societe_id'=>auth()->user()->societe_id,
                         'societe'=>auth()->user()->societe]);
                 }
                 //  Fin     
@@ -1059,7 +1054,7 @@ class NouvFactureFournisseur extends Component
         $etat = 'Brouillon';
         factureFournisseurEntete::find($this->ids)->update(['etat'=>$etat,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);      
         factureFournisseurLigne::where('id_facture_fournisseur_entete',$this->ids)->update(['etat'=>$etat,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
-        ReceptionFournisseurEntete::where('societe',auth()->user()->societe)->where('id_facture_fournisseur_entete',$this->ids)->update(['etat_facture'=>$etat,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
+        ReceptionFournisseurEntete::where('societe_id',auth()->user()->societe_id)->where('id_facture_fournisseur_entete',$this->ids)->update(['etat_facture'=>$etat,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
         $id_activite = $this->ids;
         $page = 'factureFournisseur';
         LogActivity::addToLog('Facture ('.$this->reference.') fournisseur en brouillon', $id_activite, $page);
@@ -1074,7 +1069,7 @@ class NouvFactureFournisseur extends Component
         $this->redirect('/nouveau_fact_fourni?id='.$this->ids, navigate: true);        
     } 
     public function afficheRegler(){
-        $comptes = factureFournisseurEntete::where('societe',auth()->user()->societe)->where('id',$this->ids)->first(); 
+        $comptes = factureFournisseurEntete::where('societe_id',auth()->user()->societe_id)->where('id',$this->ids)->first(); 
                 $this->date_reglement = $comptes->date_facturation;
                 $this->reference = $comptes->code_facture;
                 $montant_ttc = $comptes->montant_ttc;
@@ -1082,7 +1077,7 @@ class NouvFactureFournisseur extends Component
                 $this->reste_a_percevoir = $montant_ttc - $montant_recu;
     } 
     public function coller(){
-        $comptes = factureFournisseurEntete::where('societe',auth()->user()->societe)->where('id',$this->ids)->first();               
+        $comptes = factureFournisseurEntete::where('societe_id',auth()->user()->societe_id)->where('id',$this->ids)->first();               
                 $montant_ttc = $comptes->montant_ttc;
                 $montant_recu = $comptes->montant_recu;
                 $this->montant_reglement = $montant_ttc - $montant_recu;               
@@ -1098,12 +1093,12 @@ class NouvFactureFournisseur extends Component
             'commentaire'=>'max:255',
             'montant_reglement'=>'required|numeric',
         ]);
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->creer_reglement_fourni;
             if($autoriser == 1){         
-                    $compte = factureFournisseurEntete::where('societe',auth()->user()->societe)->where('id',$this->ids)->first();               
+                    $compte = factureFournisseurEntete::where('societe_id',auth()->user()->societe_id)->where('id',$this->ids)->first();               
                     // $this->ids = $compte->id;
                     $fournisseur_id = $compte->id_fournisseur;
                     $fournisseur = $compte->nom_fournisseur;
@@ -1113,7 +1108,7 @@ class NouvFactureFournisseur extends Component
                         if($this->montant_reglement >= $this->reste_a_percevoir){
                                        
                             // Compte bancaire
-                            $CompteBq = CompteBancaire::where('societe',auth()->user()->societe)->where('id',$this->compte_bancaire)->first();   
+                            $CompteBq = CompteBancaire::where('societe_id',auth()->user()->societe_id)->where('id',$this->compte_bancaire)->first();   
                             $nom_compte_bancaire = $CompteBq->nom_compte_bancaire;
 
                             // Ecriture bancaire
@@ -1126,35 +1121,36 @@ class NouvFactureFournisseur extends Component
                             $type_paiement = 'ReglementFournisseur';              
                             EcritureBancaire::create(['id_compte_bancaire'=>$this->compte_bancaire,'id_type_paiement'=>$this->compte_bancaire,'nom_compte_bancaire'=>$nom_compte_bancaire,'reference'=>$ref_ecritureBq,'description'=>$description,
                                             'date_operation'=>$date_operation,'date_valeur'=>$date_valeur,'type_operation'=>$this->mode_reglement,'debit'=>number_format($this->reste_a_percevoir,0,',',''),'credit'=>$credit,'solde'=>$solde,
-                                            'type_paiement'=>$type_paiement,'id_facture_fournisseur_entete'=>$this->ids,'code_facture'=>$this->reference,'id_tiers'=>$fournisseur_id,'tiers'=>$fournisseur,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);                    
+                                            'type_paiement'=>$type_paiement,'id_facture_fournisseur_entete'=>$this->ids,'code_facture'=>$this->reference,'id_tiers'=>$fournisseur_id,'tiers'=>$fournisseur,'societe'=>auth()->user()->societe,
+                                            'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);                    
 
                             // ceci recupere le dernier enregistrement cree a l'instant
-                            $dernier_id = EcritureBancaire::where('societe',auth()->user()->societe)->where('user_id',auth()->user()->id)->latest()->first()->id; 
+                            $dernier_id = EcritureBancaire::where('societe_id',auth()->user()->societe_id)->where('user_id',auth()->user()->id)->latest()->first()->id; 
 
                             // ceci calcul le solde
-                            $soldeCredit = EcritureBancaire::where('societe',auth()->user()->societe)->where('id_compte_bancaire',$this->compte_bancaire)->sum('credit');
-                            $soldeDebit = EcritureBancaire::where('societe',auth()->user()->societe)->where('id_compte_bancaire',$this->compte_bancaire)->sum('debit');  
+                            $soldeCredit = EcritureBancaire::where('societe_id',auth()->user()->societe_id)->where('id_compte_bancaire',$this->compte_bancaire)->sum('credit');
+                            $soldeDebit = EcritureBancaire::where('societe_id',auth()->user()->societe_id)->where('id_compte_bancaire',$this->compte_bancaire)->sum('debit');  
                             $solde = $soldeCredit - $soldeDebit;
-                            CompteBancaire::where('societe',auth()->user()->societe)->where('id',$this->compte_bancaire)->update(['solde'=>$solde,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                            CompteBancaire::where('societe_id',auth()->user()->societe_id)->where('id',$this->compte_bancaire)->update(['solde'=>$solde,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
 
                             // Reglement 
                             $refReglement = 'SPAY'.date('ymd-His');
                             Reglement_fourni::create(['ref_reglement'=>$refReglement,'id_facture_fournisseur_entete'=>$this->ids,'code_facture'=>$this->reference,'id_fournisseur'=>$this->fournisseur_id,'nom_fournisseur'=>$this->fournisseur,'id_ecriture_bancaire'=>$dernier_id,'ecriture_bancaire'=>$ref_ecritureBq,
                                             'mode_reglement'=>$this->mode_reglement,'compte_bancaire'=>$nom_compte_bancaire,'id_compte_bancaire'=>$this->compte_bancaire,'date_reglement'=>$this->date_reglement,
                                             'num_cheq_virement'=>$this->num_cheq_virement,'emetteur_cheq_virement'=>$this->emeteur,'banque_cheq_virement'=>$this->banque_cheque,'commentaire'=>$this->commentaire,
-                                            'montant_regler'=>number_format($this->reste_a_percevoir,0,',',''),'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                                            'montant_regler'=>number_format($this->reste_a_percevoir,0,',',''),'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
 
-                            $dejaRegler = Reglement_fourni::where('societe',auth()->user()->societe)->where('id_facture_fournisseur_entete',$this->ids)->sum('montant_regler');                            
+                            $dejaRegler = Reglement_fourni::where('societe_id',auth()->user()->societe_id)->where('id_facture_fournisseur_entete',$this->ids)->sum('montant_regler');                            
 
                             // Facture entete
                             $etat ='Payée';
                             $resteApercevoir = 0;
                             factureFournisseurEntete::find($this->ids)->update(['montant_recu'=>number_format($dejaRegler,0,',',''),'reste_a_percevoir'=>number_format($resteApercevoir,0,',',''),
-                                                'etat'=>$etat,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                                                'etat'=>$etat,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
 
-                            factureFournisseurLigne::where('societe',auth()->user()->societe)->where('id_facture_fournisseur_entete',$this->ids)->update(['etat'=>$etat,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                            factureFournisseurLigne::where('societe_id',auth()->user()->societe_id)->where('id_facture_fournisseur_entete',$this->ids)->update(['etat'=>$etat,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
 
-                            ReceptionFournisseurEntete::where('societe',auth()->user()->societe)->where('id_facture_fournisseur_entete',$this->ids)->update(['etat_facture'=>$etat,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
+                            ReceptionFournisseurEntete::where('societe_id',auth()->user()->societe_id)->where('id_facture_fournisseur_entete',$this->ids)->update(['etat_facture'=>$etat,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
 
                             $id_activite = $this->ids;
                             $page = 'factureFournisseur';
@@ -1173,7 +1169,7 @@ class NouvFactureFournisseur extends Component
                         else{
                             
                             // Compte bancaire
-                            $CompteBq = CompteBancaire::where('societe',auth()->user()->societe)->where('id',$this->compte_bancaire)->first();   
+                            $CompteBq = CompteBancaire::where('societe_id',auth()->user()->societe_id)->where('id',$this->compte_bancaire)->first();   
                             $nom_compte_bancaire = $CompteBq->nom_compte_bancaire;
 
                             // Ecriture bancaire
@@ -1186,35 +1182,36 @@ class NouvFactureFournisseur extends Component
                             $type_paiement = 'ReglementFournisseur';               
                             EcritureBancaire::create(['id_compte_bancaire'=>$this->compte_bancaire,'id_type_paiement'=>$this->compte_bancaire,'nom_compte_bancaire'=>$nom_compte_bancaire,'reference'=>$ref_ecritureBq,'description'=>$description,
                                             'date_operation'=>$date_operation,'date_valeur'=>$date_valeur,'type_operation'=>$this->mode_reglement,'debit'=>number_format($this->montant_reglement,0,',',''),'credit'=>$credit,'solde'=>$solde,
-                                            'type_paiement'=>$type_paiement,'id_facture_fournisseur_entete'=>$this->ids,'code_facture'=>$this->reference,'id_tiers'=>$fournisseur_id,'tiers'=>$fournisseur,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);                    
+                                            'type_paiement'=>$type_paiement,'id_facture_fournisseur_entete'=>$this->ids,'code_facture'=>$this->reference,'id_tiers'=>$fournisseur_id,'tiers'=>$fournisseur,'societe'=>auth()->user()->societe,
+                                            'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);                    
                             
                             // ceci recupere le dernier enregistrement cree a l'instant
-                            $dernier_id = EcritureBancaire::where('societe',auth()->user()->societe)->where('user_id',auth()->user()->id)->latest()->first()->id; 
+                            $dernier_id = EcritureBancaire::where('societe_id',auth()->user()->societe_id)->where('user_id',auth()->user()->id)->latest()->first()->id; 
 
                             // ceci calcul le solde
-                            $soldeCredit = EcritureBancaire::where('societe',auth()->user()->societe)->where('id_compte_bancaire',$this->compte_bancaire)->sum('credit');
-                            $soldeDebit = EcritureBancaire::where('societe',auth()->user()->societe)->where('id_compte_bancaire',$this->compte_bancaire)->sum('debit');  
+                            $soldeCredit = EcritureBancaire::where('societe_id',auth()->user()->societe_id)->where('id_compte_bancaire',$this->compte_bancaire)->sum('credit');
+                            $soldeDebit = EcritureBancaire::where('societe_id',auth()->user()->societe_id)->where('id_compte_bancaire',$this->compte_bancaire)->sum('debit');  
                             $solde = $soldeCredit - $soldeDebit;
-                            CompteBancaire::where('societe',auth()->user()->societe)->where('id',$this->compte_bancaire)->update(['solde'=>$solde,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                            CompteBancaire::where('societe_id',auth()->user()->societe_id)->where('id',$this->compte_bancaire)->update(['solde'=>$solde,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
                             
                             // Reglement 
                             $refReglement = 'SPAY'.date('ymd-His');
                             Reglement_fourni::create(['ref_reglement'=>$refReglement,'id_facture_fournisseur_entete'=>$this->ids,'code_facture'=>$this->reference,'id_fournisseur'=>$this->fournisseur_id,'nom_fournisseur'=>$this->fournisseur,'id_ecriture_bancaire'=>$dernier_id,'ecriture_bancaire'=>$ref_ecritureBq,
                                             'mode_reglement'=>$this->mode_reglement,'compte_bancaire'=>$nom_compte_bancaire,'id_compte_bancaire'=>$this->compte_bancaire,'date_reglement'=>$this->date_reglement,
                                             'num_cheq_virement'=>$this->num_cheq_virement,'emetteur_cheq_virement'=>$this->emeteur,'banque_cheq_virement'=>$this->banque_cheque,'commentaire'=>$this->commentaire,
-                                            'montant_regler'=>number_format($this->montant_reglement,0,',',''),'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                                            'montant_regler'=>number_format($this->montant_reglement,0,',',''),'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
                                             
-                            $dejaRegler = Reglement_fourni::where('societe',auth()->user()->societe)->where('id_facture_fournisseur_entete',$this->ids)->sum('montant_regler');
+                            $dejaRegler = Reglement_fourni::where('societe_id',auth()->user()->societe_id)->where('id_facture_fournisseur_entete',$this->ids)->sum('montant_regler');
 
                             // Facture entete
                             $etat ='Commencée';
                             $reste = $this->reste_a_percevoir - $this->montant_reglement;
                             factureFournisseurEntete::find($this->ids)->update(['montant_recu'=>number_format($dejaRegler,0,',',''),'reste_a_percevoir'=>number_format($reste,0,',',''),
-                                                'etat'=>$etat,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                                                'etat'=>$etat,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
 
-                            factureFournisseurLigne::where('societe',auth()->user()->societe)->where('id_facture_fournisseur_entete',$this->ids)->update(['etat'=>$etat,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                            factureFournisseurLigne::where('societe_id',auth()->user()->societe_id)->where('id_facture_fournisseur_entete',$this->ids)->update(['etat'=>$etat,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
 
-                            ReceptionFournisseurEntete::where('societe',auth()->user()->societe)->where('id_facture_fournisseur_entete',$this->ids)->update(['etat_facture'=>$etat,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
+                            ReceptionFournisseurEntete::where('societe_id',auth()->user()->societe_id)->where('id_facture_fournisseur_entete',$this->ids)->update(['etat_facture'=>$etat,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
 
                             $id_activite = $this->ids;
                             $page = 'factureFournisseur';
@@ -1268,14 +1265,14 @@ class NouvFactureFournisseur extends Component
         $this->confirmation = $id;        
     } 
     public function effacer(int $id, int $id_cpteBq){
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){ 
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->supprimer_reglement_fourni;
             if($autoriser == 1){   
                 if($id){
-                    $MontantRegler = Reglement_fourni::where('societe',auth()->user()->societe)->where('id',$id)->sum('montant_regler');
-                    $factFournisseur = factureFournisseurEntete::where('societe',auth()->user()->societe)->where('id',$this->ids)->first();
+                    $MontantRegler = Reglement_fourni::where('societe_id',auth()->user()->societe_id)->where('id',$id)->sum('montant_regler');
+                    $factFournisseur = factureFournisseurEntete::where('societe_id',auth()->user()->societe_id)->where('id',$this->ids)->first();
                     $montant_ttc = $factFournisseur->montant_ttc;
                     $reste_a_percevoir = $factFournisseur->reste_a_percevoir;
                     $montant_recu = $factFournisseur->montant_recu;
@@ -1293,19 +1290,19 @@ class NouvFactureFournisseur extends Component
                     }
                     $reste = $reste_a_percevoir + $MontantRegler;
                     factureFournisseurEntete::find($this->ids)->update(['montant_recu'=>number_format($montantRecu_ok,0,',',''),'reste_a_percevoir'=>number_format($reste,0,',',''),
-                    'etat'=>$etat,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                    'etat'=>$etat,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
 
-                    $Regler = Reglement_fourni::where('societe',auth()->user()->societe)->where('id',$id)->first();
+                    $Regler = Reglement_fourni::where('societe_id',auth()->user()->societe_id)->where('id',$id)->first();
                     $id_regle = $Regler->id_ecriture_bancaire;
                     
                     Reglement_fourni::where('id',$id)->delete();
                     EcritureBancaire::where('id',$id_regle)->delete();
 
                     // ceci calcul le solde                    
-                    $soldeCredit = EcritureBancaire::where('societe',auth()->user()->societe)->where('id_compte_bancaire',$id_cpteBq)->sum('credit');
-                    $soldeDebit = EcritureBancaire::where('societe',auth()->user()->societe)->where('id_compte_bancaire',$id_cpteBq)->sum('debit');  
+                    $soldeCredit = EcritureBancaire::where('societe_id',auth()->user()->societe_id)->where('id_compte_bancaire',$id_cpteBq)->sum('credit');
+                    $soldeDebit = EcritureBancaire::where('societe_id',auth()->user()->societe_id)->where('id_compte_bancaire',$id_cpteBq)->sum('debit');  
                     $solde = $soldeCredit - $soldeDebit;
-                    CompteBancaire::where('societe',auth()->user()->societe)->where('id',$id_cpteBq)->update(['solde'=>$solde,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                    CompteBancaire::where('societe_id',auth()->user()->societe_id)->where('id',$id_cpteBq)->update(['solde'=>$solde,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
 
                     $id_activite = $this->ids;
                     $page = 'factureFournisseur';
@@ -1344,9 +1341,9 @@ class NouvFactureFournisseur extends Component
         }   
     } 
     public function precedant(){ 
-        $testPrecedant = factureFournisseurEntete::where('societe',auth()->user()->societe)->where('id','<',$this->ids)->orderBy('id','desc')->count();
+        $testPrecedant = factureFournisseurEntete::where('societe_id',auth()->user()->societe_id)->where('id','<',$this->ids)->orderBy('id','desc')->count();
         if($testPrecedant > 0){ 
-            $precedant = factureFournisseurEntete::where('societe',auth()->user()->societe)->where('id','<',$this->ids)->orderBy('id','desc')->first();        
+            $precedant = factureFournisseurEntete::where('societe_id',auth()->user()->societe_id)->where('id','<',$this->ids)->orderBy('id','desc')->first();        
             $previous = $precedant->id; 
             $this->redirect('/nouveau_fact_fourni?id='.$previous.'&ref='.$this->reference.'&active=7&champ=2-1&choix=1', navigate: true);              
         }  
@@ -1363,9 +1360,9 @@ class NouvFactureFournisseur extends Component
     }    
     public function suivant(){    
         
-        $testSuivant = factureFournisseurEntete::where('societe',auth()->user()->societe)->where('id','>',$this->ids)->orderBy('id','asc')->count();
+        $testSuivant = factureFournisseurEntete::where('societe_id',auth()->user()->societe_id)->where('id','>',$this->ids)->orderBy('id','asc')->count();
         if($testSuivant > 0){
-            $suivant = factureFournisseurEntete::where('societe',auth()->user()->societe)->where('id','>',$this->ids)->orderBy('id','asc')->first();
+            $suivant = factureFournisseurEntete::where('societe_id',auth()->user()->societe_id)->where('id','>',$this->ids)->orderBy('id','asc')->first();
             $next = $suivant->id;             
             $this->redirect('/nouveau_fact_fourni?id='.$next.'&ref='.$this->reference.'&active=7&champ=2-1&choix=1', navigate: true);                     
         }  
@@ -1381,12 +1378,12 @@ class NouvFactureFournisseur extends Component
         } 
     }    
     public function reception(){ 
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){ 
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->creer_reception;
             if($autoriser == 1){       
-                $test_recept = ReceptionFournisseurEntete::where('societe',auth()->user()->societe)->where('id_facture_fournisseur_entete',$this->ids)->count();
+                $test_recept = ReceptionFournisseurEntete::where('societe_id',auth()->user()->societe_id)->where('id_facture_fournisseur_entete',$this->ids)->count();
                 if($test_recept == 0){           
                     $etat = 'Clôturée';
                     $etat_cmd = 'Validée';
@@ -1397,7 +1394,7 @@ class NouvFactureFournisseur extends Component
                     // $token_ok = 'RCP/'.$dates.'/'.$token;
 
                     // Creation entete ReceptionFournisseurEntete
-                    $enteteFactFournisseur = factureFournisseurEntete::where('societe',auth()->user()->societe)->where('id',$this->ids)->get(); 
+                    $enteteFactFournisseur = factureFournisseurEntete::where('societe_id',auth()->user()->societe_id)->where('id',$this->ids)->get(); 
                     foreach($enteteFactFournisseur as $enteteFactFournisseurs){
                         // creation et copie entete Expedition Client Entete
                         ReceptionFournisseurEntete::create([                        
@@ -1423,16 +1420,17 @@ class NouvFactureFournisseur extends Component
                             'etat_cmd'=>$etat_cmd,                            
                             'etat_facture'=>$enteteFactFournisseurs->etat,
                             'societe'=>auth()->user()->societe,
+                            'societe_id'=>auth()->user()->societe_id,
                             'nom_user'=>auth()->user()->name,
                             'user_id'=>auth()->user()->id]);
 
-                        $dernier_id = ReceptionFournisseurEntete::where('societe',auth()->user()->societe)->where('user_id',auth()->user()->id)->latest()->first()->id;
+                        $dernier_id = ReceptionFournisseurEntete::where('societe_id',auth()->user()->societe_id)->where('user_id',auth()->user()->id)->latest()->first()->id;
                         // reception ligne partiel
-                        $test_ligPart = ReceptionFournisseurLignePartiel::where('societe',auth()->user()->societe)->where('id_facture_fournisseur_entete',$this->ids)->count(); 
+                        $test_ligPart = ReceptionFournisseurLignePartiel::where('societe_id',auth()->user()->societe_id)->where('id_facture_fournisseur_entete',$this->ids)->count(); 
                         if($test_ligPart > 0){
-                            ReceptionFournisseurLignePartiel::where('societe',auth()->user()->societe)->where('id_facture_fournisseur_entete',$this->ids)->delete();
+                            ReceptionFournisseurLignePartiel::where('societe_id',auth()->user()->societe_id)->where('id_facture_fournisseur_entete',$this->ids)->delete();
                         }
-                        $ligneFactFournisseur = factureFournisseurLigne::where('societe',auth()->user()->societe)->where('id_facture_fournisseur_entete',$this->ids)->get(); 
+                        $ligneFactFournisseur = factureFournisseurLigne::where('societe_id',auth()->user()->societe_id)->where('id_facture_fournisseur_entete',$this->ids)->get(); 
                         foreach($ligneFactFournisseur as $ligneFactFournisseurs){
                             
                             $id_exp = $ligneFactFournisseurs->id;  
@@ -1446,11 +1444,11 @@ class NouvFactureFournisseur extends Component
                             
                             if($type_produit == 'Produit'){
                                 // CUMP
-                                $produit = Produit::where('societe',auth()->user()->societe)->where('id',$id_produit)->first();
+                                $produit = Produit::where('societe_id',auth()->user()->societe_id)->where('id',$id_produit)->first();
                                 $id_produit = $produit->id;
                                 $prix_achat_bd = $produit->prix_achat;                                    
 
-                                $stoc = Stock::where('societe',auth()->user()->societe)->where('id_entrepot',$id_entrepot)->where('id_produit',$id_produit)->first();                         
+                                $stoc = Stock::where('societe_id',auth()->user()->societe_id)->where('id_entrepot',$id_entrepot)->where('id_produit',$id_produit)->first();                         
                                 $id_stock = $stoc->id;
                                 $quantite_stock_bd = $stoc->quantite;
                                 
@@ -1460,9 +1458,9 @@ class NouvFactureFournisseur extends Component
                                 $prix_moyen_pondere_achat = ($valeurInitiale + $valeurEntree) / $stockGlobal; //CUMP
                                 // Fin CUMP
 
-                                Stock::where('societe',auth()->user()->societe)->where('id_entrepot',$id_entrepot)->where('id_produit',$id_produit)->update(['prix_achat_last'=>$prix_achat,'prix_moyen_pondere_achat'=>$prix_moyen_pondere_achat]);
+                                Stock::where('societe_id',auth()->user()->societe_id)->where('id_entrepot',$id_entrepot)->where('id_produit',$id_produit)->update(['prix_achat_last'=>$prix_achat,'prix_moyen_pondere_achat'=>$prix_moyen_pondere_achat]);
 
-                                $stockTrouver = Stock::where('societe',auth()->user()->societe)->where('id_entrepot',$id_entrepot)->where('id_produit',$id_produit)->first();
+                                $stockTrouver = Stock::where('societe_id',auth()->user()->societe_id)->where('id_entrepot',$id_entrepot)->where('id_produit',$id_produit)->first();
                                 $nom_produit = $stockTrouver->nom_produit;
                                 // $id_produit = $stockTrouver->id_produit;
                                 $reference = $stockTrouver->reference;
@@ -1470,13 +1468,13 @@ class NouvFactureFournisseur extends Component
                                 $valorisation_achat_total = $stockTrouver->prix_moyen_pondere_achat * $qteSockFinal;
                                 $valeur_vente_total = $stockTrouver->prix_vente_unitaire * $qteSockFinal;
 
-                                Stock::where('societe',auth()->user()->societe)->where('id_entrepot',$id_entrepot)->where('id_produit',$id_produit)->update(['quantite'=>$qteSockFinal,'valorisation_achat_total'=>$valorisation_achat_total,'valeur_vente_total'=>$valeur_vente_total,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);   
+                                Stock::where('societe_id',auth()->user()->societe_id)->where('id_entrepot',$id_entrepot)->where('id_produit',$id_produit)->update(['quantite'=>$qteSockFinal,'valorisation_achat_total'=>$valorisation_achat_total,'valeur_vente_total'=>$valeur_vente_total,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);   
                              } 
                            
-                            factureFournisseurEntete::where('societe',auth()->user()->societe)->where('id',$this->ids)->update(['id_reception_fournisseur_entete'=>$dernier_id,'code_reception'=>$token_ok,'etat_reception'=>$etat,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);  
+                            factureFournisseurEntete::where('societe_id',auth()->user()->societe_id)->where('id',$this->ids)->update(['id_reception_fournisseur_entete'=>$dernier_id,'code_reception'=>$token_ok,'etat_reception'=>$etat,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);  
                             
                             if($this->idx){
-                                $exped = ReceptionFournisseurLigne::where('societe',auth()->user()->societe)->where('id_commande_fournisseur_entete',$this->idx)->where('id_produit',$id_produit)->first();
+                                $exped = ReceptionFournisseurLigne::where('societe_id',auth()->user()->societe_id)->where('id_commande_fournisseur_entete',$this->idx)->where('id_produit',$id_produit)->first();
                                 // $qte_receptBD = $exped->quantite_recue;                                
                                 $qte_receptBD = $exped ? $exped->quantite_recue : 0; 
                             }                            
@@ -1488,46 +1486,44 @@ class NouvFactureFournisseur extends Component
                             $reste_a_recevoirs = $quantites - $quantite_recueOk;                            
 
                             if($this->idx){                          
-                                ReceptionFournisseurLigne::where('societe',auth()->user()->societe)->where('id_commande_fournisseur_entete',$this->idx)->where('id_produit',$id_produit)->update(['quantite_recue'=>$quantite_recueOk,'reste_a_recevoir'=>$reste_a_recevoirs,
-                                                                                                                                                                                         'etat'=>$etat,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,
-                                                                                                                                                                                         'user_id'=>auth()->user()->id]);   
+                                ReceptionFournisseurLigne::where('societe_id',auth()->user()->societe_id)->where('id_commande_fournisseur_entete',$this->idx)->where('id_produit',$id_produit)->update(['quantite_recue'=>$quantite_recueOk,'reste_a_recevoir'=>$reste_a_recevoirs,
+                                'etat'=>$etat,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);   
                             }
                             elseif($this->ids){
-                                ReceptionFournisseurLigne::where('societe',auth()->user()->societe)->where('id_facture_fournisseur_entete',$this->ids)->where('id_produit',$id_produit)->update(['quantite_recue'=>$quantite_recueOk,'reste_a_recevoir'=>$reste_a_recevoirs,
-                                                                                                                                                                                        'etat'=>$etat,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,
-                                                                                                                                                                                        'user_id'=>auth()->user()->id]);   
+                                ReceptionFournisseurLigne::where('societe_id',auth()->user()->societe_id)->where('id_facture_fournisseur_entete',$this->ids)->where('id_produit',$id_produit)->update(['quantite_recue'=>$quantite_recueOk,'reste_a_recevoir'=>$reste_a_recevoirs,
+                                'etat'=>$etat,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);   
                             }
 
                             if($type_produit == 'Produit'){
-                                $Entrepo = Entrepot::where('societe',auth()->user()->societe)->where('id',$id_entrepot)->first();                    
+                                $Entrepo = Entrepot::where('societe_id',auth()->user()->societe_id)->where('id',$id_entrepot)->first();                    
                                 $nom_entrepot = $Entrepo->nom; 
                             }
 
                             // Verifier l'etat et valider (Clôturée ou Partiel)
                             if($this->idx){
-                                $charge = ReceptionFournisseurLigne::where('societe',auth()->user()->societe)->where('id_commande_fournisseur_entete',$this->idx)->get();
+                                $charge = ReceptionFournisseurLigne::where('societe_id',auth()->user()->societe_id)->where('id_commande_fournisseur_entete',$this->idx)->get();
                                 $QteCmderTotal = $charge->sum('quantite');
                                 $QteRecueTotal = $charge->sum('quantite_recue');
                                 if($QteCmderTotal == $QteRecueTotal){
                                     $etat = 'Clôturée'; 
-                                    CommandeFournisseurEntete::where('societe',auth()->user()->societe)->where('id',$this->idx)->update(['etat_reception'=>$etat,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
+                                    CommandeFournisseurEntete::where('societe_id',auth()->user()->societe_id)->where('id',$this->idx)->update(['etat_reception'=>$etat,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
                                 }
                                 else{
                                     $etat = 'Partiel'; 
-                                    CommandeFournisseurEntete::where('societe',auth()->user()->societe)->where('id',$this->idx)->update(['etat_reception'=>$etat,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
+                                    CommandeFournisseurEntete::where('societe_id',auth()->user()->societe_id)->where('id',$this->idx)->update(['etat_reception'=>$etat,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
                                 }
                             }
                             elseif($this->ids){
-                                $charge = ReceptionFournisseurLigne::where('societe',auth()->user()->societe)->where('id_facture_fournisseur_entete',$this->ids)->get();
+                                $charge = ReceptionFournisseurLigne::where('societe_id',auth()->user()->societe_id)->where('id_facture_fournisseur_entete',$this->ids)->get();
                                 $QteCmderTotal = $charge->sum('quantite');
                                 $QteRecueTotal = $charge->sum('quantite_recue');
                                 if($QteCmderTotal == $QteRecueTotal){
                                     $etat = 'Clôturée'; 
-                                    CommandeFournisseurEntete::where('societe',auth()->user()->societe)->where('id',$this->idx)->update(['etat_reception'=>$etat,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
+                                    CommandeFournisseurEntete::where('societe_id',auth()->user()->societe_id)->where('id',$this->idx)->update(['etat_reception'=>$etat,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
                                 }
                                 else{
                                     $etat = 'Partiel'; 
-                                    CommandeFournisseurEntete::where('societe',auth()->user()->societe)->where('id',$this->idx)->update(['etat_reception'=>$etat,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
+                                    CommandeFournisseurEntete::where('societe_id',auth()->user()->societe_id)->where('id',$this->idx)->update(['etat_reception'=>$etat,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
                                 }
                             }                            
                             // Fin
@@ -1538,7 +1534,8 @@ class NouvFactureFournisseur extends Component
                             
                             if($type_produit == 'Produit'){
                                 Mouvement::create(['id_entrepot'=>$id_entrepot,'nom_produit'=>$nom_produit,'id_produit'=>$id_produit,'reference'=>$reference,'quantite'=>$quantite_recue,'libele_mouvement'=>$libele_mouvement,
-                                'code_mouvement'=>$code_mouvement,'statut'=>$statut,'origine'=>$token_ok,'id_reception'=>$dernier_id,'entrepot'=>$nom_entrepot,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
+                                'code_mouvement'=>$code_mouvement,'statut'=>$statut,'origine'=>$token_ok,'id_reception'=>$dernier_id,'entrepot'=>$nom_entrepot,'societe'=>auth()->user()->societe,
+                                'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
                             }                         
                             // creation et copie entete Expedition Client Ligne
                             ReceptionFournisseurLignePartiel::create([
@@ -1578,6 +1575,7 @@ class NouvFactureFournisseur extends Component
                                 'etat_facture'=>$ligneFactFournisseurs->etat, 
                                 'user_id'=>auth()->user()->id,
                                 'nom_user'=>auth()->user()->name,
+                                'societe_id'=>auth()->user()->societe_id,
                                 'societe'=>auth()->user()->societe]);
                         } 
                     }
@@ -1631,28 +1629,28 @@ class NouvFactureFournisseur extends Component
         $this->approuver = $id;      
     }     
     public function ecraser(){       
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){ 
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->supprimer_fact_fourni;
             if($autoriser == 1){ 
-                $reglementClient = Reglement_fourni::where('societe',auth()->user()->societe)->where('id_facture_fournisseur_entete',$this->ids)->count();  
+                $reglementClient = Reglement_fourni::where('societe_id',auth()->user()->societe_id)->where('id_facture_fournisseur_entete',$this->ids)->count();  
                 if($reglementClient == 0){                  
                         // suppression definitive et redirection
                         $page = 'factureFournisseur';
                         $vide = '';
                         $nulle = NULL;
-                        ReceptionFournisseurEntete::where('societe',auth()->user()->societe)->where('id',$this->id_recept_fourni_entete)->update(['code_facture'=>$vide,'id_facture_fournisseur_entete'=>$nulle,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);                     
-                        $VerifiCompte = CommandeFournisseurEntete::where('societe',auth()->user()->societe)->where('id',$this->idx)->count();               
+                        ReceptionFournisseurEntete::where('societe_id',auth()->user()->societe_id)->where('id',$this->id_recept_fourni_entete)->update(['code_facture'=>$vide,'id_facture_fournisseur_entete'=>$nulle,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);                     
+                        $VerifiCompte = CommandeFournisseurEntete::where('societe_id',auth()->user()->societe_id)->where('id',$this->idx)->count();               
                         if($VerifiCompte > 0){
-                            $compte = CommandeFournisseurEntete::where('societe',auth()->user()->societe)->where('id',$this->idx)->first();               
+                            $compte = CommandeFournisseurEntete::where('societe_id',auth()->user()->societe_id)->where('id',$this->idx)->first();               
                             $nbre_facture = $compte->nbre_facture; 
                             $NbrefactClt = $nbre_facture - 1;
                         }
                         else{
                             $NbrefactClt = 0;
                         }
-                        CommandeFournisseurEntete::where('societe',auth()->user()->societe)->where('id',$this->idx)->update(['nbre_facture'=>$NbrefactClt,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
+                        CommandeFournisseurEntete::where('societe_id',auth()->user()->societe_id)->where('id',$this->idx)->update(['nbre_facture'=>$NbrefactClt,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
 
                         ReceptionFournisseurLigne::where('id_facture_fournisseur_entete',$this->ids)->delete(); 
                         factureFournisseurEntete::where('id',$this->ids)->delete(); 
@@ -1707,9 +1705,9 @@ class NouvFactureFournisseur extends Component
     }
     public function detailCmd(int $id, $codeFact_cmd){ 
         // ceci au chargement de la page
-        $test_facture = CommandeFournisseurEntete::where('societe',auth()->user()->societe)->where('id',$id)->count();    
+        $test_facture = CommandeFournisseurEntete::where('societe_id',auth()->user()->societe_id)->where('id',$id)->count();    
         if($test_facture > 0){
-            $compte = CommandeFournisseurEntete::where('societe',auth()->user()->societe)->where('id',$id)->first();               
+            $compte = CommandeFournisseurEntete::where('societe_id',auth()->user()->societe_id)->where('id',$id)->first();               
             $this->ids = $compte->id;           
             $this->reference = $compte->code_commande; // reference commande
             $this->redirect('/nouveau_cmd_fourni?id='.$id.'&ref='.$this->reference.'&active=6&champ=2-1&choix=1', navigate: true);

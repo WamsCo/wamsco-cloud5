@@ -131,6 +131,7 @@ class Entites extends Component
     public $objectif_point;
     public $nom_user;
     public $nom_user_modif;
+    public $slug;
     
     public $created_at;
     public $updated_at;
@@ -279,6 +280,7 @@ class Entites extends Component
                         $this->created_at = $liste_entit->created_at;
                         $this->updated_at = $liste_entit->updated_at;
                         $this->user_id = $liste_entit->user_id;                        
+                        $this->slug = $liste_entit->slug;                        
                     }
                     else{
                         $this->redirect('/bienvenue?active=1', navigate: true);                              
@@ -649,7 +651,7 @@ class Entites extends Component
                     if($this->password == 'railley@2019'){
                         $entit = Entite::where('enseigne',$this->enseigne)->first(); 
                         $id =   $entit->id;                     
-                        Entite::where('enseigne',$this->enseigne)->delete();                        
+                        Entite::where('enseigne',$this->enseigne)->delete(); // avec id, supprimer en derniere position                       
                         Role::where('societe',$this->enseigne)->delete();  
                         Utilisateur::where('societe',$this->enseigne)->delete(); 
                         DeviseTva::where('societe',$this->enseigne)->delete();
@@ -712,9 +714,9 @@ class Entites extends Component
                         $this->password = '';
                         $page = 'Entite';
                         LogActivityModel::where('id_activite',$id)->where('page',$page)->delete();
-
                         $id_activite = $id;
-                        LogActivity::addToLog('Entité supprimée définitivement', $id_activite, $page);
+                        // supprimer ici Entite::where('enseigne',$this->enseigne)->delete(); 
+                        LogActivity::addToLog('Entité ('.$this->enseigne.') supprimée définitivement', $id_activite, $page);
                         $this->dispatch('alert',                    
                             title:'Suppression effectuée',
                             timer:3000,

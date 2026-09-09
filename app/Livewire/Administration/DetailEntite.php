@@ -4,6 +4,7 @@ namespace App\Livewire\Administration;
 
 use Livewire\Component;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Livewire\Attributes\Validate;  
 use Livewire\WithPagination;
 use Livewire\WithFileUploads; 
@@ -102,9 +103,9 @@ class DetailEntite extends Component
     public $confirmation;    
 
     public function mount(){ 
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->consulter_entite;
             if($autoriser == 0){
                 alert()->error('Oups Désolé', 'Vous n\'êtes pas autorisé à ouvrir cette page !!!')->position('center')->autoClose(5000)->background('#fff')->width('460px')->padding('5px');
@@ -119,7 +120,7 @@ class DetailEntite extends Component
     public function render(){    
         $this->ids = request('id'); // id entite
         $dateJour = date('Y-m-d');            
-        $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();
+        $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();
         $jourValid = $entite_mod[0]->validite_mod; 
         $mod_administration = $entite_mod[0]->mod_administration; 
         $soldeClient = $entite_mod[0]->solde;
@@ -135,7 +136,7 @@ class DetailEntite extends Component
                 $dateJour = date('Y-m-d');                   
                 
                 $entite = Entite::orderBy('enseigne','asc')->get();               
-                $utilisateurAll = Utilisateur::where('societe_mere',auth()->user()->societe)->orderBy('name','asc')->get(); 
+                $utilisateurAll = Utilisateur::where('societe_mere_id',auth()->user()->societe_mere_id)->orderBy('name','asc')->get(); 
 
                 if($this->ids){
                     // ceci au chargement de la page
@@ -146,16 +147,16 @@ class DetailEntite extends Component
                         $user_id = $ent->user_id;  
                     }
                     else{
-                        $entit = Entite::where('enseigne',auth()->user()->societe)->where('id',$this->ids)->get();  
-                        $ent = Entite::where('enseigne',auth()->user()->societe)->where('id',$this->ids)->first(); 
+                        $entit = Entite::where('id',auth()->user()->societe_id)->where('id',$this->ids)->get();  
+                        $ent = Entite::where('id',auth()->user()->societe_id)->where('id',$this->ids)->first(); 
                         $user_id = $ent->user_id;   
                     }                      
                     $entitCount = $entit->count();
-                    $reglementCom = ReglementCommercial::where('societe',auth()->user()->societe)->where('id_societe',$this->ids)->orderBy('id','desc')->get();
+                    $reglementCom = ReglementCommercial::where('societe_id',auth()->user()->societe_id)->where('id_societe',$this->ids)->orderBy('id','desc')->get();
                     $dejaRegler = $reglementCom->sum('montant_regler');                    
                     
                     $page = 'Entite'; // Pour evenement lie
-                    $log = LogActivityModel::where('user_societe',auth()->user()->societe)->where('id_activite', $this->ids)->where('page', $page)->limit(6)->orderBy('id','desc')->get();
+                    $log = LogActivityModel::where('societe_id',auth()->user()->societe_id)->where('id_activite', $this->ids)->where('page', $page)->limit(6)->orderBy('id','desc')->get();
                     $logCount = $log->count(); 
                 }
                 else{
@@ -167,32 +168,32 @@ class DetailEntite extends Component
                         $user_id = $ent->user_id;    
                     }
                     else{
-                        $entit = Entite::where('enseigne',auth()->user()->societe)->where('id',$this->id)->get();  
-                        $ent = Entite::where('enseigne',auth()->user()->societe)->where('id',$this->id)->first(); 
+                        $entit = Entite::where('id',auth()->user()->societe_id)->where('id',$this->id)->get();  
+                        $ent = Entite::where('id',auth()->user()->societe_id)->where('id',$this->id)->first(); 
                         $user_id = $ent->user_id;   
                         
                     }                        
                     $entitCount = $entit->count();
-                    $reglementCom = ReglementCommercial::where('societe',auth()->user()->societe)->where('id_societe',$this->id)->orderBy('id','desc')->get();
+                    $reglementCom = ReglementCommercial::where('societe_id',auth()->user()->societe_id)->where('id_societe',$this->id)->orderBy('id','desc')->get();
                     $dejaRegler = $reglementCom->sum('montant_regler');
 
                     $page = 'Entite'; // Pour evenement lie
-                    $log = LogActivityModel::where('user_societe',auth()->user()->societe)->where('id_activite', $this->id)->where('page', $page)->limit(50)->orderBy('id','desc')->get();
+                    $log = LogActivityModel::where('societe_id',auth()->user()->societe_id)->where('id_activite', $this->id)->where('page', $page)->limit(50)->orderBy('id','desc')->get();
                     $logCount = $log->count();                 
                 }
                 
                 $user = Utilisateur::where('id',$user_id)->get();
-                $banque = CompteBancaire :: where('societe',auth()->user()->societe)->where('etat',1)->orderBy('nom_compte_bancaire','asc')->get();                
-                $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->count();             
+                $banque = CompteBancaire :: where('societe_id',auth()->user()->societe_id)->where('etat',1)->orderBy('nom_compte_bancaire','asc')->get();                
+                $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->count();             
                 if($deviseTva == 0){
                     $this->devise = 'FCFA';
                 }
                 else{
-                    $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->get(); 
+                    $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->get(); 
                     $this->devise = $deviseTva[0]->devise;                
                 }                    
                 toast()->success('Prêt', '')->position('top-right')->autoClose(2000)->background('#fff')->width('220px')->padding('5px');    
-                $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get(); 
+                $entite_mod = Entite::where('id',auth()->user()->societe_id)->get(); 
                 $jourValid = $entite_mod[0]->validite_mod; 
                 // ceci pour trouver le nombre de jour restant avant expiration
                 $nbjoursRestant = round((strtotime($jourValid) - strtotime($dateJour))/(60*60*24));
@@ -345,12 +346,13 @@ class DetailEntite extends Component
         'site_web'=>'nullable|max:255',  
         'commercial_charge'=>'required|max:255',                              
         ]);        
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){ 
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->modifier_entite;
             if($autoriser == 1){                
-                if($this->id){                     
+                if($this->id){         
+
                     Entite::find($this->id)->update(['raison_sociale'=>$this->raison_sociale,'ville'=>$this->ville,'adresse'=>$this->adresse,'telephone'=>$this->telephone,
                     'responsable_societe'=>$this->responsable_societe,'pays'=>$this->pays,'email'=>$this->email,'registre_com'=>$this->registre_commerce,'niu'=>$this->niu,'condition_vente'=>$this->condition_vente,
                     'code_postal'=>$this->code_postal,'site_web'=>$this->site_web,'commercial_charge'=>$this->commercial_charge,'nom_user_modif'=>auth()->user()->email,'user_id_modif'=>auth()->user()->id]);                                      
@@ -402,9 +404,9 @@ class DetailEntite extends Component
             'taux_commission'=>'required|numeric',                                          
             'etat_commission'=>'required',                                           
             ]);
-            $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+            $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
             if($test > 0){
-                $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+                $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
                 $autoriser = $role[0]->modifier_entite;
                 if($autoriser == 1){ 
                     if($this->id){ ;
@@ -546,9 +548,9 @@ class DetailEntite extends Component
         $this->validate([                      
             'logo'=>'required|image|mimes:jpeg,jpg,png,gif|max:2048',          
         ]);
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count(); 
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count(); 
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->modifier_entite;
             if($autoriser == 1){
                 if($this->id){   
@@ -599,9 +601,9 @@ class DetailEntite extends Component
             'sens'=>'required|max:6', 
                      
         ]);
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count(); 
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count(); 
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->modifier_entite;
             if($autoriser == 1){
                 if($this->id){  
@@ -687,9 +689,9 @@ class DetailEntite extends Component
             'banque_cheque'=>'nullable|max:200',
             'commentaire'=>'nullable|max:255',
         ]);
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->modifier_entite;
             if($autoriser == 1){ 
                         
@@ -697,7 +699,7 @@ class DetailEntite extends Component
                     
                     if($this->montant_reglement <= $this->montant_commission){                            
                         // Compte bancaire
-                        $CompteBq = CompteBancaire::where('societe',auth()->user()->societe)->where('id',$this->compte_bancaire)->first();   
+                        $CompteBq = CompteBancaire::where('societe_id',auth()->user()->societe_id)->where('id',$this->compte_bancaire)->first();   
                         $nom_compte_bancaire = $CompteBq->nom_compte_bancaire;
 
                         // Ecriture bancaire
@@ -709,18 +711,18 @@ class DetailEntite extends Component
                         $solde = 0;  
                         $type_paiement = 'ReglementCommercial';    
                         $statut = 'Confirmer';           
-                        EcritureBancaire::create(['id_compte_bancaire'=>$this->compte_bancaire,'id_type_paiement'=>$this->compte_bancaire,'nom_compte_bancaire'=>$nom_compte_bancaire,'reference'=>$ref_ecritureBq,'description'=>$description,
+                        $ecritureBanq = EcritureBancaire::create(['id_compte_bancaire'=>$this->compte_bancaire,'id_type_paiement'=>$this->compte_bancaire,'nom_compte_bancaire'=>$nom_compte_bancaire,'reference'=>$ref_ecritureBq,'description'=>$description,
                                         'date_operation'=>$this->date_reglement,'date_valeur'=>$date_valeur,'type_operation'=>$this->mode_reglement,'debit'=>number_format($this->montant_reglement,0,',',''),'credit'=>$credit,'solde'=>$solde,
-                                        'type_paiement'=>$type_paiement,'statut'=>$statut,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);                    
+                                        'type_paiement'=>$type_paiement,'statut'=>$statut,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);                    
 
                         // ceci recupere le dernier enregistrement cree a l'instant
-                        $dernier_id = EcritureBancaire::where('societe',auth()->user()->societe)->where('user_id',auth()->user()->id)->latest()->first()->id; 
+                        $dernier_id = $ecritureBanq->id; 
 
                         // ceci calcul le solde
-                        $soldeCredit = EcritureBancaire::where('societe',auth()->user()->societe)->where('id_compte_bancaire',$this->compte_bancaire)->sum('credit');
-                        $soldeDebit = EcritureBancaire::where('societe',auth()->user()->societe)->where('id_compte_bancaire',$this->compte_bancaire)->sum('debit');  
+                        $soldeCredit = EcritureBancaire::where('societe_id',auth()->user()->societe_id)->where('id_compte_bancaire',$this->compte_bancaire)->sum('credit');
+                        $soldeDebit = EcritureBancaire::where('societe_id',auth()->user()->societe_id)->where('id_compte_bancaire',$this->compte_bancaire)->sum('debit');  
                         $solde = $soldeCredit - $soldeDebit;
-                        CompteBancaire::where('societe',auth()->user()->societe)->where('id',$this->compte_bancaire)->update(['solde'=>$solde,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                        CompteBancaire::where('societe_id',auth()->user()->societe_id)->where('id',$this->compte_bancaire)->update(['solde'=>$solde,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
 
                         // Reglement 
                         $refReglement = 'PAY'.date('ymd-His');
@@ -728,9 +730,9 @@ class DetailEntite extends Component
                         ReglementCommercial::create(['id_societe'=>$this->id,'nom_societe'=>$this->enseigne,'ref_reglement'=>$refReglement,'id_commercial'=>$this->user_id,'nom_commercial'=>$this->nom_user,'email_commercial'=>$this->recommandation,'id_ecriture_bancaire'=>$dernier_id,'ecriture_bancaire'=>$ref_ecritureBq,
                                         'mode_reglement'=>$this->mode_reglement,'compte_bancaire'=>$nom_compte_bancaire,'id_compte_bancaire'=>$this->compte_bancaire,'date_reglement'=>$this->date_reglement,'statut'=>$statut,
                                         'num_cheq_virement'=>$this->num_cheq_virement,'emetteur_cheq_virement'=>$this->emeteur,'banque_cheq_virement'=>$this->banque_cheque,'commentaire'=>$this->commentaire,
-                                        'montant_regler'=>number_format($this->montant_reglement,0,',',''),'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                                        'montant_regler'=>number_format($this->montant_reglement,0,',',''),'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
 
-                        // $dejaRegler = Reglement::where('societe',auth()->user()->societe)->where('id_facture_client_entete',$this->ids)->sum('montant_regler');                                                                                                     
+                        // $dejaRegler = Reglement::where('societe_id',auth()->user()->societe_id)->where('id_facture_client_entete',$this->ids)->sum('montant_regler');                                                                                                     
 
                         $id_activite = $this->id;
                         $page = 'Entite';
@@ -794,14 +796,14 @@ class DetailEntite extends Component
         $this->confirmer = $id;      
     } 
     public function effacer(int $id){
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){ 
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->modifier_entite;
             if($autoriser == 1){   
                 if($id){                   
 
-                    $Regler = ReglementCommercial::where('societe',auth()->user()->societe)->where('id',$id)->first();
+                    $Regler = ReglementCommercial::where('societe_id',auth()->user()->societe_id)->where('id',$id)->first();
                     $id_regle = $Regler->id_ecriture_bancaire;
                     $id_cpteBq = $Regler->id_compte_bancaire;
                     
@@ -809,10 +811,10 @@ class DetailEntite extends Component
                     EcritureBancaire::where('id',$id_regle)->delete();
 
                     // ceci calcul le solde                    
-                    $soldeCredit = EcritureBancaire::where('societe',auth()->user()->societe)->where('id_compte_bancaire',$id_cpteBq)->sum('credit');
-                    $soldeDebit = EcritureBancaire::where('societe',auth()->user()->societe)->where('id_compte_bancaire',$id_cpteBq)->sum('debit');  
+                    $soldeCredit = EcritureBancaire::where('societe_id',auth()->user()->societe_id)->where('id_compte_bancaire',$id_cpteBq)->sum('credit');
+                    $soldeDebit = EcritureBancaire::where('societe_id',auth()->user()->societe_id)->where('id_compte_bancaire',$id_cpteBq)->sum('debit');  
                     $solde = $soldeCredit - $soldeDebit;
-                    CompteBancaire::where('societe',auth()->user()->societe)->where('id',$id_cpteBq)->update(['solde'=>$solde,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                    CompteBancaire::where('societe_id',auth()->user()->societe_id)->where('id',$id_cpteBq)->update(['solde'=>$solde,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
                   
                     $id_activite = $this->id;
                     $page = 'Entite';

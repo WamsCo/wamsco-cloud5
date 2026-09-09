@@ -64,9 +64,9 @@ class DetailSessionRestau extends Component
     }
     public function mount(){
         
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $this->autoriser = $role[0]->voir_marge;
             $autoriser = $role[0]->consulter_session_restau;
             if($autoriser == 0){
@@ -85,7 +85,7 @@ class DetailSessionRestau extends Component
     public function render()
     {
         $dateJour = date('Y-m-d');            
-        $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();
+        $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();
         $jourValid = $entite_mod[0]->validite_mod; 
         $mod_pointe_vente = $entite_mod[0]->mod_pointe_vente; 
         $soldeClient = $entite_mod[0]->solde;
@@ -105,15 +105,15 @@ class DetailSessionRestau extends Component
                 $ref = request('ref'); // reference session pos
                 
                 //     // ceci au chargement de la page
-                $test = SessionRestau::where('societe',auth()->user()->societe)->where('id',$id)->count();    
+                $test = SessionRestau::where('societe_id',auth()->user()->societe_id)->where('id',$id)->count();    
                 if($test > 0){
                     // verifie si l'user voir les autres sessions ou pas
-                    // $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+                    // $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
                     // if($test > 0){
-                    //     $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+                    //     $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
                     //     $autoriser = $role[0]->consulter_session_restau;
                     //     if($autoriser != 1){ 
-                    //         $verifie = SessionRestau::where('societe',auth()->user()->societe)->where('id',$id)->first(); 
+                    //         $verifie = SessionRestau::where('societe_id',auth()->user()->societe_id)->where('id',$id)->first(); 
                     //         $verifie_id = $verifie->user_id;
                     //         if($verifie_id != auth()->user()->id){                        
                     //             $this->dispatch('alert',                    
@@ -139,7 +139,7 @@ class DetailSessionRestau extends Component
                     //     );
                     // } 
 
-                    $compte = SessionRestau::where('societe',auth()->user()->societe)->where('id',$id)->first();               
+                    $compte = SessionRestau::where('societe_id',auth()->user()->societe_id)->where('id',$id)->first();               
                     $this->ids = $compte->id;
                     $this->session_id = $compte->session_id;
                     $this->nom_point_vente = $compte->nom_point_vente;               
@@ -156,7 +156,7 @@ class DetailSessionRestau extends Component
                     $this->created_at = $compte->created_at;
                     $this->updated_at = $compte->updated_at;  
                 }  
-                $factClient_entete = factureClientEntete::where('societe',auth()->user()->societe)->where('id_session_pos',$this->ids)->orderBy($this->orderField, $this->orderDirection)->get();
+                $factClient_entete = factureClientEntete::where('societe_id',auth()->user()->societe_id)->where('id_session_pos',$this->ids)->orderBy($this->orderField, $this->orderDirection)->get();
                 $factClientEnteteCount = $factClient_entete->count();
 
                 $montantTTC = $factClient_entete->sum('montant_ttc');
@@ -164,20 +164,20 @@ class DetailSessionRestau extends Component
                 $marge = $factClient_entete->sum('marge');
                 $reste_a_percevoir = $factClient_entete->sum('reste_a_percevoir'); 
                 
-                $mouvement = Mouvement::where('societe',auth()->user()->societe)->where('id_session_pos',$this->ids)->orderBy('id','DESC')->limit(50)->get();  
+                $mouvement = Mouvement::where('societe_id',auth()->user()->societe_id)->where('id_session_pos',$this->ids)->orderBy('id','DESC')->limit(50)->get();  
                 $mouvCountAfficher = $mouvement->count();
 
                 $page = 'SessionRestau'; // Pour evenement lie
                 $log = LogActivityModel::where('user_societe',auth()->user()->societe)->where('id_activite', $this->ids)->where('page', $page)->limit(50)->orderBy('id','desc')->get();
                 $logCount = $log->count();            
-                // $taxe = DeviseTva::where('societe',auth()->user()->societe)->orderBy('taux_tva','asc')->get();
+                // $taxe = DeviseTva::where('societe_id',auth()->user()->societe_id)->orderBy('taux_tva','asc')->get();
 
-                $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->count(); 
+                $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->count(); 
                 if($deviseTva == 0){
                     $this->devise = 'FCFA';
                 }
                 else{
-                    $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->get(); 
+                    $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->get(); 
                     $this->devise = $deviseTva[0]->devise;
                 }
                 $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();          
@@ -220,7 +220,7 @@ class DetailSessionRestau extends Component
          ]); 
          $date_ouverture = date('Y-m-d H:i:s'); 
          $etat = 'En cours';   
-         SessionRestau::where('societe',auth()->user()->societe)->where('id',$this->ids)->update(['solde_initial'=>$this->montant,'etat'=>$etat,'date_ouverture'=>$date_ouverture,'note'=>$this->note,]);
+         SessionRestau::where('societe_id',auth()->user()->societe_id)->where('id',$this->ids)->update(['solde_initial'=>$this->montant,'etat'=>$etat,'date_ouverture'=>$date_ouverture,'note'=>$this->note,]);
          $id_activite = $this->ids;
          $page = 'SessionRestau';
          LogActivity::addToLog('Ouverture de la caisse ('.$this->session_id.')', $id_activite, $page);
@@ -231,18 +231,18 @@ class DetailSessionRestau extends Component
     }
     public function closeSession(int $id){        
        
-       $verifie = SessionRestau::where('societe',auth()->user()->societe)->where('id',$id)->first(); 
+       $verifie = SessionRestau::where('societe_id',auth()->user()->societe_id)->where('id',$id)->first(); 
        $verifie_id = $verifie->user_id;
        if($verifie_id == auth()->user()->id){       
-            $test = PosFactureClientEntete::where('societe',auth()->user()->societe)->where('user_id',auth()->user()->id)->count(); 
+            $test = PosFactureClientEntete::where('societe_id',auth()->user()->societe_id)->where('user_id',auth()->user()->id)->count(); 
             if($test == 0){ 
                     $etat = 'Clôturée';           
                     $date_fermeture = date('Y-m-d H:i:s');            
-                    // $montant_recu = factureClientEntete::where('societe',auth()->user()->societe)->where('id_session_pos',$this->ids)->sum('montant_recu'); 
-                    $montant_recu = Reglement::where('societe',auth()->user()->societe)->where('id_session_pos',$this->ids)->sum('montant_regler');
-                    $solde_initial = SessionRestau::where('societe',auth()->user()->societe)->where('id',$this->ids)->sum('solde_initial'); 
+                    // $montant_recu = factureClientEntete::where('societe_id',auth()->user()->societe_id)->where('id_session_pos',$this->ids)->sum('montant_recu'); 
+                    $montant_recu = Reglement::where('societe_id',auth()->user()->societe_id)->where('id_session_pos',$this->ids)->sum('montant_regler');
+                    $solde_initial = SessionRestau::where('societe_id',auth()->user()->societe_id)->where('id',$this->ids)->sum('solde_initial'); 
                     $solde_final = $montant_recu + $solde_initial;
-                    SessionRestau::where('societe',auth()->user()->societe)->where('id',$this->ids)->update(['solde_final'=>$solde_final,'etat'=>$etat,'date_fermeture'=>$date_fermeture,]);
+                    SessionRestau::where('societe_id',auth()->user()->societe_id)->where('id',$this->ids)->update(['solde_final'=>$solde_final,'etat'=>$etat,'date_fermeture'=>$date_fermeture,]);
                     $id_activite = $this->ids;
                     $page = 'SessionRestau';
                     LogActivity::addToLog('Session ('.$this->session_id.') clôturée', $id_activite, $page);
@@ -279,9 +279,9 @@ class DetailSessionRestau extends Component
         }       
     }
     public function precedant(int $id){             
-        $testPrecedant = SessionRestau::where('societe',auth()->user()->societe)->where('id','<',$id)->orderBy('id','desc')->count();
+        $testPrecedant = SessionRestau::where('societe_id',auth()->user()->societe_id)->where('id','<',$id)->orderBy('id','desc')->count();
         if($testPrecedant > 0){ 
-            $precedant = SessionRestau::where('societe',auth()->user()->societe)->where('id','<',$id)->orderBy('id','desc')->first();        
+            $precedant = SessionRestau::where('societe_id',auth()->user()->societe_id)->where('id','<',$id)->orderBy('id','desc')->first();        
             $previous = $precedant->id; 
             $this->redirect('/detail_restau_session?id='.$previous.'&active=5&champ=2-1&choix=1', navigate: true);                         
         }  
@@ -298,9 +298,9 @@ class DetailSessionRestau extends Component
         }           
     }    
     public function suivant(int $id){  
-        $testSuivant = SessionRestau::where('societe',auth()->user()->societe)->where('id','>',$id)->orderBy('id','asc')->count();
+        $testSuivant = SessionRestau::where('societe_id',auth()->user()->societe_id)->where('id','>',$id)->orderBy('id','asc')->count();
         if($testSuivant > 0){
-            $suivant = SessionRestau::where('societe',auth()->user()->societe)->where('id','>',$id)->orderBy('id','asc')->first();
+            $suivant = SessionRestau::where('societe_id',auth()->user()->societe_id)->where('id','>',$id)->orderBy('id','asc')->first();
             $next = $suivant->id;             
             $this->redirect('/detail_restau_session?id='.$next.'&active=5&champ=2-1&choix=1', navigate: true);  
         }  

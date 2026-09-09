@@ -3,7 +3,8 @@
 namespace App\Livewire\Administration;
 
 use Livewire\Component;
-use Livewire\Attributes\Validate;  
+use Livewire\Attributes\Validate; 
+use Illuminate\Support\Str; 
 use App\Helpers\LogActivity;
 use App\Models\LogActivity as LogActivityModel;
 use Livewire\WithFileUploads;
@@ -69,9 +70,9 @@ class MultiSociete extends Component
     public $confirmer; 
 
     public function mount(){        
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->consulter_societe;
             if($autoriser == 0){
                 alert()->error('Oups Désolé', 'Vous n\'êtes pas autorisé à ouvrir cette page !!!')->position('center')->autoClose(5000)->background('#fff')->width('460px')->padding('5px');
@@ -87,12 +88,13 @@ class MultiSociete extends Component
     public function render()
     {   
         $dateJour = date('Y-m-d');            
-        $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();
+        $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();
         $this->filiale = $entite_mod[0]->id; 
         $jourValid = $entite_mod[0]->validite_mod; 
         $mod_multisociete = $entite_mod[0]->mod_multisociete; 
         $soldeClient = $entite_mod[0]->solde;
         $societe_mere = $entite_mod[0]->societe_mere;
+        $societe_mere_id = $entite_mod[0]->societe_mere_id;
         if($dateJour <= $jourValid){
             if($mod_multisociete == 1){           
                     $title = 'Sociétés | WamsCo';
@@ -105,38 +107,38 @@ class MultiSociete extends Component
                     $dateJour = date('Y-m-d');
                     toast()->success('Prêt', '')->position('top-right')->autoClose(2000)->background('#fff')->width('220px')->padding('5px');
 
-                    if($societe_mere == auth()->user()->societe){ 
-                        $liste_entit = Entite::where('societe_mere',auth()->user()->societe)->where('enseigne','like','%'.$this->query.'%')->where('active',1)->orderBy($this->orderField, $this->orderDirection)->paginate($this->parPage);                 
-                        $resultat = Entite::where('societe_mere',auth()->user()->societe_mere)->get(); 
-                        $derniereActivite = Entite::where('societe_mere',auth()->user()->societe_mere)->latest('updated_at')->first();  
+                    if($societe_mere_id == auth()->user()->societe_id){ 
+                        $liste_entit = Entite::where('societe_mere_id',auth()->user()->societe_id)->where('enseigne','like','%'.$this->query.'%')->where('active',1)->orderBy($this->orderField, $this->orderDirection)->paginate($this->parPage);                 
+                        $resultat = Entite::where('societe_mere_id',auth()->user()->societe_mere_id)->get(); 
+                        $derniereActivite = Entite::where('societe_mere_id',auth()->user()->societe_mere_id)->latest('updated_at')->first();  
                     }
                     else{ 
-                        $liste_entit = Entite::where('enseigne',auth()->user()->societe)->where('enseigne','like','%'.$this->query.'%')->where('active',1)->orderBy($this->orderField, $this->orderDirection)->paginate($this->parPage);                 
-                        $resultat = Entite::where('enseigne',auth()->user()->societe)->get(); 
-                        $derniereActivite = Entite::where('enseigne',auth()->user()->societe)->latest('updated_at')->first();  
+                        $liste_entit = Entite::where('id',auth()->user()->societe_id)->where('enseigne','like','%'.$this->query.'%')->where('active',1)->orderBy($this->orderField, $this->orderDirection)->paginate($this->parPage);                 
+                        $resultat = Entite::where('id',auth()->user()->societe_id)->get(); 
+                        $derniereActivite = Entite::where('id',auth()->user()->societe_id)->latest('updated_at')->first();  
                     }
                     $entite_count = $liste_entit->count(); 
 
                     $nbreTotalEntite = $resultat->count();     
 
-                    $entiteFiliale = Entite::where('societe_mere',auth()->user()->societe_mere)->where('active',1)->orderBy('enseigne','asc')->get(); 
+                    $entiteFiliale = Entite::where('societe_mere_id',auth()->user()->societe_mere_id)->where('active',1)->orderBy('enseigne','asc')->get(); 
                     $user = Utilisateur::where('email',auth()->user()->email)->get(); 
                     $this->societe_mere = $user[0]->societe_mere; // ceci gere: il faut se place sur entite mere pour cree une entite et non le contraire
                     $this->societe_filiale = $user[0]->societe;
                     
                     $page = 'Entite'; // Pour evenement lie 
-                    $log = LogActivityModel::where('user_societe',auth()->user()->societe)->where('page', $page)->limit(50)->orderBy('id','desc')->get();
+                    $log = LogActivityModel::where('societe_id',auth()->user()->societe_id)->where('page', $page)->limit(50)->orderBy('id','desc')->get();
                     $logCount = $log->count(); 
                     
-                    $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->count(); 
+                    $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->count(); 
                     if($deviseTva == 0){
                         $this->devise = 'FCFA';
                     }
                     else{
-                        $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->get(); 
+                        $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->get(); 
                         $this->devise = $deviseTva[0]->devise;
                     }
-                    $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();          
+                    $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();          
                     $jourValid = $entite_mod[0]->validite_mod; 
                     // ceci pour trouver le nombre de jour restant avant expiration
                     $nbjoursRestant = round((strtotime($jourValid) - strtotime($dateJour))/(60*60*24));
@@ -174,18 +176,18 @@ class MultiSociete extends Component
         $validedata = $this->validate([       
         'filiale'=>'required|numeric', // id entite                    
         ]);
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->first();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->first();
             if ($role?->acces_entite[$this->filiale] ?? false) { 
                    $entity = Entite::where('id', $this->filiale)->first();  
                    $nomSociete = $entity->enseigne; 
                     // verifie s'il ya un role similaire dans l'entite de destination                
-                   $role_verifie =  Role:: where('societe',$nomSociete)->where('nom',auth()->user()->type_user)->count(); 
+                   $role_verifie =  Role:: where('societe_id',$this->filiale)->where('nom',auth()->user()->type_user)->count(); 
                    if($role_verifie > 0){                   
                        $user_verifie =  Utilisateur:: where('email',auth()->user()->email)->count(); 
                        if($user_verifie > 0){                            
-                            Utilisateur:: where('email',auth()->user()->email)->update(['societe'=>$nomSociete]);  
+                            Utilisateur:: where('email',auth()->user()->email)->update(['societe'=>$nomSociete,'societe_id'=>$this->filiale]);  
 
                             $id_activite = 0;
                             $page = 'ChangementFiliale';
@@ -211,7 +213,7 @@ class MultiSociete extends Component
                    }
                    else{
                         $this->dispatch('alert',                    
-                            title:'Désolé, veuillez créer dans l\'entité de destination, le même <strong>rôle</strong> que vous utitilisez dans cette entité!',
+                            title:'Désolé, veuillez créer dans l\'entité de destination, le même <strong>rôle</strong> que vous utilisez dans cette entité!',
                             timer:10000,
                             icon:'warning',
                             toast:true,
@@ -222,8 +224,8 @@ class MultiSociete extends Component
             }
             else{  
                 $this->dispatch('alert',                    
-                    title:'Vous n\'êtes pas autorisé à effectuer cette opération!',
-                    timer:5000,
+                    title:'Vous n\'êtes pas autorisé ou n\'avez pas de privillège pour effectuer cette opération!',
+                    timer:8000,
                     icon:'error',
                     toast:true,
                     showConfirmButton: false,
@@ -245,7 +247,6 @@ class MultiSociete extends Component
     public function store(){ 
         $validedata = $this->validate([  
         'raison_sociale'=>'required|max:255|unique:entites,enseigne,{$entites->id}',        
-        'raison_sociale'=>'required|max:255', 
         'responsable_societe'=>'required|max:255',                              
         'ville'=>'required|max:255', 
         'pays'=>'required|max:255', 
@@ -258,17 +259,17 @@ class MultiSociete extends Component
         'code_postal'=>'nullable|max:255',  
         'site_web'=>'nullable|max:255',  
         ]);        
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){ 
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->creer_societe;
             if($autoriser == 1){ 
-                $entite = Entite::where('societe_mere', auth()->user()->societe_mere)->count();    
-                $Allentite = Entite::where('societe_mere', auth()->user()->societe_mere)->first();  
+                $entite = Entite::where('societe_mere_id', auth()->user()->societe_mere_id)->count();    
+                $Allentite = Entite::where('societe_mere_id', auth()->user()->societe_mere_id)->first();  
                 $nbre_societe = $Allentite->nombre_societe;                   
                 if($entite < $nbre_societe){                             
                     $dateJour = date('Y-m-d');
-                    $entite = Entite::where('enseigne', auth()->user()->societe)->get();                   
+                    $entite = Entite::where('id',auth()->user()->societe_id)->get();                   
                     $this->nombre_users = 0; 
                     $this->nombre_societe = 0;                     
                     $this->active = $entite[0]->active;    
@@ -293,40 +294,36 @@ class MultiSociete extends Component
                     $solde = 0;
                     $etatCommission = 'Gratuit';
                     $montant_paye = 0;
-                    Entite::create(['solde'=>$solde,'societe_mere'=>auth()->user()->societe_mere,'enseigne'=>$this->raison_sociale,'raison_sociale'=>$this->raison_sociale,'ville'=>$this->ville,'adresse'=>$this->adresse,'telephone'=>$this->telephone,'email'=>$this->email,
+
+                    // ceci cree le slug : le lien (sous-domaines dynamiques plutard: boutique-abc.wamsco-cloud.net / supermarche-x.wamsco-cloud.net / pharmacie-y.wamsco-cloud.net.)
+                    $slug = Str::slug($this->raison_sociale);
+                    $originalSlug = $slug;
+                    $count = 1;
+
+                    while (Entite::where('slug', $slug)->exists()) {
+                        $slug = $originalSlug . '-' . $count++;
+                    }
+
+                    $entit = Entite::create(['solde'=>$solde,'societe_mere'=>auth()->user()->societe_mere,'societe_mere_id'=>auth()->user()->societe_mere_id,'enseigne'=>$this->raison_sociale,'raison_sociale'=>$this->raison_sociale,'slug'=>$slug,'ville'=>$this->ville,'adresse'=>$this->adresse,'telephone'=>$this->telephone,'email'=>$this->email,
                         'registre_com'=>$this->registre_commerce,'niu'=>$this->niu,'code_postal'=>$this->code_postal,'site_web'=>$this->site_web,'responsable_societe'=>$this->responsable_societe,'condition_vente'=>$this->condition_vente,'pays'=>$this->pays,'nombre_users'=>$this->nombre_users,'nbre_user_max'=>$this->nbre_user_max,'active'=>$this->active,
                         'mod_pointe_vente'=>$this->mod_pointe_vente,'mod_cuisine'=>$this->mod_cuisine,'mod_administration'=>$this->mod_administration,'mod_gestion_tier'=>$this->mod_gestion_tier,'mod_crm'=>$this->mod_crm,'mod_gestion_stock'=>$this->mod_gestion_stock,
                         'mod_banque_caisse'=>$this->mod_banque_caisse,'mod_facturation'=>$this->mod_facturation,'mod_cmd'=>$this->mod_cmd,'mod_multisociete'=>$this->mod_multisociete,'mod_ticket'=>$this->mod_ticket,'mod_tache'=>$this->mod_tache,'validite_mod'=>$this->validite_mod,
                         'jour_restant'=>$this->jour_restant,'logo'=>$this->logo,'nombre_societe'=>$this->nombre_societe,'montant_paye'=>$montant_paye,'periode'=>$periode,'etat_commission'=>$etatCommission,'nom_user'=>auth()->user()->email,'user_id'=>auth()->user()->id]); 
                     
+                     // ceci recupere le dernier enregistrement cree a l'instant
+                    $dernier_id = $entit->id;
+                    
                     // Dupliquer les roles en fonction des disponibilites 
-                    $liste_role = Role::where('societe',auth()->user()->societe)->get(); 
+                    $liste_role = Role::where('societe_id',auth()->user()->societe_id)->get(); 
                     foreach($liste_role as $liste_roles){  
                         $new_rol = $liste_roles->replicate();
                         $new_rol->societe = $this->raison_sociale;  
+                        $new_rol->societe_id = $dernier_id;  
                         $new_rol->nom = $liste_roles->nom;
                         $new_rol->nom_user = auth()->user()->name;
                         $new_rol->user_id = auth()->user()->id;                    
                         $new_rol->save();                        
-                    }     
-                    
-                    // // creer automatiquement un utilisateur et lui donner ce role 
-                    // $liste_user = Utilisateur::where('id',auth()->user()->id)->where('societe',auth()->user()->societe)->get(); 
-                    // foreach($liste_user as $liste_users){  
-                    //     $new_rol = $liste_users->replicate();
-                    //     $new_rol->societe = $this->raison_sociale;  
-                    //     // $new_rol->nom = $liste_users->nom;
-                    //     // $new_rol->nom_user = auth()->user()->name;
-                    //     // $new_rol->user_id = auth()->user()->id;                    
-                    //     $new_rol->save();                        
-                    // }  
-
-                    //  Utilisateur:: create(['email'=>$this->email,'name'=>$this->nom_utilisateur,'telephone'=>$this->telephone,'password'=>bcrypt($this->password),'type_user'=>$this->nom,
-                    // 'date_valide'=>$date_valide,'etat'=>$activer,'sexe'=>$sexe,'salarie'=>$salarie,'societe'=>$this->societe,'societe_mere'=>$this->societe,
-                    // 'nom_user'=>$this->email,'user_id'=>0]); 
-                    
-                    // ceci recupere le dernier enregistrement cree a l'instant
-                    $dernier_id = Entite::where('enseigne',auth()->user()->societe)->where('user_id',auth()->user()->id)->latest()->first()->id;
+                    }              
 
                     $id_activite = $dernier_id;
                     $page = 'Entite';
@@ -378,9 +375,9 @@ class MultiSociete extends Component
         $this->confirmer = $id;      
     } 
     public function supprimer($id){
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->supprimer_entite;
             if($autoriser == 1){
                 if(auth()->user()->societe == "Administration"){ 

@@ -190,9 +190,9 @@ class NouvCommandeClient extends Component
     }
     public function mount(){
         
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $this->autoriser = $role[0]->voir_marge;
             $autoriser = $role[0]->consulter_commande;
             if($autoriser == 0){
@@ -208,7 +208,7 @@ class NouvCommandeClient extends Component
     public function render(){
     
         $dateJour = date('Y-m-d');            
-        $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();
+        $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();
         $jourValid = $entite_mod[0]->validite_mod;
         $mod_cmd = $entite_mod[0]->mod_cmd;
         $soldeClient = $entite_mod[0]->solde; 
@@ -227,9 +227,9 @@ class NouvCommandeClient extends Component
                 $this->id = request('id'); // id entete facture
                 $this->ref_fact = request('ref'); // reference facture
                 //     // ceci au chargement de la page
-                $test_facture = CommandeClientEntete::where('societe',auth()->user()->societe)->where('id',$this->id)->count();    
+                $test_facture = CommandeClientEntete::where('societe_id',auth()->user()->societe_id)->where('id',$this->id)->count();    
                 if($test_facture > 0){
-                    $compte = CommandeClientEntete::where('societe',auth()->user()->societe)->where('id',$this->id)->first();               
+                    $compte = CommandeClientEntete::where('societe_id',auth()->user()->societe_id)->where('id',$this->id)->first();               
                     $this->ids = $compte->id;
                     $this->idp = $compte->id_facture_client_entete; // id_facture_client_entete important pour creer expedition 
                     $this->client_id = $compte->id_client;
@@ -254,12 +254,12 @@ class NouvCommandeClient extends Component
                     
                 }      
                 
-                $tier = Tier::where('societe',auth()->user()->societe)->where('id',$this->client_id)->get(); 
+                $tier = Tier::where('societe_id',auth()->user()->societe_id)->where('id',$this->client_id)->get(); 
 
-                $ListeEntrepot = Entrepot::where('societe',auth()->user()->societe)->get();
-                $stockProd = Stock::where('societe',auth()->user()->societe)->get();
+                $ListeEntrepot = Entrepot::where('societe_id',auth()->user()->societe_id)->get();
+                $stockProd = Stock::where('societe_id',auth()->user()->societe_id)->get();
 
-                $factClient_ligne = CommandeClientLigne::where('societe',auth()->user()->societe)->where('id_commande_client_entete',$this->ids)->orderBy($this->orderField, $this->orderDirection)->get();
+                $factClient_ligne = CommandeClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_commande_client_entete',$this->ids)->orderBy($this->orderField, $this->orderDirection)->get();
                 $factClientLigneCount = $factClient_ligne->count();                
 
                 $montantHT = $factClient_ligne->sum('montant_ht');
@@ -286,34 +286,34 @@ class NouvCommandeClient extends Component
                 }
 
                 if(!empty($this->ParProduit)){
-                    $expeClient_ligne = ExpeditionClientLigne::where('societe',auth()->user()->societe)->where('id_commande_client_entete',$this->ids)->where('produit','like','%'.$this->ParProduit.'%')->orderBy($this->orderField, $this->orderDirection)->paginate($this->parPage);
+                    $expeClient_ligne = ExpeditionClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_commande_client_entete',$this->ids)->where('produit','like','%'.$this->ParProduit.'%')->orderBy($this->orderField, $this->orderDirection)->paginate($this->parPage);
                 }
                 else{
-                    $expeClient_ligne = ExpeditionClientLigne::where('societe',auth()->user()->societe)->where('id_commande_client_entete',$this->ids)->orderBy($this->orderField, $this->orderDirection)->paginate($this->parPage);
+                    $expeClient_ligne = ExpeditionClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_commande_client_entete',$this->ids)->orderBy($this->orderField, $this->orderDirection)->paginate($this->parPage);
                 }
                 $expeClientLigneCount = $expeClient_ligne->count();
 
                 if($this->ids){
-                    $expCltEntete = ExpeditionClientEntete::where('societe',auth()->user()->societe)->where('id_commande_client_entete',$this->ids)->orderBy('id','desc')->get(); 
+                    $expCltEntete = ExpeditionClientEntete::where('societe_id',auth()->user()->societe_id)->where('id_commande_client_entete',$this->ids)->orderBy('id','desc')->get(); 
                 }
                 elseif($this->idp){
-                    $expCltEntete = ExpeditionClientEntete::where('societe',auth()->user()->societe)->where('id_facture_client_entete',$this->idp)->orderBy('id','desc')->get(); 
+                    $expCltEntete = ExpeditionClientEntete::where('societe_id',auth()->user()->societe_id)->where('id_facture_client_entete',$this->idp)->orderBy('id','desc')->get(); 
                 }
                 else{
                     $expCltEntete = []; // On affiche un tableau vide
                 }
 
-                $factCltEntete = factureClientEntete::where('societe',auth()->user()->societe)->where('id_commande_client_entete',$this->ids)->orderBy('id','desc')->get(); 
-                $proforCltEntete = ProformaClientEntete::where('societe',auth()->user()->societe)->where('id',$this->id_prof)->orderBy('id','desc')->get();
+                $factCltEntete = factureClientEntete::where('societe_id',auth()->user()->societe_id)->where('id_commande_client_entete',$this->ids)->orderBy('id','desc')->get(); 
+                $proforCltEntete = ProformaClientEntete::where('societe_id',auth()->user()->societe_id)->where('id',$this->id_prof)->orderBy('id','desc')->get();
                 
                 $page = 'CommandeClient'; // Pour evenement lie
                 $log = LogActivityModel::where('user_societe',auth()->user()->societe)->where('id_activite', $this->ids)->where('page', $page)->limit(50)->orderBy('id','desc')->get();
                 $logCount = $log->count();
 
                 // Parametre
-                $test_vide = Parametre ::where('societe',auth()->user()->societe)->count();
+                $test_vide = Parametre ::where('societe_id',auth()->user()->societe_id)->count();
                 if($test_vide > 0){                
-                    $config = Parametre::where('societe',auth()->user()->societe)->limit(1)->get();
+                    $config = Parametre::where('societe_id',auth()->user()->societe_id)->limit(1)->get();
                     $id_entrepot = $config[0]->id_entrepot_fctclt;               
                 }
                 else{
@@ -324,7 +324,7 @@ class NouvCommandeClient extends Component
                 if($this->type_produit == 'Produit'){            
                     $produit_stock = DB::table('stocks')
                                     ->select('id','nom_produit','reference','id_produit','type_produit','nature_produit','categorie',DB::raw('sum(quantite) as quantites, sum(valorisation_achat_total) as valorisationAchatTotal ,sum(valeur_vente_total) as valeurVentetotal, max(limite_stock_alerte) as limite_stock_alerte ,max(updated_at) as updated_at')) // Supposons que vous voulez la dernière date
-                                    ->where('societe',auth()->user()->societe)                            
+                                    ->where('societe_id',auth()->user()->societe_id)                            
                                     ->where('id_entrepot',$id_entrepot)
                                     ->where('type_produit','Produit')
                                     // ->where('type_produit',$this->type_produit)
@@ -341,7 +341,7 @@ class NouvCommandeClient extends Component
                 }
                 elseif($this->type_produit == 'Service'){
                     // pour afficher les services
-                    $service_produit = Produit::where('societe',auth()->user()->societe)
+                    $service_produit = Produit::where('societe_id',auth()->user()->societe_id)
                     ->where('type_produit','Service')
                     ->where('nom_produit','like','%'.$this->query.'%')
                     ->where('nature_produit','like','%'.$this->parNature.'%')
@@ -351,26 +351,26 @@ class NouvCommandeClient extends Component
                     $service_produitCount = $service_produit->count();
                 }else{
                     
-                    $produit_stock = Stock::where('societe',auth()->user()->societe)->paginate($this->parPage);
+                    $produit_stock = Stock::where('societe_id',auth()->user()->societe_id)->paginate($this->parPage);
                     $produit_stockCount = 0;
                     $qteStockTotal = 0;
                     $valAchatTotal = 0;
                     $valVenteTotal = 0;
-                    $service_produit = Produit::where('societe',auth()->user()->societe)->paginate($this->parPage);
+                    $service_produit = Produit::where('societe_id',auth()->user()->societe_id)->paginate($this->parPage);
                     $service_produitCount = 0;
                 }
                 
-                $taxe = DeviseTva::where('societe',auth()->user()->societe)->orderBy('taux_tva','asc')->get();
+                $taxe = DeviseTva::where('societe_id',auth()->user()->societe_id)->orderBy('taux_tva','asc')->get();
 
-                $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->count(); 
+                $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->count(); 
                 if($deviseTva == 0){
                     $this->devise = 'FCFA';
                 }
                 else{
-                    $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->get(); 
+                    $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->get(); 
                     $this->devise = $deviseTva[0]->devise;
                 }
-                $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();          
+                $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();          
                 $jourValid = $entite_mod[0]->validite_mod; 
                 // ceci pour trouver le nombre de jour restant avant expiration
                 $nbjoursRestant = round((strtotime($jourValid) - strtotime($dateJour))/(60*60*24));
@@ -417,13 +417,13 @@ class NouvCommandeClient extends Component
     public function searchResult(){ 
         if(!empty($this->client)){
             if(ctype_alpha($this->client)){ // ctype_alpha: cette fonction permet de savoir si le caractere ou mot est une lettre  
-                $this->records = Tier::where('etat',1)->where('societe',auth()->user()->societe)->where('nom','like','%'.$this->client.'%')->orderBy('nom','asc')->limit(8)->get(); 
-                $this->recordCount = Tier::where('etat',1)->where('societe',auth()->user()->societe)->where('nom','like','%'.$this->client.'%')->count();
+                $this->records = Tier::where('etat',1)->where('societe_id',auth()->user()->societe_id)->where('nom','like','%'.$this->client.'%')->orderBy('nom','asc')->limit(8)->get(); 
+                $this->recordCount = Tier::where('etat',1)->where('societe_id',auth()->user()->societe_id)->where('nom','like','%'.$this->client.'%')->count();
                 $this->showdiv = true;
             }
             else{
-                $this->records = Tier::where('etat',1)->where('societe',auth()->user()->societe)->where('telephone','like','%'.$this->client.'%')->orderBy('nom','asc')->limit(8)->get(); 
-                $this->recordCount = Tier::where('etat',1)->where('societe',auth()->user()->societe)->where('telephone','like','%'.$this->client.'%')->count(); 
+                $this->records = Tier::where('etat',1)->where('societe_id',auth()->user()->societe_id)->where('telephone','like','%'.$this->client.'%')->orderBy('nom','asc')->limit(8)->get(); 
+                $this->recordCount = Tier::where('etat',1)->where('societe_id',auth()->user()->societe_id)->where('telephone','like','%'.$this->client.'%')->count(); 
                 $this->showdiv = true;
             }        
         }
@@ -440,19 +440,19 @@ class NouvCommandeClient extends Component
     }
     public function update(){
         $this->validate();        
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->modifier_commande;
             if($autoriser == 1){  
                     
-                    $test_tiers = Tier ::where('societe',auth()->user()->societe)->where('id',$this->client_id)->count();
+                    $test_tiers = Tier ::where('societe_id',auth()->user()->societe_id)->where('id',$this->client_id)->count();
                     if($test_tiers == 0){
                         if(!empty($this->ids_client)){
                             // recupere le nom du compte bancaire via son id : $this->compte_bancaire
                                                        
                             CommandeClientEntete::find($this->ids)->update(['nom_client'=>$this->client,'id_client'=>$this->ids_client,'telephone'=>$this->telephone,'reference'=>$this->reference,'date_commande'=>$this->date_commande,'date_livraison'=>$this->date_livraison,
-                            'mode_reglement'=>$this->mode_reglement,'condition_reglement'=>$this->condition_reglement,'note'=>$this->note,'societe'=>auth()->user()->societe,
+                            'mode_reglement'=>$this->mode_reglement,'condition_reglement'=>$this->condition_reglement,'note'=>$this->note,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,
                             'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
                             
                             $id_activite = $this->ids;
@@ -483,17 +483,17 @@ class NouvCommandeClient extends Component
                     elseif($test_tiers >= 0){ 
                         if(empty($this->ids_client)){
                             
-                            $test_tier_nom = Tier ::where('societe',auth()->user()->societe)->where('id',$this->client_id)->first();
+                            $test_tier_nom = Tier ::where('societe_id',auth()->user()->societe_id)->where('id',$this->client_id)->first();
                             $nom = $test_tier_nom->nom;
 
                             if($nom == $this->client){ 
 
-                                // $compteBaq = CompteBancaire::where('societe',auth()->user()->societe)->where('id',$this->compte_bancaire)->first(); 
+                                // $compteBaq = CompteBancaire::where('societe_id',auth()->user()->societe_id)->where('id',$this->compte_bancaire)->first(); 
                                 // $nom_compte_bancaire = $compteBaq->nom_compte_bancaire;
                                 
                                 // client_id de la CommandeClientEntete
                                 CommandeClientEntete::find($this->ids)->update(['nom_client'=>$this->client,'id_client'=>$this->client_id,'telephone'=>$this->telephone,'reference'=>$this->reference,'date_commande'=>$this->date_commande,'date_livraison'=>$this->date_livraison,
-                                'mode_reglement'=>$this->mode_reglement,'condition_reglement'=>$this->condition_reglement,'note'=>$this->note,'societe'=>auth()->user()->societe,
+                                'mode_reglement'=>$this->mode_reglement,'condition_reglement'=>$this->condition_reglement,'note'=>$this->note,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,
                                 'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
                                 
                                 $id_activite = $this->ids;
@@ -523,18 +523,18 @@ class NouvCommandeClient extends Component
                         }
                         else{
                             
-                            $test_tier_nom = Tier ::where('societe',auth()->user()->societe)->where('id',$this->ids_client)->first();
+                            $test_tier_nom = Tier ::where('societe_id',auth()->user()->societe_id)->where('id',$this->ids_client)->first();
                             $nom = $test_tier_nom->nom;   
 
                             if($this->ids_client != $this->client_id){ 
                                 if($nom == $this->client){ 
 
-                                    // $compteBaq = CompteBancaire::where('societe',auth()->user()->societe)->where('id',$this->compte_bancaire)->first(); 
+                                    // $compteBaq = CompteBancaire::where('societe_id',auth()->user()->societe_id)->where('id',$this->compte_bancaire)->first(); 
                                     // $nom_compte_bancaire = $compteBaq->nom_compte_bancaire;
                                     
                                     // ids_client de ajouterTier
                                     CommandeClientEntete::find($this->ids)->update(['nom_client'=>$this->client,'id_client'=>$this->ids_client,'telephone'=>$this->telephone,'reference'=>$this->reference,'date_commande'=>$this->date_commande,'date_livraison'=>$this->date_livraison,
-                                    'mode_reglement'=>$this->mode_reglement,'condition_reglement'=>$this->condition_reglement,'note'=>$this->note,'societe'=>auth()->user()->societe,
+                                    'mode_reglement'=>$this->mode_reglement,'condition_reglement'=>$this->condition_reglement,'note'=>$this->note,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,
                                     'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
                                     
                                     $id_activite = $this->ids;
@@ -604,16 +604,16 @@ class NouvCommandeClient extends Component
         $this->parCat = '';
         $this->parNature = '';
         $this->query = '';
-        $compte = CommandeClientEntete::where('societe',auth()->user()->societe)->where('id',$this->ids)->first(); 
+        $compte = CommandeClientEntete::where('societe_id',auth()->user()->societe_id)->where('id',$this->ids)->first(); 
         $this->client_id = $compte->id_client; 
     }
     public function afficheLigne(int $idf){
         $this->ouverture = $idf;
         // $this->choix_produit = $idf;         
-        $testChoix = Stock::where('societe',auth()->user()->societe)->where('id',$idf)->count();
+        $testChoix = Stock::where('societe_id',auth()->user()->societe_id)->where('id',$idf)->count();
         if($testChoix > 0){
             // ceci permet d'afficher la quantite entrepot origine
-            $choixProd = Stock::where('societe',auth()->user()->societe)->where('id',$idf)->get();
+            $choixProd = Stock::where('societe_id',auth()->user()->societe_id)->where('id',$idf)->get();
             $this->prix_moyen_pondere_achat = $choixProd[0]->prix_moyen_pondere_achat;
             $this->prix_vente = $choixProd[0]->prix_vente_unitaire;
             $this->quantite_bd = $choixProd[0]->quantite;
@@ -622,17 +622,17 @@ class NouvCommandeClient extends Component
             $this->referenceProd = $choixProd[0]->reference;
             $this->id_entrepot = $choixProd[0]->id_entrepot;
             // avoir le prix_vente_min 
-            $prod = Produit::where('societe',auth()->user()->societe)->where('id',$this->id_produit)->first();
+            $prod = Produit::where('societe_id',auth()->user()->societe_id)->where('id',$this->id_produit)->first();
             $this->prix_vente_min = $prod->prix_vente_min;
         }
     }
     public function afficheLigneService(int $ide){
         $this->ouverture = $ide;
         $this->choix_produit = $ide;         
-        $testChoix = Produit::where('societe',auth()->user()->societe)->where('id',$ide)->count();
+        $testChoix = Produit::where('societe_id',auth()->user()->societe_id)->where('id',$ide)->count();
         if($testChoix > 0){
             // ceci permet d'afficher la quantite entrepot origine
-            $choixProd = Produit::where('societe',auth()->user()->societe)->where('id',$ide)->get();
+            $choixProd = Produit::where('societe_id',auth()->user()->societe_id)->where('id',$ide)->get();
             $this->id_produit = $choixProd[0]->id;
             $this->prix_moyen_pondere_achat = $choixProd[0]->prix_achat;
             $this->prix_vente = $choixProd[0]->prix_vente;
@@ -658,9 +658,9 @@ class NouvCommandeClient extends Component
             'condition_reglement'=>'max:255',  // important pour forcer utilisateur a remplir
             
         ]);    
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->modifier_commande;
             if($autoriser == 1){                         
                 
@@ -723,18 +723,18 @@ class NouvCommandeClient extends Component
                                 CommandeClientLigne::create(['code_commande'=>$this->reference,'id_commande_client_entete'=>$this->ids,'produit'=>$this->nom_produit,'id_produit'=>$this->id_produit,'reference'=>$this->referenceProd,'type_produit'=>$typeProd,'prix_achat'=>$this->prix_moyen_pondere_achat,
                                                 'prix_vente'=>$this->prix_vente,'quantite'=>$this->quantite,'quantite_expediee'=>$quantite_expediee,'reste_a_expedier'=>$this->quantite,'remise'=>$this->remise,'montant_remise'=>$remise_montant,
                                                 'tva'=>$this->tva,'montant_tva'=>$tva_montant,'precompte'=>$this->precompte,'montant_precompte'=>$precompte_montant,'montant_ht'=>$montant_remiser_ht,'montant_ttc'=>$montant_ttc,'marge'=>$marge,'id_entrepot'=>$this->id_entrepot,
-                                                'nom_client'=>$this->client,'id_client'=>$this->client_id,'offrir'=>$this->offrir,'etat'=>$this->etat,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);                     
+                                                'nom_client'=>$this->client,'id_client'=>$this->client_id,'offrir'=>$this->offrir,'etat'=>$this->etat,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);                     
                             
-                                $montantHT = CommandeClientLigne::where('societe',auth()->user()->societe)->where('id_commande_client_entete',$this->ids)->sum('montant_ht');
-                                $montantTTC = CommandeClientLigne::where('societe',auth()->user()->societe)->where('id_commande_client_entete',$this->ids)->sum('montant_ttc');
-                                $montantRemise = CommandeClientLigne::where('societe',auth()->user()->societe)->where('id_commande_client_entete',$this->ids)->sum('montant_remise');
-                                $montantTva = CommandeClientLigne::where('societe',auth()->user()->societe)->where('id_commande_client_entete',$this->ids)->sum('montant_tva');
-                                $montantPrecompte = CommandeClientLigne::where('societe',auth()->user()->societe)->where('id_commande_client_entete',$this->ids)->sum('montant_precompte');
-                                $marge = CommandeClientLigne::where('societe',auth()->user()->societe)->where('id_commande_client_entete',$this->ids)->sum('marge');
+                                $montantHT = CommandeClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_commande_client_entete',$this->ids)->sum('montant_ht');
+                                $montantTTC = CommandeClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_commande_client_entete',$this->ids)->sum('montant_ttc');
+                                $montantRemise = CommandeClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_commande_client_entete',$this->ids)->sum('montant_remise');
+                                $montantTva = CommandeClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_commande_client_entete',$this->ids)->sum('montant_tva');
+                                $montantPrecompte = CommandeClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_commande_client_entete',$this->ids)->sum('montant_precompte');
+                                $marge = CommandeClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_commande_client_entete',$this->ids)->sum('marge');
 
                                 // Montant TTC en arrondi en + ou en - 
                                 CommandeClientEntete::find($this->ids)->update(['montant_ht'=>$montantHT,'montant_remise'=>$montantRemise,'montant_tva'=>$montantTva,'montant_precompte'=>$montantPrecompte,
-                                                    'montant_ttc'=>number_format($montantTTC,0,',',''),'marge'=>$marge,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                                                    'montant_ttc'=>number_format($montantTTC,0,',',''),'marge'=>$marge,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
                             }
                             elseif($this->offrir == 'Oui'){
 
@@ -748,18 +748,18 @@ class NouvCommandeClient extends Component
                                 CommandeClientLigne::create(['code_commande'=>$this->reference,'id_commande_client_entete'=>$this->ids,'produit'=>$this->nom_produit,'id_produit'=>$this->id_produit,'reference'=>$this->referenceProd,'type_produit'=>$typeProd,'prix_achat'=>$this->prix_moyen_pondere_achat,
                                                 'prix_vente'=>$this->prix_vente,'quantite'=>$this->quantite,'quantite_expediee'=>$quantite_expediee,'reste_a_expedier'=>$this->quantite,'remise'=>$this->remise,'montant_remise'=>$remise_montant,
                                                 'tva'=>$this->tva,'montant_tva'=>$tva_montant,'precompte'=>$this->precompte,'montant_precompte'=>$precompte_montant,'montant_ht'=>$montant_remiser_ht,'montant_ttc'=>$montant_ttc,'marge'=>$marge,'id_entrepot'=>$this->id_entrepot,
-                                                'nom_client'=>$this->client,'id_client'=>$this->client_id,'offrir'=>$this->offrir,'etat'=>$this->etat,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);                     
+                                                'nom_client'=>$this->client,'id_client'=>$this->client_id,'offrir'=>$this->offrir,'etat'=>$this->etat,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);                     
                             
-                                $montantHT = CommandeClientLigne::where('societe',auth()->user()->societe)->where('id_commande_client_entete',$this->ids)->sum('montant_ht');
-                                $montantTTC = CommandeClientLigne::where('societe',auth()->user()->societe)->where('id_commande_client_entete',$this->ids)->sum('montant_ttc');
-                                $montantRemise = CommandeClientLigne::where('societe',auth()->user()->societe)->where('id_commande_client_entete',$this->ids)->sum('montant_remise');
-                                $montantTva = CommandeClientLigne::where('societe',auth()->user()->societe)->where('id_commande_client_entete',$this->ids)->sum('montant_tva');
-                                $montantPrecompte = CommandeClientLigne::where('societe',auth()->user()->societe)->where('id_commande_client_entete',$this->ids)->sum('montant_precompte');
-                                $marge = CommandeClientLigne::where('societe',auth()->user()->societe)->where('id_commande_client_entete',$this->ids)->sum('marge');
+                                $montantHT = CommandeClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_commande_client_entete',$this->ids)->sum('montant_ht');
+                                $montantTTC = CommandeClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_commande_client_entete',$this->ids)->sum('montant_ttc');
+                                $montantRemise = CommandeClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_commande_client_entete',$this->ids)->sum('montant_remise');
+                                $montantTva = CommandeClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_commande_client_entete',$this->ids)->sum('montant_tva');
+                                $montantPrecompte = CommandeClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_commande_client_entete',$this->ids)->sum('montant_precompte');
+                                $marge = CommandeClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_commande_client_entete',$this->ids)->sum('marge');
 
                                 // Montant TTC en arrondi en + ou en - 
                                 CommandeClientEntete::find($this->ids)->update(['montant_ht'=>$montantHT,'montant_remise'=>$montantRemise,'montant_tva'=>$montantTva,'montant_precompte'=>$montantPrecompte,'montant_ttc'=>number_format($montantTTC,0,',',''),
-                                                    'marge'=>$marge,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                                                    'marge'=>$marge,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
                             }
                             $id_activite = $this->ids;
                             $page = 'CommandeClient';
@@ -825,9 +825,9 @@ class NouvCommandeClient extends Component
             'condition_reglement'=>'max:255',  // important pour forcer utilisateur a remplir
             
         ]);    
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->modifier_commande;
             if($autoriser == 1){  
                         
@@ -870,18 +870,18 @@ class NouvCommandeClient extends Component
                                 CommandeClientLigne::create(['code_commande'=>$this->reference,'id_commande_client_entete'=>$this->ids,'produit'=>$this->nom_produit,'id_produit'=>$this->id_produit,'reference'=>$this->referenceProd,'type_produit'=>$typeProd,'prix_achat'=>$this->prix_moyen_pondere_achat,
                                                 'prix_vente'=>$this->prix_vente,'quantite'=>$this->quantite,'quantite_expediee'=>$quantite_expediee,'reste_a_expedier'=>$this->quantite,'remise'=>$this->remise,'montant_remise'=>$remise_montant,
                                                 'tva'=>$this->tva,'montant_tva'=>$tva_montant,'precompte'=>$this->precompte,'montant_precompte'=>$precompte_montant,'montant_ht'=>$montant_remiser_ht,'montant_ttc'=>$montant_ttc,'marge'=>$marge,'id_entrepot'=>$this->id_entrepot,
-                                                'nom_client'=>$this->client,'id_client'=>$this->client_id,'offrir'=>$this->offrir,'etat'=>$this->etat,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);                     
+                                                'nom_client'=>$this->client,'id_client'=>$this->client_id,'offrir'=>$this->offrir,'etat'=>$this->etat,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);                     
                             
-                                $montantHT = CommandeClientLigne::where('societe',auth()->user()->societe)->where('id_commande_client_entete',$this->ids)->sum('montant_ht');
-                                $montantTTC = CommandeClientLigne::where('societe',auth()->user()->societe)->where('id_commande_client_entete',$this->ids)->sum('montant_ttc');
-                                $montantRemise = CommandeClientLigne::where('societe',auth()->user()->societe)->where('id_commande_client_entete',$this->ids)->sum('montant_remise');
-                                $montantTva = CommandeClientLigne::where('societe',auth()->user()->societe)->where('id_commande_client_entete',$this->ids)->sum('montant_tva');
-                                $montantPrecompte = CommandeClientLigne::where('societe',auth()->user()->societe)->where('id_commande_client_entete',$this->ids)->sum('montant_precompte');
-                                $marge = CommandeClientLigne::where('societe',auth()->user()->societe)->where('id_commande_client_entete',$this->ids)->sum('marge');
+                                $montantHT = CommandeClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_commande_client_entete',$this->ids)->sum('montant_ht');
+                                $montantTTC = CommandeClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_commande_client_entete',$this->ids)->sum('montant_ttc');
+                                $montantRemise = CommandeClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_commande_client_entete',$this->ids)->sum('montant_remise');
+                                $montantTva = CommandeClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_commande_client_entete',$this->ids)->sum('montant_tva');
+                                $montantPrecompte = CommandeClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_commande_client_entete',$this->ids)->sum('montant_precompte');
+                                $marge = CommandeClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_commande_client_entete',$this->ids)->sum('marge');
 
                                 // Montant TTC en arrondi en + ou en - 
                                 CommandeClientEntete::find($this->ids)->update(['montant_ht'=>$montantHT,'montant_remise'=>$montantRemise,'montant_tva'=>$montantTva,'montant_precompte'=>$montantPrecompte,'montant_ttc'=>number_format($montantTTC,0,',',''),
-                                                    'marge'=>$marge,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                                                    'marge'=>$marge,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
                             }
                             elseif($this->offrir == 'Oui'){
 
@@ -895,18 +895,18 @@ class NouvCommandeClient extends Component
                                 CommandeClientLigne::create(['code_commande'=>$this->reference,'id_commande_client_entete'=>$this->ids,'produit'=>$this->nom_produit,'id_produit'=>$this->id_produit,'reference'=>$this->referenceProd,'type_produit'=>$typeProd,'prix_achat'=>$this->prix_moyen_pondere_achat,
                                                 'prix_vente'=>$this->prix_vente,'quantite'=>$this->quantite,'quantite_expediee'=>$quantite_expediee,'reste_a_expedier'=>$this->quantite,'remise'=>$this->remise,'montant_remise'=>$remise_montant,
                                                 'tva'=>$this->tva,'montant_tva'=>$tva_montant,'precompte'=>$this->precompte,'montant_precompte'=>$precompte_montant,'montant_ht'=>$montant_remiser_ht,'montant_ttc'=>$montant_ttc,'marge'=>$marge,'id_entrepot'=>$this->id_entrepot,
-                                                'nom_client'=>$this->client,'id_client'=>$this->client_id,'offrir'=>$this->offrir,'etat'=>$this->etat,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);                     
+                                                'nom_client'=>$this->client,'id_client'=>$this->client_id,'offrir'=>$this->offrir,'etat'=>$this->etat,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);                     
                             
-                                $montantHT = CommandeClientLigne::where('societe',auth()->user()->societe)->where('id_commande_client_entete',$this->ids)->sum('montant_ht');
-                                $montantTTC = CommandeClientLigne::where('societe',auth()->user()->societe)->where('id_commande_client_entete',$this->ids)->sum('montant_ttc');
-                                $montantRemise = CommandeClientLigne::where('societe',auth()->user()->societe)->where('id_commande_client_entete',$this->ids)->sum('montant_remise');
-                                $montantTva = CommandeClientLigne::where('societe',auth()->user()->societe)->where('id_commande_client_entete',$this->ids)->sum('montant_tva');
-                                $montantPrecompte = CommandeClientLigne::where('societe',auth()->user()->societe)->where('id_commande_client_entete',$this->ids)->sum('montant_precompte');
-                                $marge = CommandeClientLigne::where('societe',auth()->user()->societe)->where('id_commande_client_entete',$this->ids)->sum('marge');
+                                $montantHT = CommandeClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_commande_client_entete',$this->ids)->sum('montant_ht');
+                                $montantTTC = CommandeClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_commande_client_entete',$this->ids)->sum('montant_ttc');
+                                $montantRemise = CommandeClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_commande_client_entete',$this->ids)->sum('montant_remise');
+                                $montantTva = CommandeClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_commande_client_entete',$this->ids)->sum('montant_tva');
+                                $montantPrecompte = CommandeClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_commande_client_entete',$this->ids)->sum('montant_precompte');
+                                $marge = CommandeClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_commande_client_entete',$this->ids)->sum('marge');
 
                                 // Montant TTC en arrondi en + ou en - 
                                 CommandeClientEntete::find($this->ids)->update(['montant_ht'=>$montantHT,'montant_remise'=>$montantRemise,'montant_tva'=>$montantTva,'montant_precompte'=>$montantPrecompte,'montant_ttc'=>number_format($montantTTC,0,',',''),
-                                                    'marge'=>$marge,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                                                    'marge'=>$marge,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
                             }
                             $id_activite = $this->ids;
                             $page = 'CommandeClient';
@@ -964,25 +964,25 @@ class NouvCommandeClient extends Component
         $this->confirmer = $id;        
     } 
     public function supprimer($id){
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){ 
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->modifier_commande;
             if($autoriser == 1){   
                 if($id){
                     
                     CommandeClientLigne::where('id',$id)->delete();
 
-                    $montantHT = CommandeClientLigne::where('societe',auth()->user()->societe)->where('id_commande_client_entete',$this->ids)->sum('montant_ht');
-                    $montantTTC = CommandeClientLigne::where('societe',auth()->user()->societe)->where('id_commande_client_entete',$this->ids)->sum('montant_ttc');
-                    $montantRemise = CommandeClientLigne::where('societe',auth()->user()->societe)->where('id_commande_client_entete',$this->ids)->sum('montant_remise');
-                    $montantTva = CommandeClientLigne::where('societe',auth()->user()->societe)->where('id_commande_client_entete',$this->ids)->sum('montant_tva');
-                    $montantPrecompte = CommandeClientLigne::where('societe',auth()->user()->societe)->where('id_commande_client_entete',$this->ids)->sum('montant_precompte');
-                    $marge = CommandeClientLigne::where('societe',auth()->user()->societe)->where('id_commande_client_entete',$this->ids)->sum('marge');
+                    $montantHT = CommandeClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_commande_client_entete',$this->ids)->sum('montant_ht');
+                    $montantTTC = CommandeClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_commande_client_entete',$this->ids)->sum('montant_ttc');
+                    $montantRemise = CommandeClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_commande_client_entete',$this->ids)->sum('montant_remise');
+                    $montantTva = CommandeClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_commande_client_entete',$this->ids)->sum('montant_tva');
+                    $montantPrecompte = CommandeClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_commande_client_entete',$this->ids)->sum('montant_precompte');
+                    $marge = CommandeClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_commande_client_entete',$this->ids)->sum('marge');
                                         
                     CommandeClientEntete::find($this->ids)->update(['montant_ht'=>number_format($montantHT,0,',',''),'montant_remise'=>$montantRemise,'montant_tva'=>$montantTva,
                                         'montant_ttc'=>number_format($montantTTC,0,',',''),'montant_precompte'=>$montantPrecompte,'marge'=>$marge,'societe'=>auth()->user()->societe,
-                                        'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);                    
+                                        'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);                    
                     
                     $id_activite = $this->ids;
                     $page = 'CommandeClient';
@@ -1020,9 +1020,9 @@ class NouvCommandeClient extends Component
         }   
     }
     public function valider(){
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->modifier_commande;
             if($autoriser == 1){  
                 $etat = 'Validée';
@@ -1035,11 +1035,11 @@ class NouvCommandeClient extends Component
                 // $length = 2;
                 // $token = bin2hex(random_bytes($length));          
                 $token_ok = 'CMD-EXP/'.$dates;
-                ExpeditionClientLigne::where('societe',auth()->user()->societe)->where('id_commande_client_entete',$this->ids)->delete();
-                ExpeditionClientEntete::where('societe',auth()->user()->societe)->where('id_commande_client_entete',$this->ids)->delete();
+                ExpeditionClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_commande_client_entete',$this->ids)->delete();
+                ExpeditionClientEntete::where('societe_id',auth()->user()->societe_id)->where('id_commande_client_entete',$this->ids)->delete();
                 
                 // Creer ligne expedition dans commande                
-                $ligneCmdClient = CommandeClientLigne::where('societe',auth()->user()->societe)->where('id_commande_client_entete',$this->ids)->get(); 
+                $ligneCmdClient = CommandeClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_commande_client_entete',$this->ids)->get(); 
                 foreach($ligneCmdClient as $ligneCmdClients){
                     // creation et copie entete Expedition Client Ligne
                     ExpeditionClientLigne::create([ 
@@ -1072,6 +1072,7 @@ class NouvCommandeClient extends Component
                         'etat_facture'=>$ligneCmdClients->etat, 
                         'user_id'=>auth()->user()->id,
                         'nom_user'=>auth()->user()->name,
+                        'societe_id'=>auth()->user()->societe_id,
                         'societe'=>auth()->user()->societe]);
                 }
                 //  Fin
@@ -1134,9 +1135,9 @@ class NouvCommandeClient extends Component
         $this->redirect('/nouveau_cmd_clt?id='.$this->ids, navigate: true);        
     }  
     public function precedant(){ 
-        $testPrecedant = CommandeClientEntete::where('societe',auth()->user()->societe)->where('id','<',$this->ids)->orderBy('id','desc')->count();
+        $testPrecedant = CommandeClientEntete::where('societe_id',auth()->user()->societe_id)->where('id','<',$this->ids)->orderBy('id','desc')->count();
         if($testPrecedant > 0){ 
-            $precedant = CommandeClientEntete::where('societe',auth()->user()->societe)->where('id','<',$this->ids)->orderBy('id','desc')->first();        
+            $precedant = CommandeClientEntete::where('societe_id',auth()->user()->societe_id)->where('id','<',$this->ids)->orderBy('id','desc')->first();        
             $previous = $precedant->id; 
             $this->redirect('/nouveau_cmd_clt?id='.$previous.'&ref='.$this->reference.'&active=6&champ=1-1&choix=2', navigate: true);              
         }  
@@ -1153,9 +1154,9 @@ class NouvCommandeClient extends Component
     }    
     public function suivant(){    
         
-        $testSuivant = CommandeClientEntete::where('societe',auth()->user()->societe)->where('id','>',$this->ids)->orderBy('id','asc')->count();
+        $testSuivant = CommandeClientEntete::where('societe_id',auth()->user()->societe_id)->where('id','>',$this->ids)->orderBy('id','asc')->count();
         if($testSuivant > 0){
-            $suivant = CommandeClientEntete::where('societe',auth()->user()->societe)->where('id','>',$this->ids)->orderBy('id','asc')->first();
+            $suivant = CommandeClientEntete::where('societe_id',auth()->user()->societe_id)->where('id','>',$this->ids)->orderBy('id','asc')->first();
             $next = $suivant->id;             
             $this->redirect('/nouveau_cmd_clt?id='.$next.'&ref='.$this->reference.'&active=6&champ=1-1&choix=2', navigate: true);                     
         }  
@@ -1175,9 +1176,9 @@ class NouvCommandeClient extends Component
         $this->approuver = $id;      
     } 
     public function ecraser(){      
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){ 
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->supprimer_commande;
             if($autoriser == 1){                  
                 // suppression definitive et redirection
@@ -1245,10 +1246,10 @@ class NouvCommandeClient extends Component
     }
     public function afficheLigneExpedition(int $idg){
         $this->open = $idg;
-        $testChoix = ExpeditionClientLigne::where('societe',auth()->user()->societe)->where('id',$idg)->count();
+        $testChoix = ExpeditionClientLigne::where('societe_id',auth()->user()->societe_id)->where('id',$idg)->count();
         if($testChoix > 0){
             // ceci permet d'afficher la quantite entrepot origine
-            $choixExp = ExpeditionClientLigne::where('societe',auth()->user()->societe)->where('id',$idg)->first();
+            $choixExp = ExpeditionClientLigne::where('societe_id',auth()->user()->societe_id)->where('id',$idg)->first();
             $this->identif = $choixExp->id;
             $this->type = $choixExp->type_produit;
             $this->nom_produit = $choixExp->produit;
@@ -1282,17 +1283,16 @@ class NouvCommandeClient extends Component
             $this->id_client = $choixExp->id_client; 
             $this->offrir = $choixExp->offrir; 
             $this->etat = $choixExp->etat; 
-            $this->etat_facture = $choixExp->etat_facture;             
-            
+            $this->etat_facture = $choixExp->etat_facture;  
         }
     }    
     public function AjouterLigneExpe(){
         $this->validate([            
             'reste_A_expedier'=>'required|numeric|min:0.5',           
         ]);
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){ 
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->creer_expedition;
             if($autoriser == 1){                
                 if($this->reste_A_expedier  <= $this->resteExpedier){   
@@ -1302,14 +1302,14 @@ class NouvCommandeClient extends Component
                     $dates = date('dmy/His');
                     $token_ok = 'EXP/'.$dates;            
                     // dd($this->ids);
-                    $verifieExp = ExpeditionClientEntete::where('societe',auth()->user()->societe)->where('id_commande_client_entete',$this->ids)->where('statut',1)->count(); 
+                    $verifieExp = ExpeditionClientEntete::where('societe_id',auth()->user()->societe_id)->where('id_commande_client_entete',$this->ids)->where('statut',1)->count(); 
                     if($verifieExp > 0){
                         
-                        $Exp = ExpeditionClientEntete::where('societe',auth()->user()->societe)->where('id_commande_client_entete',$this->ids)->where('statut',1)->first(); 
+                        $Exp = ExpeditionClientEntete::where('societe_id',auth()->user()->societe_id)->where('id_commande_client_entete',$this->ids)->where('statut',1)->first(); 
                         $id_codeExpedit = $Exp->id;
                         $codeExpedit = $Exp->code_expedition;
 
-                        $ligneExpedition = ExpeditionClientLigne::where('societe',auth()->user()->societe)->where('id_commande_client_entete',$this->ids)->where('id',$this->identif)->get(); 
+                        $ligneExpedition = ExpeditionClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_commande_client_entete',$this->ids)->where('id',$this->identif)->get(); 
                         foreach($ligneExpedition as $ligneExpeditions){ 
                                 
                             $id_exp = $ligneExpeditions->id;            
@@ -1320,7 +1320,7 @@ class NouvCommandeClient extends Component
                             $id_fact_clt_entete = $ligneExpeditions->id_facture_client_entete;
                                                         
                             if($this->type_produit == 'Produit'){ 
-                                $stockTrouver = Stock::where('societe',auth()->user()->societe)->where('id_entrepot',$this->id_entrepot)->where('id_produit',$this->id_produit)->first();
+                                $stockTrouver = Stock::where('societe_id',auth()->user()->societe_id)->where('id_entrepot',$this->id_entrepot)->where('id_produit',$this->id_produit)->first();
                                 $this->reference = $stockTrouver->reference;
                                 $qteSockFinal = $stockTrouver->quantite - $quantite_stock;
                                 $valorisation_achat_total = $stockTrouver->prix_moyen_pondere_achat * $qteSockFinal;
@@ -1328,19 +1328,19 @@ class NouvCommandeClient extends Component
                                 $reste_a_expedier = $resteAexpedier - $this->reste_A_expedier;
                             }
                             else{
-                                $stockTrouver = Produit::where('societe',auth()->user()->societe)->where('id',$this->id_produit)->first();
+                                $stockTrouver = Produit::where('societe_id',auth()->user()->societe_id)->where('id',$this->id_produit)->first();
                                 $this->reference = $stockTrouver->reference;
                                 $reste_a_expedier = $resteAexpedier - $this->reste_A_expedier;
                             } 
 
                             if($this->type_produit == 'Produit'){
-                                Stock::where('societe',auth()->user()->societe)->where('id_entrepot',$this->id_entrepot)->where('id_produit',$this->id_produit)->update(['quantite'=>$qteSockFinal,'valorisation_achat_total'=>$valorisation_achat_total,'valeur_vente_total'=>$valeur_vente_total,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);   
+                                Stock::where('societe_id',auth()->user()->societe_id)->where('id_entrepot',$this->id_entrepot)->where('id_produit',$this->id_produit)->update(['quantite'=>$qteSockFinal,'valorisation_achat_total'=>$valorisation_achat_total,'valeur_vente_total'=>$valeur_vente_total,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);   
                             }                                    
                             ExpeditionClientLigne::where('id',$id_exp)->update(['quantite_expediee'=>$quantite_expediee,'reste_a_expedier'=>$reste_a_expedier,
-                                                                                'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);   
+                            'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);   
                         
                             if($this->type_produit == 'Produit'){
-                                $Entrepo = Entrepot::where('societe',auth()->user()->societe)->where('id',$this->id_entrepot)->first();                    
+                                $Entrepo = Entrepot::where('societe_id',auth()->user()->societe_id)->where('id',$this->id_entrepot)->first();                    
                                 $nom_entrepot = $Entrepo->nom;
                             } 
 
@@ -1350,21 +1350,22 @@ class NouvCommandeClient extends Component
                             
                             if($this->type_produit == 'Produit'){
                                 Mouvement::create(['id_entrepot'=>$this->id_entrepot,'nom_produit'=>$this->nom_produit,'id_produit'=>$this->id_produit,'reference'=>$this->reference,'quantite'=>-$quantite_stock,'libele_mouvement'=>$libele_mouvement,
-                                'code_mouvement'=>$code_mouvement,'statut'=>$statut,'origine'=>$codeExpedit,'id_expedition'=>$id_codeExpedit,'entrepot'=>$nom_entrepot,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
+                                'code_mouvement'=>$code_mouvement,'statut'=>$statut,'origine'=>$codeExpedit,'id_expedition'=>$id_codeExpedit,'entrepot'=>$nom_entrepot,'societe'=>auth()->user()->societe,
+                                'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
                             }                                   
 
                             // Verifier l'etat et valider (Clôturée ou Partiel)
-                            $charge = ExpeditionClientLigne::where('societe',auth()->user()->societe)->where('id_commande_client_entete',$this->ids)->where('id_produit',$this->id_produit)->get();
+                            $charge = ExpeditionClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_commande_client_entete',$this->ids)->where('id_produit',$this->id_produit)->get();
                             $QteCmderTotal = $charge->sum('quantite');
                             $QteExpedieeTotal = $charge->sum('quantite_expediee');
                             // dd($QteCmderTotal,'=',$QteExpedieeTotal);
                             if($QteCmderTotal == $QteExpedieeTotal){
                                 $etatExp = 'Clôturée'; 
-                                ExpeditionClientLigne::where('id',$id_exp)->update(['etat'=>$etatExp,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
+                                ExpeditionClientLigne::where('id',$id_exp)->update(['etat'=>$etatExp,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
                             }
                             else{
                                 $etatExp = 'Partiel'; 
-                                ExpeditionClientLigne::where('id',$id_exp)->update(['etat'=>$etatExp,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
+                                ExpeditionClientLigne::where('id',$id_exp)->update(['etat'=>$etatExp,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
                             }
                             // Fin                            
 
@@ -1399,9 +1400,9 @@ class NouvCommandeClient extends Component
                             //************** Fin Calcul ***********//
 
                             // Expedition ligne partiel
-                            $test_ligPart = ExpeditionClientLignePartiel::where('societe',auth()->user()->societe)->where('code_expedition',$codeExpedit)->where('id_produit',$this->id_produit)->count(); 
+                            $test_ligPart = ExpeditionClientLignePartiel::where('societe_id',auth()->user()->societe_id)->where('code_expedition',$codeExpedit)->where('id_produit',$this->id_produit)->count(); 
                             if($test_ligPart > 0){
-                                ExpeditionClientLignePartiel::where('societe',auth()->user()->societe)->where('code_expedition',$codeExpedit)->where('id_produit',$this->id_produit)->delete();
+                                ExpeditionClientLignePartiel::where('societe_id',auth()->user()->societe_id)->where('code_expedition',$codeExpedit)->where('id_produit',$this->id_produit)->delete();
                             }                            
                             ExpeditionClientLignePartiel::create([ 
                                 'id_expedition_client_entete'=>$id_codeExpedit,   // id                   
@@ -1437,11 +1438,12 @@ class NouvCommandeClient extends Component
                                 'etat_facture'=>$ligneExpeditions->etat_facture, 
                                 'user_id'=>auth()->user()->id,
                                 'nom_user'=>auth()->user()->name,
+                                'societe_id'=>auth()->user()->societe_id,
                                 'societe'=>auth()->user()->societe]);                            
                             // Fin Expedition ligne partiel
                                 
                             // Verifier l'etat et valider (Clôturée ou Partiel)
-                                $charge = ExpeditionClientLigne::where('societe',auth()->user()->societe)->where('id_commande_client_entete',$this->ids)->get();
+                                $charge = ExpeditionClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_commande_client_entete',$this->ids)->get();
                                 $QteCmderTotal = $charge->sum('quantite');
                                 $QteExpedieeTotal = $charge->sum('quantite_expediee');
                                 if($QteCmderTotal == $QteExpedieeTotal){
@@ -1453,7 +1455,7 @@ class NouvCommandeClient extends Component
                                     $statut = 1; 
                                 }
                                 // Fin  
-                                $expeClient_ligne = ExpeditionClientLignePartiel::where('societe',auth()->user()->societe)->where('id_expedition_client_entete',$id_codeExpedit)->get();
+                                $expeClient_ligne = ExpeditionClientLignePartiel::where('societe_id',auth()->user()->societe_id)->where('id_expedition_client_entete',$id_codeExpedit)->get();
                                 $montantHT = $expeClient_ligne->sum('montant_ht');
                                 $montantTTC = $expeClient_ligne->sum('montant_ttc');
                                 $marge = $expeClient_ligne->sum('marge');
@@ -1461,8 +1463,8 @@ class NouvCommandeClient extends Component
                                 $montantTva = $expeClient_ligne->sum('montant_tva');
                                 $montantPrecompte = $expeClient_ligne->sum('montant_precompte');                                
 
-                                CommandeClientEntete::where('societe',auth()->user()->societe)->where('id',$this->ids)->update(['etat_expedi'=>$etat,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
-                                ExpeditionClientEntete::where('societe',auth()->user()->societe)->where('id_commande_client_entete',$this->ids)->where('code_expedition',$codeExpedit)->update(['etat'=>$etatExp,'statut'=>$statut, 
+                                CommandeClientEntete::where('societe_id',auth()->user()->societe_id)->where('id',$this->ids)->update(['etat_expedi'=>$etat,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
+                                ExpeditionClientEntete::where('societe_id',auth()->user()->societe_id)->where('id_commande_client_entete',$this->ids)->where('code_expedition',$codeExpedit)->update(['etat'=>$etatExp,'statut'=>$statut, 
                                                               'montant_ht'=>$montantHT,'marge'=>$marge,'montant_ttc'=>$montantTTC,'montant_remise'=>$montantRemise,'montant_tva'=>$montantTva,'montant_precompte'=>$montantPrecompte,                                                             
                                                               'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
                             
@@ -1484,10 +1486,10 @@ class NouvCommandeClient extends Component
                     else{                          
                         
                         // Creation entete et ajout ligne
-                        $enteteCmdClient = CommandeClientEntete::where('societe',auth()->user()->societe)->where('id',$this->ids)->get();
+                        $enteteCmdClient = CommandeClientEntete::where('societe_id',auth()->user()->societe_id)->where('id',$this->ids)->get();
                         foreach($enteteCmdClient as $enteteCmdClients){
                             // creation et copie entete Expedition Client Entete
-                            ExpeditionClientEntete::create([  
+                            $expCltEntet = ExpeditionClientEntete::create([  
                                 'code_expedition'=>$token_ok,
                                 'code_commande'=>$enteteCmdClients->code_commande,
                                 'id_commande_client_entete'=>$enteteCmdClients->id,
@@ -1508,15 +1510,16 @@ class NouvCommandeClient extends Component
                                 'etat'=>'Brouillon',
                                 'etat_cmd'=>$enteteCmdClients->etat,
                                 'societe'=>auth()->user()->societe,
+                                'societe_id'=>auth()->user()->societe_id,
                                 'nom_user'=>auth()->user()->name,
                                 'user_id'=>auth()->user()->id]);
                         
-                            $dernier_id = ExpeditionClientEntete::where('societe',auth()->user()->societe)->where('user_id',auth()->user()->id)->latest()->first()->id;
+                            $dernier_id =  $expCltEntet->id;
 
                             CommandeClientEntete::find($this->ids)->update(['code_expedition'=>$token_ok,'id_expedition_entete'=>$dernier_id,
-                            'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);                            
+                            'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);                            
 
-                            $ligneExpedition = ExpeditionClientLigne::where('societe',auth()->user()->societe)->where('id_commande_client_entete',$this->ids)->where('id',$this->identif)->get(); 
+                            $ligneExpedition = ExpeditionClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_commande_client_entete',$this->ids)->where('id',$this->identif)->get(); 
                             foreach($ligneExpedition as $ligneExpeditions){ 
                                     
                                 $id_exp = $ligneExpeditions->id;            
@@ -1527,7 +1530,7 @@ class NouvCommandeClient extends Component
                                 $id_fact_clt_entete = $ligneExpeditions->id_facture_client_entete;
                                                            
                                 if($this->type_produit == 'Produit'){ 
-                                    $stockTrouver = Stock::where('societe',auth()->user()->societe)->where('id_entrepot',$this->id_entrepot)->where('id_produit',$this->id_produit)->first();
+                                    $stockTrouver = Stock::where('societe_id',auth()->user()->societe_id)->where('id_entrepot',$this->id_entrepot)->where('id_produit',$this->id_produit)->first();
                                     $this->reference = $stockTrouver->reference;
                                     $qteSockFinal = $stockTrouver->quantite - $quantite_stock;
                                     $valorisation_achat_total = $stockTrouver->prix_moyen_pondere_achat * $qteSockFinal;
@@ -1535,19 +1538,19 @@ class NouvCommandeClient extends Component
                                     $reste_a_expedier = $resteAexpedier - $this->reste_A_expedier ;
                                 }
                                 else{
-                                    $stockTrouver = Produit::where('societe',auth()->user()->societe)->where('id',$this->id_produit)->first();
+                                    $stockTrouver = Produit::where('societe_id',auth()->user()->societe_id)->where('id',$this->id_produit)->first();
                                     $this->reference = $stockTrouver->reference;
                                     $reste_a_expedier = $resteAexpedier - $this->reste_A_expedier ;
                                 }                              
                                 
                                 if($this->type_produit == 'Produit'){
-                                    Stock::where('societe',auth()->user()->societe)->where('id_entrepot',$this->id_entrepot)->where('id_produit',$this->id_produit)->update(['quantite'=>$qteSockFinal,'valorisation_achat_total'=>$valorisation_achat_total,'valeur_vente_total'=>$valeur_vente_total,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);   
+                                    Stock::where('societe_id',auth()->user()->societe_id)->where('id_entrepot',$this->id_entrepot)->where('id_produit',$this->id_produit)->update(['quantite'=>$qteSockFinal,'valorisation_achat_total'=>$valorisation_achat_total,'valeur_vente_total'=>$valeur_vente_total,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);   
                                 }                                    
                                 ExpeditionClientLigne::where('id',$id_exp)->update(['quantite_expediee'=>$quantite_expediee,'reste_a_expedier'=>$reste_a_expedier,
-                                                                                    'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);   
+                                'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);   
                             
                                 if($this->type_produit == 'Produit'){
-                                    $Entrepo = Entrepot::where('societe',auth()->user()->societe)->where('id',$this->id_entrepot)->first();                    
+                                    $Entrepo = Entrepot::where('societe_id',auth()->user()->societe_id)->where('id',$this->id_entrepot)->first();                    
                                     $nom_entrepot = $Entrepo->nom;
                                 } 
 
@@ -1556,11 +1559,12 @@ class NouvCommandeClient extends Component
                                 $statut = 'EXP';                                
                                 if($this->type_produit == 'Produit'){
                                     Mouvement::create(['id_entrepot'=>$this->id_entrepot,'nom_produit'=>$this->nom_produit,'id_produit'=>$this->id_produit,'reference'=>$this->reference,'quantite'=>-$quantite_stock,'libele_mouvement'=>$libele_mouvement,
-                                    'code_mouvement'=>$code_mouvement,'statut'=>$statut,'origine'=>$token_ok,'id_expedition'=>$dernier_id,'entrepot'=>$nom_entrepot,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
+                                    'code_mouvement'=>$code_mouvement,'statut'=>$statut,'origine'=>$token_ok,'id_expedition'=>$dernier_id,'entrepot'=>$nom_entrepot,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,
+                                    'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
                                 }    
                                 
                                 // Verifier l'etat et valider (Clôturée ou Partiel)
-                                $charge = ExpeditionClientLigne::where('societe',auth()->user()->societe)->where('id_commande_client_entete',$this->ids)->where('id_produit',$this->id_produit)->get();
+                                $charge = ExpeditionClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_commande_client_entete',$this->ids)->where('id_produit',$this->id_produit)->get();
                                 $QteCmderTotal = $charge->sum('quantite');
                                 $QteExpedieeTotal = $charge->sum('quantite_expediee');
                                 // dd($QteCmderTotal,'=',$QteExpedieeTotal);
@@ -1605,9 +1609,9 @@ class NouvCommandeClient extends Component
                                         //************** Fin Calcul ***********//
 
                                 // Expedition ligne partiel
-                                $test_ligPart = ExpeditionClientLignePartiel::where('societe',auth()->user()->societe)->where('code_expedition',$token_ok)->where('id_produit',$this->id_produit)->count(); 
+                                $test_ligPart = ExpeditionClientLignePartiel::where('societe_id',auth()->user()->societe_id)->where('code_expedition',$token_ok)->where('id_produit',$this->id_produit)->count(); 
                                 if($test_ligPart > 0){
-                                    ExpeditionClientLignePartiel::where('societe',auth()->user()->societe)->where('code_expedition',$token_ok)->where('id_produit',$this->id_produit)->delete();
+                                    ExpeditionClientLignePartiel::where('societe_id',auth()->user()->societe_id)->where('code_expedition',$token_ok)->where('id_produit',$this->id_produit)->delete();
                                 }                            
                                 ExpeditionClientLignePartiel::create([ 
                                     'id_expedition_client_entete'=>$dernier_id,   // id                   
@@ -1643,10 +1647,11 @@ class NouvCommandeClient extends Component
                                     'etat_facture'=>$ligneExpeditions->etat_facture, 
                                     'user_id'=>auth()->user()->id,
                                     'nom_user'=>auth()->user()->name,
+                                    'societe_id'=>auth()->user()->societe_id,
                                     'societe'=>auth()->user()->societe]);                            
                                 // Fin Expedition ligne partiel
 
-                                $expeClient_ligne = ExpeditionClientLignePartiel::where('societe',auth()->user()->societe)->where('id_expedition_client_entete',$dernier_id)->get();
+                                $expeClient_ligne = ExpeditionClientLignePartiel::where('societe_id',auth()->user()->societe_id)->where('id_expedition_client_entete',$dernier_id)->get();
                                 $montantHT = $expeClient_ligne->sum('montant_ht');
                                 $montantTTC = $expeClient_ligne->sum('montant_ttc');
                                 $marge = $expeClient_ligne->sum('marge');
@@ -1655,7 +1660,7 @@ class NouvCommandeClient extends Component
                                 $montantPrecompte = $expeClient_ligne->sum('montant_precompte');
 
                                 // Verifier l'etat et valider (Clôturée ou Partiel)
-                                $charge = ExpeditionClientLigne::where('societe',auth()->user()->societe)->where('id_commande_client_entete',$this->ids)->where('code_expedition',$code_expedition)->get();
+                                $charge = ExpeditionClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_commande_client_entete',$this->ids)->where('code_expedition',$code_expedition)->get();
                                 $QteCmderTotal = $charge->sum('quantite');
                                 $QteExpedieeTotal = $charge->sum('quantite_expediee');
                                 if($QteCmderTotal == $QteExpedieeTotal){
@@ -1666,8 +1671,8 @@ class NouvCommandeClient extends Component
                                 }
                                 // Fin
 
-                                CommandeClientEntete::where('societe',auth()->user()->societe)->where('id',$this->ids)->update(['etat_expedi'=>$etat,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
-                                ExpeditionClientEntete::where('societe',auth()->user()->societe)->where('id_commande_client_entete',$this->ids)->where('code_expedition',$token_ok)->update(['etat'=>$etatExp,
+                                CommandeClientEntete::where('societe_id',auth()->user()->societe_id)->where('id',$this->ids)->update(['etat_expedi'=>$etat,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
+                                ExpeditionClientEntete::where('societe_id',auth()->user()->societe_id)->where('id_commande_client_entete',$this->ids)->where('code_expedition',$token_ok)->update(['etat'=>$etatExp,
                                                               'montant_ht'=>$montantHT,'marge'=>$marge,'montant_ttc'=>$montantTTC,'montant_remise'=>$montantRemise,'montant_tva'=>$montantTva,'montant_precompte'=>$montantPrecompte,
                                                               'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
 
@@ -1725,9 +1730,9 @@ class NouvCommandeClient extends Component
         $this->validate([            
             'reste_A_facturer'=>'required|numeric|min:0.5',           
         ]);
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){ 
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->creer_expedition;
             if($autoriser == 1){                
                 if($this->reste_A_facturer  <= $this->resteFacturer){   
@@ -1737,14 +1742,14 @@ class NouvCommandeClient extends Component
                     $dates = date('dmy/His');
                     $token_ok = 'FACT/'.$dates;            
 
-                    $verifieFact = factureClientEntete::where('societe',auth()->user()->societe)->where('id_commande_client_entete',$this->ids)->where('statut',1)->count(); 
+                    $verifieFact = factureClientEntete::where('societe_id',auth()->user()->societe_id)->where('id_commande_client_entete',$this->ids)->where('statut',1)->count(); 
                     if($verifieFact > 0){ 
                         
-                        $Fact = factureClientEntete::where('societe',auth()->user()->societe)->where('id_commande_client_entete',$this->ids)->where('statut',1)->first(); 
+                        $Fact = factureClientEntete::where('societe_id',auth()->user()->societe_id)->where('id_commande_client_entete',$this->ids)->where('statut',1)->first(); 
                         $id_codeFact = $Fact->id;
                         $codeFact = $Fact->code_facture;
 
-                        $ligneExpedition = ExpeditionClientLigne::where('societe',auth()->user()->societe)->where('id_commande_client_entete',$this->ids)->where('id',$this->identif)->get(); 
+                        $ligneExpedition = ExpeditionClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_commande_client_entete',$this->ids)->where('id',$this->identif)->get(); 
                         foreach($ligneExpedition as $ligneExpeditions){ 
                                 
                                 // ************ Calul ***********
@@ -1777,9 +1782,9 @@ class NouvCommandeClient extends Component
                                 }
                                 //************** Fin Calcul ***********//
                                 // Facture ligne partiel
-                                $test_ligPart = factureClientLigne::where('societe',auth()->user()->societe)->where('code_facture',$codeFact)->where('id_produit',$this->id_produit)->count(); 
+                                $test_ligPart = factureClientLigne::where('societe_id',auth()->user()->societe_id)->where('code_facture',$codeFact)->where('id_produit',$this->id_produit)->count(); 
                                 if($test_ligPart > 0){
-                                    factureClientLigne::where('societe',auth()->user()->societe)->where('code_facture',$codeFact)->where('id_produit',$this->id_produit)->delete();
+                                    factureClientLigne::where('societe_id',auth()->user()->societe_id)->where('code_facture',$codeFact)->where('id_produit',$this->id_produit)->delete();
                                 }
                                  factureClientLigne::create([  
                                     'code_facture'=>$codeFact,
@@ -1809,10 +1814,11 @@ class NouvCommandeClient extends Component
                                     'etat'=>'Brouillon',
                                     'user_id'=>auth()->user()->id,
                                     'nom_user'=>auth()->user()->name,
+                                    'societe_id'=>auth()->user()->societe_id,
                                     'societe'=>auth()->user()->societe]);                                  
 
                                 // $statut = 0; 
-                                $factClient_ligne = factureClientLigne::where('societe',auth()->user()->societe)->where('id_facture_client_entete',$id_codeFact)->get();
+                                $factClient_ligne = factureClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_facture_client_entete',$id_codeFact)->get();
                                 $montantHT = $factClient_ligne->sum('montant_ht');
                                 $montantTTC = $factClient_ligne->sum('montant_ttc');
                                 $marge = $factClient_ligne->sum('marge');
@@ -1820,8 +1826,8 @@ class NouvCommandeClient extends Component
                                 $montantTva = $factClient_ligne->sum('montant_tva');
                                 $montantPrecompte = $factClient_ligne->sum('montant_precompte');                             
 
-                                CommandeClientEntete::where('societe',auth()->user()->societe)->where('id',$this->ids)->update(['etat_fact'=>'Brouillon','nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
-                                factureClientEntete::where('societe',auth()->user()->societe)->where('id_commande_client_entete',$this->ids)->where('code_facture',$codeFact)->update(['etat'=>'Brouillon',
+                                CommandeClientEntete::where('societe_id',auth()->user()->societe_id)->where('id',$this->ids)->update(['etat_fact'=>'Brouillon','nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
+                                factureClientEntete::where('societe_id',auth()->user()->societe_id)->where('id_commande_client_entete',$this->ids)->where('code_facture',$codeFact)->update(['etat'=>'Brouillon',
                                                               'montant_ht'=>$montantHT,'marge'=>$marge,'montant_ttc'=>$montantTTC,'montant_remise'=>$montantRemise,'montant_tva'=>$montantTva,'montant_precompte'=>$montantPrecompte,
                                                               'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);                             
                             
@@ -1843,10 +1849,10 @@ class NouvCommandeClient extends Component
                     else{                          
                         
                         // Creation entete et ajout ligne
-                        $enteteCmdClient = CommandeClientEntete::where('societe',auth()->user()->societe)->where('id',$this->ids)->get();
+                        $enteteCmdClient = CommandeClientEntete::where('societe_id',auth()->user()->societe_id)->where('id',$this->ids)->get();
                         foreach($enteteCmdClient as $enteteCmdClients){
                             // creation et copie entete Expedition Client Entete
-                            factureClientEntete::create([ 
+                            $factCltEntet = factureClientEntete::create([ 
                                 'code_facture'=>$token_ok,
                                 'code_commande'=>$enteteCmdClients->code_commande,
                                 'id_commande_client_entete'=>$enteteCmdClients->id,
@@ -1869,15 +1875,16 @@ class NouvCommandeClient extends Component
                                 'etat'=>'Brouillon',
                                 'etat_expedi'=>'',                         
                                 'societe'=>auth()->user()->societe,
+                                'societe_id'=>auth()->user()->societe_id,
                                 'nom_user'=>auth()->user()->name,
                                 'user_id'=>auth()->user()->id]);
                         
-                            $dernier_id = factureClientEntete::where('societe',auth()->user()->societe)->where('user_id',auth()->user()->id)->latest()->first()->id;
-                            $NbrefactClt = factureClientEntete::where('societe',auth()->user()->societe)->where('id_commande_client_entete',$this->ids)->count();
+                            $dernier_id = $factCltEntet->id;
+                            $NbrefactClt = factureClientEntete::where('societe_id',auth()->user()->societe_id)->where('id_commande_client_entete',$this->ids)->count();
 
-                            CommandeClientEntete::find($this->ids)->update(['nbre_facture'=>$NbrefactClt,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);                            
+                            CommandeClientEntete::find($this->ids)->update(['nbre_facture'=>$NbrefactClt,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);                            
 
-                            $ligneExpedition = ExpeditionClientLigne::where('societe',auth()->user()->societe)->where('id_commande_client_entete',$this->ids)->where('id',$this->identif)->get(); 
+                            $ligneExpedition = ExpeditionClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_commande_client_entete',$this->ids)->where('id',$this->identif)->get(); 
                             foreach($ligneExpedition as $ligneExpeditions){ 
                             
                                  // ************ Calul ***********
@@ -1911,9 +1918,9 @@ class NouvCommandeClient extends Component
                                 //************** Fin Calcul ***********//
 
                                 // Facture ligne partiel
-                                $test_ligPart = factureClientLigne::where('societe',auth()->user()->societe)->where('code_facture',$token_ok)->where('id_produit',$this->id_produit)->count(); 
+                                $test_ligPart = factureClientLigne::where('societe_id',auth()->user()->societe_id)->where('code_facture',$token_ok)->where('id_produit',$this->id_produit)->count(); 
                                 if($test_ligPart > 0){
-                                    factureClientLigne::where('societe',auth()->user()->societe)->where('code_facture',$token_ok)->where('id_produit',$this->id_produit)->delete();
+                                    factureClientLigne::where('societe_id',auth()->user()->societe_id)->where('code_facture',$token_ok)->where('id_produit',$this->id_produit)->delete();
                                 }                            
                                 factureClientLigne::create([  
                                     'code_facture'=>$token_ok,
@@ -1945,10 +1952,11 @@ class NouvCommandeClient extends Component
                                     'etat'=>'Brouillon',
                                     'user_id'=>auth()->user()->id,
                                     'nom_user'=>auth()->user()->name,
+                                    'societe_id'=>auth()->user()->societe_id,
                                     'societe'=>auth()->user()->societe]);
 
 
-                                $factClient_ligne = factureClientLigne::where('societe',auth()->user()->societe)->where('id_facture_client_entete',$dernier_id)->get();
+                                $factClient_ligne = factureClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_facture_client_entete',$dernier_id)->get();
                                 $montantHT = $factClient_ligne->sum('montant_ht');
                                 $montantTTC = $factClient_ligne->sum('montant_ttc');
                                 $marge = $factClient_ligne->sum('marge');
@@ -1956,8 +1964,8 @@ class NouvCommandeClient extends Component
                                 $montantTva = $factClient_ligne->sum('montant_tva');
                                 $montantPrecompte = $factClient_ligne->sum('montant_precompte');
                                 
-                                CommandeClientEntete::where('societe',auth()->user()->societe)->where('id',$this->ids)->update(['etat_fact'=>'Brouillon','nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
-                                factureClientEntete::where('societe',auth()->user()->societe)->where('id_commande_client_entete',$this->ids)->where('code_facture',$token_ok)->update(['etat'=>'Brouillon',
+                                CommandeClientEntete::where('societe_id',auth()->user()->societe_id)->where('id',$this->ids)->update(['etat_fact'=>'Brouillon','nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
+                                factureClientEntete::where('societe_id',auth()->user()->societe_id)->where('id_commande_client_entete',$this->ids)->where('code_facture',$token_ok)->update(['etat'=>'Brouillon',
                                                               'montant_ht'=>$montantHT,'marge'=>$marge,'montant_ttc'=>$montantTTC,'montant_remise'=>$montantRemise,'montant_tva'=>$montantTva,'montant_precompte'=>$montantPrecompte,
                                                               'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
 
@@ -2013,9 +2021,9 @@ class NouvCommandeClient extends Component
     }     
     public function detailProf(int $idx, $codeProforma){
         // ceci au chargement de la page
-        $test_proforma = ProformaClientEntete::where('societe',auth()->user()->societe)->where('id',$idx)->count();    
+        $test_proforma = ProformaClientEntete::where('societe_id',auth()->user()->societe_id)->where('id',$idx)->count();    
         if($test_proforma > 0){
-            $compte = ProformaClientEntete::where('societe',auth()->user()->societe)->where('id',$idx)->first();               
+            $compte = ProformaClientEntete::where('societe_id',auth()->user()->societe_id)->where('id',$idx)->first();               
             // $this->ids = $compte->id;           
             $this->reference = $compte->code_proforma; // reference proforma
             $this->redirect('/nouveau_prof_clt?id='.$idx.'&ref='.$this->reference.'&active=6&champ=1-1&choix=1', navigate: true);

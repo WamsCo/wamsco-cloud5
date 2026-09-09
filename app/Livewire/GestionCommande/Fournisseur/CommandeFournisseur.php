@@ -50,9 +50,9 @@ class CommandeFournisseur extends Component
         }
     }
     public function mount(){
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $this->autoriser = $role[0]->voir_marge;
             $autoriser = $role[0]->consulter_com_fourni;
             if($autoriser == 0){
@@ -71,7 +71,7 @@ class CommandeFournisseur extends Component
     public function render(){
     
         $dateJour = date('Y-m-d');            
-        $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();
+        $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();
         $jourValid = $entite_mod[0]->validite_mod; 
         $mod_cmd = $entite_mod[0]->mod_cmd; 
         $soldeClient = $entite_mod[0]->solde;
@@ -90,10 +90,10 @@ class CommandeFournisseur extends Component
                 $start = Carbon::parse($this->date_debut)->startOfDay(); //2016-09-29 00:00:00.000000
                 $end = Carbon::parse($this->date_fin)->endOfDay();
                 if(!empty($this->parEtat)){ 
-                    $cmd_fournisseur = CommandeFournisseurEntete::where('societe',auth()->user()->societe)->where('nom_fournisseur','like','%'.$this->query.'%')->where('code_commande','like','%'.$this->parCmd.'%')->where('etat',$this->parEtat)->whereBetween('created_at',[$start, $end])->orderBy($this->orderField, $this->orderDirection)->paginate($this->parPage);
+                    $cmd_fournisseur = CommandeFournisseurEntete::where('societe_id',auth()->user()->societe_id)->where('nom_fournisseur','like','%'.$this->query.'%')->where('code_commande','like','%'.$this->parCmd.'%')->where('etat',$this->parEtat)->whereBetween('created_at',[$start, $end])->orderBy($this->orderField, $this->orderDirection)->paginate($this->parPage);
                 }
                 else{
-                    $cmd_fournisseur = CommandeFournisseurEntete::where('societe',auth()->user()->societe)->where('nom_fournisseur','like','%'.$this->query.'%')->where('code_commande','like','%'.$this->parCmd.'%')->whereBetween('created_at',[$start, $end])->orderBy($this->orderField, $this->orderDirection)->paginate($this->parPage);
+                    $cmd_fournisseur = CommandeFournisseurEntete::where('societe_id',auth()->user()->societe_id)->where('nom_fournisseur','like','%'.$this->query.'%')->where('code_commande','like','%'.$this->parCmd.'%')->whereBetween('created_at',[$start, $end])->orderBy($this->orderField, $this->orderDirection)->paginate($this->parPage);
                 }
               
                 $cmdFournisseurCount = $cmd_fournisseur->count();
@@ -103,28 +103,28 @@ class CommandeFournisseur extends Component
                 $montantTmarge = $cmd_fournisseur->sum('marge'); 
                 
                 // pour les KPI
-                $resultat = CommandeFournisseurEntete::where('societe',auth()->user()->societe)->get();  
+                $resultat = CommandeFournisseurEntete::where('societe_id',auth()->user()->societe_id)->get();  
                 $nbreTotalCmd = $resultat->count(); 
                 $montantTTC_all = $resultat->sum('montant_ttc');
                 $montantTrecu_all = $resultat->sum('montant_recu');
                 $montantTmarge_All = $resultat->sum('marge'); 
                 $montantCreance_all = $resultat->sum('reste_a_percevoir');     
 
-                $derniereActivite = CommandeFournisseurEntete::where('societe',auth()->user()->societe)->latest('updated_at')->first();
+                $derniereActivite = CommandeFournisseurEntete::where('societe_id',auth()->user()->societe_id)->latest('updated_at')->first();
                 
                 $page = 'CommandeFournisseur'; // pour evenement lies
                 $log = LogActivityModel::where('user_societe',auth()->user()->societe)->where('page', $page)->limit(50)->orderBy('id','desc')->get();
                 $logCount = $log->count();
                 
-                $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->count(); 
+                $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->count(); 
                 if($deviseTva == 0){
                     $this->devise = 'FCFA';
                 }
                 else{
-                    $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->get(); 
+                    $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->get(); 
                     $this->devise = $deviseTva[0]->devise;
                 }
-                $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();          
+                $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();          
                 $jourValid = $entite_mod[0]->validite_mod; 
                 // ceci pour trouver le nombre de jour restant avant expiration
                 $nbjoursRestant = round((strtotime($jourValid) - strtotime($dateJour))/(60*60*24));
@@ -159,9 +159,9 @@ class CommandeFournisseur extends Component
     }
     public function store(){
         // $this->validate();       
-       $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+       $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->creer_com_fourni;
             if($autoriser == 1){   
            
@@ -189,13 +189,13 @@ class CommandeFournisseur extends Component
                 $token = bin2hex(random_bytes($length));
                 $token_ok = 'SCMD/'.$dates;
                 // $token_ok = 'FACT/'.$dates.'/'.$token;
-                CommandeFournisseurEntete :: create(['code_commande'=>$token_ok,'nom_fournisseur'=>$fournisseur,'id_fournisseur'=>$id_fournisseur,'date_commande'=>$date_commande,'date_livraison'=>$date_livraison,
+                $cmdFourniEntet = CommandeFournisseurEntete :: create(['code_commande'=>$token_ok,'nom_fournisseur'=>$fournisseur,'id_fournisseur'=>$id_fournisseur,'date_commande'=>$date_commande,'date_livraison'=>$date_livraison,
                             'montant_ht'=>$montant_ht,'montant_remise'=>$montant_remise,'montant_tva'=>$montant_tva,'montant_precompte'=>$montant_precompte,'montant_ttc'=>$montant_ttc,'marge'=>$marge,
-                            'montant_recu'=>$montant_recu,'reste_a_percevoir'=>$reste_a_percevoir,'mode_reglement'=>$mode_reglement,'compte_bancaire'=>$compte_bancaire,'note'=>$note,'etat'=>$etat,'societe'=>auth()->user()->societe,
+                            'montant_recu'=>$montant_recu,'reste_a_percevoir'=>$reste_a_percevoir,'mode_reglement'=>$mode_reglement,'compte_bancaire'=>$compte_bancaire,'note'=>$note,'etat'=>$etat,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,
                             'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
 
-                        // ceci recupere le dernier enregistrement cree a l'instant
-                $dernier_id = CommandeFournisseurEntete::where('societe',auth()->user()->societe)->where('user_id',auth()->user()->id)->latest()->first()->id; 
+                // ceci recupere le dernier enregistrement cree a l'instant
+                $dernier_id = $cmdFourniEntet->id; 
 
                 $id_activite = $dernier_id;
                 $page = 'CommandeFournisseur';
@@ -236,13 +236,13 @@ class CommandeFournisseur extends Component
         $this->confirmer = $id;        
     } 
     public function supprimer(int $id, string $code_fact){
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){ 
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->supprimer_com_fourni;
             if($autoriser == 1){   
                 if($id){                   
-                    $test_regle = factureFournisseurEntete::where('societe',auth()->user()->societe)->where('code_facture',$code_fact)->count();
+                    $test_regle = factureFournisseurEntete::where('societe_id',auth()->user()->societe_id)->where('code_facture',$code_fact)->count();
                     if($test_regle == 0){
                         $page = 'CommandeFournisseur';
                         CommandeFournisseurEntete::where('id',$id)->delete();
@@ -295,9 +295,9 @@ class CommandeFournisseur extends Component
     } 
     public function detailFact(int $idx, $codeFact_cmd){
         // ceci au chargement de la page
-        $test_facture = factureFournisseurEntete::where('societe',auth()->user()->societe)->where('id',$idx)->count();    
+        $test_facture = factureFournisseurEntete::where('societe_id',auth()->user()->societe_id)->where('id',$idx)->count();    
         if($test_facture > 0){
-            $compte = factureFournisseurEntete::where('societe',auth()->user()->societe)->where('id',$idx)->first();               
+            $compte = factureFournisseurEntete::where('societe_id',auth()->user()->societe_id)->where('id',$idx)->first();               
             $this->ids = $compte->id;           
             $this->reference = $compte->code_facture; // reference facture
             $this->redirect('/nouveau_fact_fourni?id='.$idx.'&ref='.$this->reference.'&active=6&champ=2-1&choix=1', navigate: true);

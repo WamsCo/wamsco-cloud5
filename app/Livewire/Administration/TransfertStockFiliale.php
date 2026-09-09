@@ -86,9 +86,9 @@ class TransfertStockFiliale extends Component
         }
     }
     public function mount(){        
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->consulter_transfert_filiale;
             if($autoriser == 0){
                 alert()->error('Oups Désolé', 'Vous n\'êtes pas autorisé à ouvrir cette page !!!')->position('center')->autoClose(5000)->background('#fff')->width('460px')->padding('5px');
@@ -111,7 +111,7 @@ class TransfertStockFiliale extends Component
     public function render()
     {
         $dateJour = date('Y-m-d');            
-        $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();
+        $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();
         $jourValid = $entite_mod[0]->validite_mod; 
         $mod_multisociete = $entite_mod[0]->mod_multisociete;
         $soldeClient = $entite_mod[0]->solde;
@@ -131,45 +131,45 @@ class TransfertStockFiliale extends Component
                 $end = Carbon::parse($this->date_fin)->endOfDay();     // 2016-09-29 23:59:59.000000
 
                 if(empty($this->parEntrepot_orig) && empty($this->parEntrepot_desti)){
-                    $transfert = TransfertFiliale::where('societe',auth()->user()->societe)->where('id','like','%'.$this->query.'%')->where('etiquette_transfert','like','%'.$this->parEtiquette.'%')->whereBetween('created_at',[$start, $end])->orderBy($this->orderField, $this->orderDirection)->paginate($this->parPage);
+                    $transfert = TransfertFiliale::where('societe_id',auth()->user()->societe_id)->where('id','like','%'.$this->query.'%')->where('etiquette_transfert','like','%'.$this->parEtiquette.'%')->whereBetween('created_at',[$start, $end])->orderBy($this->orderField, $this->orderDirection)->paginate($this->parPage);
                 }
                 elseif(!empty($this->parEntrepot_orig) && empty($this->parEntrepot_desti)){
-                    $transfert = TransfertFiliale::where('societe',auth()->user()->societe)->where('id','like','%'.$this->query.'%')->where('etiquette_transfert','like','%'.$this->parEtiquette.'%')->where('id_entrepot_origine',$this->parEntrepot_orig)->whereBetween('created_at',[$start, $end])->orderBy($this->orderField, $this->orderDirection)->paginate($this->parPage);
+                    $transfert = TransfertFiliale::where('societe_id',auth()->user()->societe_id)->where('id','like','%'.$this->query.'%')->where('etiquette_transfert','like','%'.$this->parEtiquette.'%')->where('id_entrepot_origine',$this->parEntrepot_orig)->whereBetween('created_at',[$start, $end])->orderBy($this->orderField, $this->orderDirection)->paginate($this->parPage);
                 }
                 elseif(empty($this->parEntrepot_orig) && empty(!$this->parEntrepot_desti)){
-                    $transfert = TransfertFiliale::where('societe',auth()->user()->societe)->where('id','like','%'.$this->query.'%')->where('etiquette_transfert','like','%'.$this->parEtiquette.'%')->where('id_entrepot_destination',$this->parEntrepot_desti)->whereBetween('created_at',[$start, $end])->orderBy($this->orderField, $this->orderDirection)->paginate($this->parPage);
+                    $transfert = TransfertFiliale::where('societe_id',auth()->user()->societe_id)->where('id','like','%'.$this->query.'%')->where('etiquette_transfert','like','%'.$this->parEtiquette.'%')->where('id_entrepot_destination',$this->parEntrepot_desti)->whereBetween('created_at',[$start, $end])->orderBy($this->orderField, $this->orderDirection)->paginate($this->parPage);
                 }
                 else{
-                    $transfert = TransfertFiliale::where('societe',auth()->user()->societe)->where('id','like','%'.$this->query.'%')->where('etiquette_transfert','like','%'.$this->parEtiquette.'%')->where('id_entrepot_origine',$this->parEntrepot_orig)->where('id_entrepot_destination',$this->parEntrepot_desti)->whereBetween('created_at',[$start, $end])->orderBy($this->orderField, $this->orderDirection)->paginate($this->parPage);
+                    $transfert = TransfertFiliale::where('societe_id',auth()->user()->societe_id)->where('id','like','%'.$this->query.'%')->where('etiquette_transfert','like','%'.$this->parEtiquette.'%')->where('id_entrepot_origine',$this->parEntrepot_orig)->where('id_entrepot_destination',$this->parEntrepot_desti)->whereBetween('created_at',[$start, $end])->orderBy($this->orderField, $this->orderDirection)->paginate($this->parPage);
                 }
                 $transfertCount = $transfert->count();  
-                $listedeviseTva = DeviseTva :: where('societe',auth()->user()->societe)->get(); 
+                $listedeviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->get(); 
                 $listEntrepot = Entrepot::where('societe_mere',auth()->user()->societe_mere)->where('active',1)->orderBy('nom','asc')->get(); 
                                 
-                $resultat = TransfertFiliale::where('societe',auth()->user()->societe)->get();  
+                $resultat = TransfertFiliale::where('societe_id',auth()->user()->societe_id)->get();  
                 $nbreTotalTransfert = $resultat->count();     
 
-                $derniereActivite = TransfertFiliale::where('societe',auth()->user()->societe)->latest('updated_at')->first();
+                $derniereActivite = TransfertFiliale::where('societe_id',auth()->user()->societe_id)->latest('updated_at')->first();
 
-                $listEntrepotOrigine = Entrepot::where('societe',auth()->user()->societe)->where('active',1)->orderBy('nom','asc')->get(); 
+                $listEntrepotOrigine = Entrepot::where('societe_id',auth()->user()->societe_id)->where('active',1)->orderBy('nom','asc')->get(); 
                 $listEntrepotDestination = Entrepot::where('societe',$this->filiale)->where('active',1)->orderBy('nom','asc')->get();
                 $liste_entit = Entite::where('societe_mere',auth()->user()->societe_mere)->where('active',1)->get();           
                 // $listeProduit = Produit::where('societe',$this->filiale)->where('etat',1)->orderBy('nom_produit','asc')->get();  
                 
                 $page = 'TransfertFiliale'; // pour evenement lies
-                $log = LogActivityModel::where('user_societe',auth()->user()->societe)->where('page', $page)->limit(50)->orderBy('id','desc')->get();
+                $log = LogActivityModel::where('societe_id',auth()->user()->societe_id)->where('page', $page)->limit(50)->orderBy('id','desc')->get();
                 $logCount = $log->count();
 
 
-                $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->count(); 
+                $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->count(); 
                 if($deviseTva == 0){
                     $this->devise = 'FCFA';
                 }
                 else{
-                    $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->get(); 
+                    $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->get(); 
                     $this->devise = $deviseTva[0]->devise;
                 }
-                $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();          
+                $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();          
                 $jourValid = $entite_mod[0]->validite_mod; 
                 // ceci pour trouver le nombre de jour restant avant expiration
                 $nbjoursRestant = round((strtotime($jourValid) - strtotime($dateJour))/(60*60*24));
@@ -204,26 +204,26 @@ class TransfertStockFiliale extends Component
     }
     public function store(){
         $this->validate();             
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->transfer_stock_filiale;
             if($autoriser == 1){                  
                                         
-                    $entrepot =  Entrepot::where('societe',auth()->user()->societe)->where('id',$this->entrepot_origine)->first();
+                    $entrepot =  Entrepot::where('societe_id',auth()->user()->societe_id)->where('id',$this->entrepot_origine)->first();
                     $nom_entrepot_origine = $entrepot->nom;
 
                     $entrepot =  Entrepot::where('societe',$this->filiale)->where('id',$this->entrepot_destination)->first();
                     $nom_entrepot_destination = $entrepot->nom;
 
                     $this->etat = 'Brouillon';
-                    TransfertFiliale::create(['filiale_envoi'=>auth()->user()->societe,'filiale_reception'=>$this->filiale,'entrepot_origine'=>$nom_entrepot_origine,'id_entrepot_origine'=>$this->entrepot_origine,
+                    $tranfert = TransfertFiliale::create(['filiale_envoi'=>auth()->user()->societe,'filiale_reception'=>$this->filiale,'entrepot_origine'=>$nom_entrepot_origine,'id_entrepot_origine'=>$this->entrepot_origine,
                     'entrepot_destination'=>$nom_entrepot_destination,'id_entrepot_destination'=>$this->entrepot_destination,
                     'date_sortie'=>$this->date_sortie,'date_entree'=>$this->date_entree,'transporteur'=>$this->transporteur,'nombre_paquets'=>$this->nombre_paquets,'code_inventaire'=>$this->code_inventaire,
-                    'etiquette_transfert'=>$this->etiquette_transfert,'note'=>$this->note,'etat'=>$this->etat,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                    'etiquette_transfert'=>$this->etiquette_transfert,'note'=>$this->note,'etat'=>$this->etat,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
                    
                     // ceci recupere le dernier enregistrement cree a l'instant
-                    $dernier_id = TransfertFiliale::where('societe',auth()->user()->societe)->where('user_id',auth()->user()->id)->latest()->first()->id;
+                    $dernier_id = $tranfert->id;
                     $id_activite = $dernier_id;
                     $page = 'TransfertFiliale';
                     LogActivity::addToLog('Entête transfert De » '.$nom_entrepot_origine.' ('.auth()->user()->societe.') Vers » '.$nom_entrepot_destination.' ('.$this->filiale.') créé', $id_activite, $page);
@@ -264,9 +264,9 @@ class TransfertStockFiliale extends Component
         $this->confirmer = $id;      
     } 
     public function supprimer($id){ 
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->supprimer_transfert;
             if($autoriser == 1){  
                 if($id){ 

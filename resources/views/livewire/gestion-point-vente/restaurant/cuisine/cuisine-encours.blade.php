@@ -41,7 +41,7 @@
                                                         <div class="d-flex flex-nowrap align-items-center justify-content-between px-1 pb-1 fw-bold gap-1 entete_card_cuine_color">
                                                             <div class="text-break" style="max-width: 200px;" title="{{$emplacement_encours->nom_table}}">{{Str::limit($emplacement_encours->nom_table, 15)}} (<span class="text-danger" title="{{$emplacement_encours->nom_espace}}">{{Str::limit($emplacement_encours->nom_espace, 12)}}</span>)</div>
                                                             <div class="flex-shrink-0 ps-2 text-end">
-                                                                <i class="fa fa-user-circle pe-1" aria-hidden="true"></i><span title="{{$emplacement_encours->non_caissiere}}">{{Str::limit($emplacement_encours->non_caissiere, 15)}}</span>
+                                                                <i class="fa fa-user-circle pe-1" aria-hidden="true"></i><span title="Auteur » {{$emplacement_encours->non_caissiere}}">{{Str::limit($emplacement_encours->non_caissiere, 15)}}</span>
                                                             </div>
                                                         </div>
                                                         <div class="d-grid p-2 bg-100">
@@ -50,18 +50,18 @@
                                                                 <div class="d-flex gap-0 align-items-center justify-content-center">
                                                                     <span class="px-2 py-1 rounded-pill fw-semibold" style="background-color: @if($emplacement_encours->lieu_consommation == "A emporter") #3b0da6; @elseif($emplacement_encours->lieu_consommation == "Livraison") #0a9682; @else #a63c96; @endif; color: #ffffff;">{{$emplacement_encours->lieu_consommation}}</span>
                                                                 </div>
-                                                                <div class="">
+                                                                {{-- <div class="">
                                                                     <div class="rounded-pill py-1 px-0 fw-semibold text-bg-danger">
-                                                                        <div class="py-1 px-2 rounded-pill pointer" wire:click.prevent="terminer({{$emplacement_encours->id}})" style="background-color: #f0f0f0 !important; color: #5f5c5c"><i class="fa fa-clock-o pe-1" aria-hidden="true"></i><span>Terminer ?</span></div>
+                                                                        <div class="py-1 px-2 rounded-pill pointer" wire:click.prevent="terminer({{$emplacement_encours->id}})" style="background-color: #f0f0f0 !important; color: #5f5c5c"><i class="fas fa-thumbs-up text-success blink" aria-hidden="true"></i> <span>Terminer ?</span></div>
                                                                     </div>
-                                                                </div>
+                                                                </div> --}}
                                                             </div>
                                                         </div>
                                                     </div>
                                                     <div class="w-100 bg-white overflow-auto">
                                                         @foreach($cmdAttenteLigne as $cmdAttenteLignes)
                                                             @if($emplacement_encours->reference == $cmdAttenteLignes->ref_table)
-                                                                <section class="py-2 border-0 text-800 pointer" wire:click.prevent="barrerProd({{$cmdAttenteLignes->id}},'{{$cmdAttenteLignes->statut_cuisine}}')">
+                                                                <section class="py-1 border-0 text-800 pointer" wire:click.prevent="barrerProd({{$cmdAttenteLignes->id}},'{{$cmdAttenteLignes->statut_cuisine}}')">
                                                                     <div class="d-flex pe-2 @if($cmdAttenteLignes->statut_cuisine == "Barrer") text-decoration-line-through text-muted @endif">                                                                                    
                                                                             <div class="px-2 text-center text-muted">
                                                                                 <div class="qte_pro">{{$cmdAttenteLignes->quantite}}x</div>
@@ -69,14 +69,19 @@
                                                                             <div class="flex-grow-1 fw-semibold">{{$cmdAttenteLignes->produit}}</div>
                                                                         </div>
                                                                     <div class="">
-                                                                        <div class="d-flex flex-wrap gap-1 pt-2 ms-2 bg-opacity-75"></div>
+                                                                        {{-- <div class="d-flex flex-wrap gap-1 pt-2 ms-2 bg-opacity-75"></div> --}}
                                                                     </div>
                                                                 </section>
                                                             @endif
                                                         @endforeach                                                                
                                                     </div>
                                                     <div class="cmd_card_footer bg-100">
-                                                        <div class="d-flex pt-1">                                                                    
+                                                        <div class="d-flex pt-1">
+                                                             @if($emplacement_encours->statut == "En cours")
+                                                                <button wire:click.prevent="terminer('{{$emplacement_encours->id}}')" class="btn btn-lg btn-outline-dark fw-semibold flex-fill py-2 rounded" title="Cliquez pour changer le statut de la commande" type="button">
+                                                                    <span><i class="fas fa-thumbs-up text-success blink" aria-hidden="true"></i> Terminer ?</span>
+                                                                </button> 
+                                                            @endif                                                                   
                                                         </div>
                                                     </div>
                                                 </section>

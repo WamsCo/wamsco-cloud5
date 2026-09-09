@@ -82,9 +82,9 @@ class DetailTache extends Component
         }
     }
     public function mount(){  
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->detail_tache;
             if($autoriser == 0){
                 toast()->error('Oups Désolé', 'Vous n\'êtes pas autorisé à ouvrir cette page!')->position('top-end')->autoClose(5000)->background('#fff')->width('460px')->padding('5px');
@@ -99,7 +99,7 @@ class DetailTache extends Component
     public function render()
     {
         $dateJour = date('Y-m-d');            
-        $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();
+        $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();
         $jourValid = $entite_mod[0]->validite_mod;
         $mod_tache = $entite_mod[0]->mod_tache;
         $soldeClient = $entite_mod[0]->solde;
@@ -117,9 +117,9 @@ class DetailTache extends Component
                 
                 $id = request('id'); // id Pipeline 
                 // ceci au chargement de la page
-                $test_tache = Tache::where('societe',auth()->user()->societe)->where('id',$id)->count();    
+                $test_tache = Tache::where('societe_id',auth()->user()->societe_id)->where('id',$id)->count();    
                 if($test_tache > 0){
-                    $tacher = Tache::where('societe',auth()->user()->societe)->where('id',$id)->first();               
+                    $tacher = Tache::where('societe_id',auth()->user()->societe_id)->where('id',$id)->first();               
                     $this->ids = $tacher->id;
                     $this->utilisateur = $tacher->utilisateur; 
                     $this->ids_utilisateur = $tacher->id_utilisateur; 
@@ -141,39 +141,39 @@ class DetailTache extends Component
                     $this->updated_at = $tacher->updated_at;
                 }                
                 
-                $etape = EtapeTache :: where('societe',auth()->user()->societe)->orderBy('id','asc')->get(); 
-                $tier = Tier::where('societe',auth()->user()->societe)->orderBy('nom','asc')->get();  
-                $user = Utilisateur::where('societe',auth()->user()->societe)->orderBy('name','asc')->get();  
+                $etape = EtapeTache :: where('societe_id',auth()->user()->societe_id)->orderBy('id','asc')->get(); 
+                $tier = Tier::where('societe_id',auth()->user()->societe_id)->orderBy('nom','asc')->get();  
+                $user = Utilisateur::where('societe_id',auth()->user()->societe_id)->orderBy('name','asc')->get();  
                 
-                $verifie = Tier::where('societe',auth()->user()->societe)->where('id',$this->client)->count();  
+                $verifie = Tier::where('societe_id',auth()->user()->societe_id)->where('id',$this->client)->count();  
                 if($verifie > 0){
-                    $tiers = Tier::where('societe',auth()->user()->societe)->where('id',$this->client)->first();
+                    $tiers = Tier::where('societe_id',auth()->user()->societe_id)->where('id',$this->client)->first();
                     $this->telephone_client = $tiers->telephone;
                 }
                 else{
                     $this->telephone_client = '';
                 }
 
-                $sous_tache = SousTache::where('societe',auth()->user()->societe)->where('id_tache_entete',$this->ids)->orderBy($this->orderField, $this->orderDirection)->get();
+                $sous_tache = SousTache::where('societe_id',auth()->user()->societe_id)->where('id_tache_entete',$this->ids)->orderBy($this->orderField, $this->orderDirection)->get();
                 $sous_tacheCount = $sous_tache->count();
 
-                $config = Parametre::where('societe',auth()->user()->societe)->limit(1)->get();
+                $config = Parametre::where('societe_id',auth()->user()->societe_id)->limit(1)->get();
                 $this->envoi_mail = $config[0]->envoi_mail;
 
                 $page = 'Tache';
-                $log = LogActivityModel::where('user_societe',auth()->user()->societe)->where('id_activite', $this->ids)->where('page', $page)->limit(7)->orderBy('id','desc')->get();
+                $log = LogActivityModel::where('societe_id',auth()->user()->societe_id)->where('id_activite', $this->ids)->where('page', $page)->limit(7)->orderBy('id','desc')->get();
                 $logCount = $log->count();
 
-                $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->count();             
+                $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->count();             
                 if($deviseTva == 0){
                     $this->devise = 'FCFA';
                 }
                 else{
-                    $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->get(); 
+                    $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->get(); 
                     $this->devise = $deviseTva[0]->devise;                
                 }  
                 toast()->success('Prêt', '')->position('top-right')->autoClose(2000)->background('#fff')->width('220px')->padding('5px');            
-                $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get(); 
+                $entite_mod = Entite::where('id',auth()->user()->societe_id)->get(); 
                 $jourValid = $entite_mod[0]->validite_mod; 
                 // ceci pour trouver le nombre de jour restant avant expiration
                 $nbjoursRestant = round((strtotime($jourValid) - strtotime($dateJour))/(60*60*24));           
@@ -208,13 +208,13 @@ class DetailTache extends Component
     public function searchResult(){ 
         if(!empty($this->utilisateur)){
             if(ctype_alpha($this->utilisateur)){ // ctype_alpha: cette fonction permet de savoir si le caractere ou mot est une lettre  
-                $this->records = Utilisateur::where('etat',1)->where('societe',auth()->user()->societe)->where('name','like','%'.$this->utilisateur.'%')->orderBy('name','asc')->limit(8)->get(); 
-                $this->recordCount = Utilisateur::where('etat',1)->where('societe',auth()->user()->societe)->where('name','like','%'.$this->utilisateur.'%')->count();
+                $this->records = Utilisateur::where('etat',1)->where('societe_id',auth()->user()->societe_id)->where('name','like','%'.$this->utilisateur.'%')->orderBy('name','asc')->limit(8)->get(); 
+                $this->recordCount = Utilisateur::where('etat',1)->where('societe_id',auth()->user()->societe_id)->where('name','like','%'.$this->utilisateur.'%')->count();
                 $this->showdiv = true;
             }
             else{
-                $this->records = Utilisateur::where('etat',1)->where('societe',auth()->user()->societe)->where('telephone','like','%'.$this->utilisateur.'%')->orderBy('name','asc')->limit(8)->get(); 
-                $this->recordCount = Utilisateur::where('etat',1)->where('societe',auth()->user()->societe)->where('telephone','like','%'.$this->utilisateur.'%')->count(); 
+                $this->records = Utilisateur::where('etat',1)->where('societe_id',auth()->user()->societe_id)->where('telephone','like','%'.$this->utilisateur.'%')->orderBy('name','asc')->limit(8)->get(); 
+                $this->recordCount = Utilisateur::where('etat',1)->where('societe_id',auth()->user()->societe_id)->where('telephone','like','%'.$this->utilisateur.'%')->count(); 
                 $this->showdiv = true;
             }        
         }
@@ -241,25 +241,25 @@ class DetailTache extends Component
             'temps_alloue'=>'required|date_format:H:i', 
             'description' => 'nullable|string|max:15000', 
         ]);   
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->modifier_tache;
             if($autoriser == 1){ 
                 
-                $test_user = Utilisateur ::where('societe',auth()->user()->societe)->where('id',$this->ids_utilisateur)->count();
+                $test_user = Utilisateur ::where('societe_id',auth()->user()->societe_id)->where('id',$this->ids_utilisateur)->count();
                 if($test_user > 0){                    
 
-                    $test_etapes = EtapeTache::where('societe',auth()->user()->societe)->where('id', $this->evolution)->count();
+                    $test_etapes = EtapeTache::where('societe_id',auth()->user()->societe_id)->where('id', $this->evolution)->count();
                     if($test_etapes > 0){
 
                         try {
-                            $etapes = EtapeTache::where('societe',auth()->user()->societe)->where('id', $this->evolution)->first();
+                            $etapes = EtapeTache::where('societe_id',auth()->user()->societe_id)->where('id', $this->evolution)->first();
                             $nom_etape = $etapes->nom_etape; 
 
-                            $verifie = Tier::where('societe',auth()->user()->societe)->where('id',$this->client)->count();  
+                            $verifie = Tier::where('societe_id',auth()->user()->societe_id)->where('id',$this->client)->count();  
                             if($verifie > 0){
-                                $tiers = Tier::where('societe',auth()->user()->societe)->where('id',$this->client)->first();
+                                $tiers = Tier::where('societe_id',auth()->user()->societe_id)->where('id',$this->client)->first();
                                 $nom_client = $tiers->nom;
                                 $telephone_client = $tiers->telephone;
                             }
@@ -281,8 +281,9 @@ class DetailTache extends Component
                                 $email = $user[0]->email;
                                 $name = $user[0]->name;
                                 $societe = $user[0]->societe;
+                                $societe_id = $user[0]->societe_id;
 
-                                $entite_all = Entite::where('enseigne',$societe)->get();
+                                $entite_all = Entite::where('id',$societe_id)->get();
                                 $logo = $entite_all[0]->logo;
                                 
                                 $tache_all = Tache::where('id',$this->ids)->first();
@@ -385,9 +386,9 @@ class DetailTache extends Component
     } 
     public function supprimer(int $id){ 
 
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->supprimer_tache;
             if($autoriser == 1){   
                 if($id){  
@@ -434,9 +435,9 @@ class DetailTache extends Component
 
         if(auth()->user()->type_user == "Administrateur"){
 
-            $testPrecedant = Tache::where('societe',auth()->user()->societe)->where('id','<',$id)->orderBy('id','desc')->count();
+            $testPrecedant = Tache::where('societe_id',auth()->user()->societe_id)->where('id','<',$id)->orderBy('id','desc')->count();
             if($testPrecedant > 0){ 
-                $precedant = Tache::where('societe',auth()->user()->societe)->where('id','<',$id)->orderBy('id','desc')->first();        
+                $precedant = Tache::where('societe_id',auth()->user()->societe_id)->where('id','<',$id)->orderBy('id','desc')->first();        
                 $previous = $precedant->id; 
                 $this->redirect('/detail_tache?id='.$previous.'&active=14&champ=1-1', navigate: true);                         
             }  
@@ -477,9 +478,9 @@ class DetailTache extends Component
 
        if(auth()->user()->type_user == "Administrateur"){
 
-            $testSuivant = Tache::where('societe',auth()->user()->societe)->where('id','>',$id)->orderBy('id','asc')->count();
+            $testSuivant = Tache::where('societe_id',auth()->user()->societe_id)->where('id','>',$id)->orderBy('id','asc')->count();
             if($testSuivant > 0){
-                $suivant = Tache::where('societe',auth()->user()->societe)->where('id','>',$id)->orderBy('id','asc')->first();
+                $suivant = Tache::where('societe_id',auth()->user()->societe_id)->where('id','>',$id)->orderBy('id','asc')->first();
                 $next = $suivant->id;             
                 $this->redirect('/detail_tache?id='.$next.'&active=14&champ=1-1', navigate: true);  
             }  
@@ -528,9 +529,9 @@ class DetailTache extends Component
             'temps_alloue'=>'required|date_format:H:i', 
             'description' => 'nullable|string|max:15000',            
         ]);        
-       $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+       $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->creer_commande;
             if($autoriser == 1){  
 
@@ -557,9 +558,9 @@ class DetailTache extends Component
                 $token = bin2hex(random_bytes($length));
                 $token_ok = 'PROF/'.$dates;
                 // $token_ok = 'FACT/'.$dates.'/'.$token;
-                $verifie = Tier::where('societe',auth()->user()->societe)->where('id',$this->client)->count();  
+                $verifie = Tier::where('societe_id',auth()->user()->societe_id)->where('id',$this->client)->count();  
                 if($verifie > 0){
-                    $tiers = Tier::where('societe',auth()->user()->societe)->where('id',$this->client)->first();
+                    $tiers = Tier::where('societe_id',auth()->user()->societe_id)->where('id',$this->client)->first();
                     $nom_client = $tiers->nom;
                     $telephone_client = $tiers->telephone;
                 }
@@ -567,13 +568,13 @@ class DetailTache extends Component
                     $nom_client = '';
                     $telephone_client = '';
                 }
-                ProformaClientEntete :: create(['code_proforma'=>$token_ok,'nom_client'=>$nom_client,'id_client'=>$this->client,'telephone'=>$telephone_client,'date_proforma'=>$date_proforma,'date_livraison'=>$date_livraison,
+                $profcltEntet = ProformaClientEntete :: create(['code_proforma'=>$token_ok,'nom_client'=>$nom_client,'id_client'=>$this->client,'telephone'=>$telephone_client,'date_proforma'=>$date_proforma,'date_livraison'=>$date_livraison,
                             'montant_ht'=>$montant_ht,'montant_remise'=>$montant_remise,'montant_tva'=>$montant_tva,'montant_precompte'=>$montant_precompte,'montant_ttc'=>$montant_ttc,'marge'=>$marge,
                             'montant_recu'=>$montant_recu,'reste_a_percevoir'=>$reste_a_percevoir,'mode_reglement'=>$mode_reglement,'compte_bancaire'=>$compte_bancaire,'note'=>$this->nom_tache,'etat'=>$etat,'societe'=>auth()->user()->societe,
-                            'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                            'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
 
                         // ceci recupere le dernier enregistrement cree a l'instant
-                $dernier_id = ProformaClientEntete::where('societe',auth()->user()->societe)->where('user_id',auth()->user()->id)->latest()->first()->id; 
+                $dernier_id = $profcltEntet->id; 
 
                 $id_activite = $dernier_id;
                 $page = 'ProformaClient';
@@ -622,9 +623,9 @@ class DetailTache extends Component
             'temps_alloue'=>'required|date_format:H:i', 
             'description' => 'nullable|string|max:15000',            
         ]); 
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->creer_facture;
             if($autoriser == 1){   
 
@@ -651,9 +652,9 @@ class DetailTache extends Component
                 $token = bin2hex(random_bytes($length));
                 $token_ok = 'FACT/'.$dates;
                 // $token_ok = 'FACT/'.$dates.'/'.$token;
-                $verifie = Tier::where('societe',auth()->user()->societe)->where('id',$this->client)->count();  
+                $verifie = Tier::where('societe_id',auth()->user()->societe_id)->where('id',$this->client)->count();  
                 if($verifie > 0){
-                    $tiers = Tier::where('societe',auth()->user()->societe)->where('id',$this->client)->first();
+                    $tiers = Tier::where('societe_id',auth()->user()->societe_id)->where('id',$this->client)->first();
                     $nom_client = $tiers->nom;
                     $telephone_client = $tiers->telephone;
                 }
@@ -661,13 +662,13 @@ class DetailTache extends Component
                     $nom_client = '';
                     $telephone_client = '';                    
                 }
-                factureClientEntete :: create(['code_facture'=>$token_ok,'nom_client'=>$nom_client,'id_client'=>$this->client,'telephone'=>$telephone_client,'date_facturation'=>$date_facturation,'date_echeance'=>$date_echeance,
+                $factcltEntet = factureClientEntete :: create(['code_facture'=>$token_ok,'nom_client'=>$nom_client,'id_client'=>$this->client,'telephone'=>$telephone_client,'date_facturation'=>$date_facturation,'date_echeance'=>$date_echeance,
                             'montant_ht'=>$montant_ht,'montant_remise'=>$montant_remise,'montant_tva'=>$montant_tva,'montant_precompte'=>$montant_precompte,'montant_ttc'=>$montant_ttc,'marge'=>$marge,
-                            'montant_recu'=>$montant_recu,'reste_a_percevoir'=>$reste_a_percevoir,'mode_reglement'=>$mode_reglement,'compte_bancaire'=>$compte_bancaire,'note'=>$this->nom_tache,'etat'=>$etat,'societe'=>auth()->user()->societe,
-                            'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                            'montant_recu'=>$montant_recu,'reste_a_percevoir'=>$reste_a_percevoir,'mode_reglement'=>$mode_reglement,'compte_bancaire'=>$compte_bancaire,'note'=>$this->nom_tache,'etat'=>$etat,
+                            'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
 
                         // ceci recupere le dernier enregistrement cree a l'instant
-                $dernier_id = factureClientEntete::where('societe',auth()->user()->societe)->where('user_id',auth()->user()->id)->latest()->first()->id; 
+                $dernier_id = $factcltEntet->id; 
 
                 $id_activite = $dernier_id;
                 $page = 'factureClient';
@@ -708,15 +709,14 @@ class DetailTache extends Component
         $this->validate([
             'nom_sous_tache'=>'required|max:255',
         ]);    
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->modifier_tache;
             if($autoriser == 1){  
                 $statut = 'En attente';
-                SousTache::create(['id_tache_entete'=>$this->ids,'nom_sous_tache'=>$this->nom_sous_tache,
-                                    'utilisateur'=>$this->utilisateur,'id_utilisateur'=>$this->ids_utilisateur,'statut'=>$statut,
-                                    'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);                     
+                SousTache::create(['id_tache_entete'=>$this->ids,'nom_sous_tache'=>$this->nom_sous_tache,'utilisateur'=>$this->utilisateur,'id_utilisateur'=>$this->ids_utilisateur,'statut'=>$statut,
+                                   'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);                     
                 
                 $id_activite = $this->ids;
                 $page = 'Tache';
@@ -754,9 +754,9 @@ class DetailTache extends Component
         }  
     }     
     public function Lancer(int $id, string $statut){  
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->modifier_tache;
             if($autoriser == 1){        
                 if($statut == 'En attente'){
@@ -826,9 +826,9 @@ class DetailTache extends Component
         $this->approuver = $id;      
     } 
     public function ecraser(int $idx){        
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){ 
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->modifier_tache;
             if($autoriser == 1){ 
                                  

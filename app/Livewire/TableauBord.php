@@ -52,9 +52,9 @@ class TableauBord extends Component
        
     public function mount()
     {
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->tablobord_pv;
             if($autoriser == 0){
                 alert()->error('Oups Désolé', 'Vous n\'êtes pas autorisé à ouvrir cette page !!!')->position('center')->autoClose(5000)->background('#fff')->width('460px')->padding('5px');
@@ -90,7 +90,7 @@ class TableauBord extends Component
             )
             ->whereYear('created_at', now()->year)
             ->where('etat','!=','Brouillon')
-            ->where('societe',auth()->user()->societe)
+            ->where('societe_id',auth()->user()->societe_id)
             ->groupBy('month')
             ->pluck('total', 'month');
 
@@ -114,7 +114,7 @@ class TableauBord extends Component
             )
             ->whereYear('created_at', now()->year)
             ->where('etat','!=','Brouillon')
-            ->where('societe',auth()->user()->societe)
+            ->where('societe_id',auth()->user()->societe_id)
             ->groupBy('month')
             ->pluck('total', 'month');
 
@@ -140,7 +140,7 @@ class TableauBord extends Component
             ->join('produits', 'produits.id', '=', 'facture_client_lignes.id_produit')
             ->whereBetween('facture_client_lignes.created_at', [$start, $end])
             ->where('facture_client_lignes.etat', '!=', 'Brouillon')
-            ->where('facture_client_lignes.societe', auth()->user()->societe)
+            ->where('facture_client_lignes.societe_id', auth()->user()->societe_id)
             ->groupBy('facture_client_lignes.id_produit', 'produits.nom_produit')
             ->OrderBy('total_qty','Desc')
             ->limit(20)
@@ -156,7 +156,7 @@ class TableauBord extends Component
     public function render()
     {
         $dateJour = date('Y-m-d');            
-        $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();
+        $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();
         $jourValid = $entite_mod[0]->validite_mod; 
         $soldeClient = $entite_mod[0]->solde;
         if($dateJour <= $jourValid){
@@ -170,19 +170,19 @@ class TableauBord extends Component
             $dateJour = date('Y-m-d'); 
             
              // Facture et produit
-             $factClient_entete = factureClientEntete::where('societe',auth()->user()->societe)->orderBy('id','DESC')->limit(5)->get();
+             $factClient_entete = factureClientEntete::where('societe_id',auth()->user()->societe_id)->orderBy('id','DESC')->limit(5)->get();
              $factCltEnteTTC_partiel = $factClient_entete->sum('montant_ttc'); 
-             $factCltEnteTTC_all = factureClientEntete::where('societe',auth()->user()->societe)->sum('montant_ttc');
-             $produit = Produit::where('societe',auth()->user()->societe)->orderBy('id','DESC')->limit(5)->get();
-             $entit = Entite::where('enseigne',auth()->user()->societe)->get(); 
+             $factCltEnteTTC_all = factureClientEntete::where('societe_id',auth()->user()->societe_id)->sum('montant_ttc');
+             $produit = Produit::where('societe_id',auth()->user()->societe_id)->orderBy('id','DESC')->limit(5)->get();
+             $entit = Entite::where('id',auth()->user()->societe_id)->get(); 
 
              $start = Carbon::parse($this->date_debut)->startOfDay(); //2016-09-29 00:00:00.000000
              $end = Carbon::parse($this->date_fin)->endOfDay();     // 2016-09-29 23:59:59.000000
             
             // 1er bloc            
-            $vente = factureClientEntete :: where('societe',auth()->user()->societe)->where('etat','!=','Brouillon')->whereBetween('created_at',[$start, $end])->sum('montant_ttc');
-            $marge = factureClientEntete :: where('societe',auth()->user()->societe)->where('etat','!=','Brouillon')->whereBetween('created_at',[$start, $end])->sum('marge');
-            $count_qte = factureClientLigne:: where('societe',auth()->user()->societe)->where('etat','!=','Brouillon')->whereBetween('created_at',[$start, $end])->sum('quantite');
+            $vente = factureClientEntete :: where('societe_id',auth()->user()->societe_id)->where('etat','!=','Brouillon')->whereBetween('created_at',[$start, $end])->sum('montant_ttc');
+            $marge = factureClientEntete :: where('societe_id',auth()->user()->societe_id)->where('etat','!=','Brouillon')->whereBetween('created_at',[$start, $end])->sum('marge');
+            $count_qte = factureClientLigne:: where('societe_id',auth()->user()->societe_id)->where('etat','!=','Brouillon')->whereBetween('created_at',[$start, $end])->sum('quantite');
             // ceci  evite l'erreur division par zero(0)
             if($count_qte == 0){
                 $this->cmd_moyen = 0;
@@ -192,37 +192,37 @@ class TableauBord extends Component
             }
             $cmd_moyen_bar = $this->cmd_moyen/1000; //ceci pour la bare de chargement cmd_moyen 
 
-            $remise = factureClientEntete :: where('societe',auth()->user()->societe)->where('etat','!=','Brouillon')->whereBetween('created_at',[$start, $end])->sum('montant_remise');
+            $remise = factureClientEntete :: where('societe_id',auth()->user()->societe_id)->where('etat','!=','Brouillon')->whereBetween('created_at',[$start, $end])->sum('montant_remise');
             $remise_bar = $remise/1000; //ceci pour la bare de chargement taxe
 
             // Aperçu de l'activité                     
-            $inventaire = Stock :: where('societe',auth()->user()->societe)->sum('valorisation_achat_total');
-            $utilisateur = Utilisateur:: where('societe',auth()->user()->societe)->count();
-            $produitCount = Produit :: where('societe',auth()->user()->societe)->count(); 
-            $produit_videMag = Stock :: where('societe',auth()->user()->societe)->where('quantite','0')->count();
-            $fourniCount = Tier:: where('societe',auth()->user()->societe)->where('type_tiers','Fournisseur')->count();
-            $ResteAPayer = factureClientEntete :: where('societe',auth()->user()->societe)->where('etat','!=','Brouillon')->sum('reste_a_percevoir');  
-            $client = Tier :: where('societe',auth()->user()->societe)->where('type_tiers','Client')->count();
-            $categorieCount = Categorie:: where('societe',auth()->user()->societe)->count();
+            $inventaire = Stock :: where('societe_id',auth()->user()->societe_id)->sum('valorisation_achat_total');
+            $utilisateur = Utilisateur:: where('societe_id',auth()->user()->societe_id)->count();
+            $produitCount = Produit :: where('societe_id',auth()->user()->societe_id)->count(); 
+            $produit_videMag = Stock :: where('societe_id',auth()->user()->societe_id)->where('quantite','0')->count();
+            $fourniCount = Tier:: where('societe_id',auth()->user()->societe_id)->where('type_tiers','Fournisseur')->count();
+            $ResteAPayer = factureClientEntete :: where('societe_id',auth()->user()->societe_id)->where('etat','!=','Brouillon')->sum('reste_a_percevoir');  
+            $client = Tier :: where('societe_id',auth()->user()->societe_id)->where('type_tiers','Client')->count();
+            $categorieCount = Categorie:: where('societe_id',auth()->user()->societe_id)->count();
 
-            $ecritureCount = EcritureBancaire :: where('societe',auth()->user()->societe)->count(); 
-            $banqueCount = CompteBancaire :: where('societe',auth()->user()->societe)->count(); 
-            $paiementDivCount = PaiementDiver :: where('societe',auth()->user()->societe)->count(); 
-            $cmdClientCount = CommandeClientEntete::where('societe',auth()->user()->societe)->where('etat','Validée')->count();
-            $entite_count = Entite::where('societe_mere',auth()->user()->societe)->where('active',1)->count(); 
+            $ecritureCount = EcritureBancaire :: where('societe_id',auth()->user()->societe_id)->count(); 
+            $banqueCount = CompteBancaire :: where('societe_id',auth()->user()->societe_id)->count(); 
+            $paiementDivCount = PaiementDiver :: where('societe_id',auth()->user()->societe_id)->count(); 
+            $cmdClientCount = CommandeClientEntete::where('societe_id',auth()->user()->societe_id)->where('etat','Validée')->count();
+            $entite_count = Entite::where('societe_mere_id',auth()->user()->societe_id)->where('active',1)->count(); 
 
-            $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->count(); 
+            $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->count(); 
             if($deviseTva == 0){
                 $this->devise = 'FCFA';
             }
             else{
-                $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->get(); 
+                $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->get(); 
                 $this->devise = $deviseTva[0]->devise;
             }
             $id_activite = 0;
             $page = 'Tableau de Bord';
             // LogActivity::addToLog('Tableau de bord', $id_activite, $page);    
-            $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get(); 
+            $entite_mod = Entite::where('id',auth()->user()->societe_id)->get(); 
             $jourValid = $entite_mod[0]->validite_mod; 
             // ceci pour trouver le nombre de jour restant avant expiration
             $nbjoursRestant = round((strtotime($jourValid) - strtotime($dateJour))/(60*60*24));  

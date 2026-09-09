@@ -383,6 +383,7 @@
                                                                                 <th class="fond_entete_table text-center">Site web</th> 
                                                                                 <th class="fond_entete_table text-center">Commercial charge</th> 
                                                                                 <th class="fond_entete_table">Condition vente</th> 
+                                                                                <th class="fond_entete_table">Slug</th>
                                                                                 <th class="fond_entete_table">Modif</th>
                                                                             </tr>
                                                                         </thead>                                       
@@ -402,6 +403,7 @@
                                                                                 <td class="fw-semibold text-center">{{$this->site_web}}</td>
                                                                                 <td class="fw-bold text-center text-bleu">{{$this->commercial_charge}}</td>
                                                                                 <td class="fw-semibold">{{$this->condition_vente}}</td>
+                                                                                <td class="fw-semibold text-bleu">{{$this->slug}}</td>
                                                                                 <td class="fw-semibold">{{date('d-m-Y H:i:s', strtotime($this->updated_at))}}</td>
                                                                             </tr> 
                                                                             {{-- @endforeach  --}}

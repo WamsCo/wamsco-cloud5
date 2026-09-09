@@ -81,9 +81,9 @@ class ListeNomenclature extends Component
         }
     }
     public function mount(){
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $this->autoriser = $role[0]->voir_marge;
             $autoriser = $role[0]->liste_nomencla;
             if($autoriser == 0){
@@ -103,7 +103,7 @@ class ListeNomenclature extends Component
     public function render()
     {
         $dateJour = date('Y-m-d');            
-        $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();
+        $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();
         $jourValid = $entite_mod[0]->validite_mod;
         $mod_fabrication = $entite_mod[0]->mod_fabrication;
         $soldeClient = $entite_mod[0]->solde; 
@@ -124,37 +124,37 @@ class ListeNomenclature extends Component
 
                 // if(empty($this->parEtat) && empty($this->parUser)){
                 if(!empty($this->parUser)){
-                    $listeNomenclatur = Nomenclature::where('societe',auth()->user()->societe)->where('code','like','%'.$this->parRef.'%')->where('produit_a_fabrique','like','%'.$this->query.'%')->where('user_id',$this->parUser)->whereBetween('created_at',[$start, $end])->orderBy($this->orderField, $this->orderDirection)->paginate($this->parPage);
+                    $listeNomenclatur = Nomenclature::where('societe_id',auth()->user()->societe_id)->where('code','like','%'.$this->parRef.'%')->where('produit_a_fabrique','like','%'.$this->query.'%')->where('user_id',$this->parUser)->whereBetween('created_at',[$start, $end])->orderBy($this->orderField, $this->orderDirection)->paginate($this->parPage);
                 }
                 else{ 
-                    $listeNomenclatur = Nomenclature::where('societe',auth()->user()->societe)->where('code','like','%'.$this->parRef.'%')->where('produit_a_fabrique','like','%'.$this->query.'%')->whereBetween('created_at',[$start, $end])->orderBy($this->orderField, $this->orderDirection)->paginate($this->parPage);
+                    $listeNomenclatur = Nomenclature::where('societe_id',auth()->user()->societe_id)->where('code','like','%'.$this->parRef.'%')->where('produit_a_fabrique','like','%'.$this->query.'%')->whereBetween('created_at',[$start, $end])->orderBy($this->orderField, $this->orderDirection)->paginate($this->parPage);
                 }
                 $listeNomenclatureCount = $listeNomenclatur->count();      
                 
-                $produit = Produit::where('societe',auth()->user()->societe)->where('nature_produit','!=','Matière première')->where('etat',1)->orderBy('nom_produit')->get();
-                $entrepot = Entrepot::where('societe',auth()->user()->societe)->where('active',1)->orderBy('nom','asc')->get(); 
+                $produit = Produit::where('societe_id',auth()->user()->societe_id)->where('nature_produit','!=','Matière première')->where('etat',1)->orderBy('nom_produit')->get();
+                $entrepot = Entrepot::where('societe_id',auth()->user()->societe_id)->where('active',1)->orderBy('nom','asc')->get(); 
                 
-                $utilisat = Utilisateur::where('societe',auth()->user()->societe)->orderBy('name','asc')->get();                 
+                $utilisat = Utilisateur::where('societe_id',auth()->user()->societe_id)->orderBy('name','asc')->get();                 
                   
-                $resultat = Nomenclature::where('societe',auth()->user()->societe)->get();  
+                $resultat = Nomenclature::where('societe_id',auth()->user()->societe_id)->get();  
                 $nbreTotalNomenclature = $resultat->where('etat',1)->count();     
                 $nbreTotalNomenclatureTotal = $resultat->count();     
 
-                $derniereActivite = Nomenclature::where('societe',auth()->user()->societe)->latest('updated_at')->first();
+                $derniereActivite = Nomenclature::where('societe_id',auth()->user()->societe_id)->latest('updated_at')->first();
                 
                 $page = 'Nomenclature'; // Pour evenement lie
-                $log = LogActivityModel::where('user_societe',auth()->user()->societe)->where('page', $page)->limit(50)->orderBy('id','desc')->get();
+                $log = LogActivityModel::where('societe_id',auth()->user()->societe_id)->where('page', $page)->limit(50)->orderBy('id','desc')->get();
                 $logCount = $log->count();
                 
-                $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->count(); 
+                $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->count(); 
                 if($deviseTva == 0){
                     $this->devise = 'FCFA';
                 }
                 else{
-                    $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->get(); 
+                    $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->get(); 
                     $this->devise = $deviseTva[0]->devise;
                 }
-                $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();          
+                $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();          
                 $jourValid = $entite_mod[0]->validite_mod; 
                 // ceci pour trouver le nombre de jour restant avant expiration
                 $nbjoursRestant = round((strtotime($jourValid) - strtotime($dateJour))/(60*60*24));
@@ -189,18 +189,18 @@ class ListeNomenclature extends Component
     }
     public function store(){       
         $this->validate(); 
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->creer_nomencla;
             if($autoriser == 1){ 
                 // recuperer id produit tres important pour envoyer les produits fabriques dans dans le stock 
-                $prod = Produit::where('societe',auth()->user()->societe)->where('id',$this->produit_a_fabrique)->where('etat',1)->orderBy('nom_produit')->first();
+                $prod = Produit::where('societe_id',auth()->user()->societe_id)->where('id',$this->produit_a_fabrique)->where('etat',1)->orderBy('nom_produit')->first();
                 $prods_id =$prod->id;
                 $nom_produit_a_fabriq =$prod->nom_produit;
                 
                 // recuperer id et nom entrepot
-                $entrepo = Entrepot::where('societe',auth()->user()->societe)->where('id',$this->entrepot_fabrication)->where('active',1)->orderBy('nom')->first();
+                $entrepo = Entrepot::where('societe_id',auth()->user()->societe_id)->where('id',$this->entrepot_fabrication)->where('active',1)->orderBy('nom')->first();
                 $entrepo_id =$entrepo->id;
                 $nom_entrepot =$entrepo->nom;
 
@@ -209,12 +209,12 @@ class ListeNomenclature extends Component
                 $token = bin2hex(random_bytes($length));
                 $token_ok = 'BOM/'.$date.'/'.$token; 
 
-                Nomenclature::create(['libelle'=>$this->libelle,'produit_id'=>$prods_id,'produit_a_fabrique'=>$nom_produit_a_fabriq,'code'=>$token_ok,'quantite'=>$this->quantite,'unite_mesure'=>$this->unite_mesure,
+                $nomeclar = Nomenclature::create(['libelle'=>$this->libelle,'produit_id'=>$prods_id,'produit_a_fabrique'=>$nom_produit_a_fabriq,'code'=>$token_ok,'quantite'=>$this->quantite,'unite_mesure'=>$this->unite_mesure,
                 'entrepot_fabrication'=>$nom_entrepot,'id_entrepot'=>$entrepo_id,'duree'=>$this->duree,'type_nomencla'=>$this->type_nomencla,'description'=>$this->description,'etat'=>$this->etat,'societe'=>auth()->user()->societe,
-                'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
                                                
                 // ceci recupere le dernier enregistrement cree a l'instant
-                $dernier_id = Nomenclature::where('societe',auth()->user()->societe)->where('user_id',auth()->user()->id)->latest()->first()->id; 
+                $dernier_id = $nomeclar->id; 
                 $id_activite = $dernier_id;  
                 $page = 'Nomenclature';    
                 LogActivity::addToLog('Nomenclature » '.$this->libelle.' ('.$token_ok.') créée', $id_activite, $page); 
@@ -252,9 +252,9 @@ class ListeNomenclature extends Component
         }   
     }
     public function changeEtat(int $id, int $etat){  
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->modifier_produit;
             if($autoriser == 1){        
                 if($etat == 1){
@@ -324,9 +324,9 @@ class ListeNomenclature extends Component
         $this->confirmer = $id;        
     }
     public function supprimerAll(int $ids){ 
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){ 
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->supprimer_nomencla;
             if($autoriser == 1){
                 Nomenclature::where('id',$ids)->delete();

@@ -17,7 +17,7 @@ class DetailRole extends Component
     
     public $id;
     public $ids;
-    public $nom, $societe, $nom_user, $user_id, $description; 
+    public $nom, $societe, $societe_id, $nom_user, $user_id, $description; 
     public $created_at;
     public $updated_at;
     public $auteur; 
@@ -75,9 +75,9 @@ class DetailRole extends Component
 
     public $confirmer;
     public function mount(){        
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->consulter_role;
             if($autoriser == 0){
                 alert()->error('Oups Désolé', 'Vous n\'êtes pas autorisé à ouvrir cette page !!!')->position('center')->autoClose(5000)->background('#fff')->width('460px')->padding('5px');
@@ -95,7 +95,7 @@ class DetailRole extends Component
     public function render(){
         $this->ids = request('id'); // id user
         $dateJour = date('Y-m-d');            
-        $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();
+        $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();
         $jourValid = $entite_mod[0]->validite_mod; 
         $mod_administration = $entite_mod[0]->mod_administration; 
         $soldeClient = $entite_mod[0]->solde;
@@ -116,6 +116,7 @@ class DetailRole extends Component
                     $this->nom = $role->nom;
                     $this->description = $role->description;
                     $this->societe = $role->societe;
+                    $this->societe_id = $role->societe_id;
                     $this->created_at = $role->created_at;
                     $this->updated_at = $role->updated_at;
                     $this->auteur = $role->nom_user;  
@@ -126,18 +127,20 @@ class DetailRole extends Component
                     $this->nom = $role->nom;
                     $this->description = $role->description;
                     $this->societe = $role->societe;
+                    $this->societe_id = $role->societe_id;
                     $this->created_at = $role->created_at;
                     $this->updated_at = $role->updated_at;
                     $this->auteur = $role->nom_user;  
                 }   
 
-                $entit = Entite::where('enseigne',$this->societe)->where('active',1)->orderBy('enseigne','asc')->first();
+                $entit = Entite::where('id',$this->societe_id)->where('active',1)->orderBy('enseigne','asc')->first();
                 $societe_mere = $entit->societe_mere;
-                $entiteFiliale = Entite::where('societe_mere',$societe_mere)->where('active',1)->orderBy('enseigne','asc')->get();
+                $societe_mere_id = $entit->societe_mere_id;
+                $entiteFiliale = Entite::where('societe_mere_id',$societe_mere_id)->where('active',1)->orderBy('enseigne','asc')->get();
                 // $entiteFiliale = Entite::where('societe_mere',auth()->user()->societe_mere)->where('active',1)->orderBy('enseigne','asc')->get();
 
                 $page = 'Role';
-                $log = LogActivityModel::where('user_societe',auth()->user()->societe)->where('page', $page)->limit(50)->orderBy('id','desc')->get();
+                $log = LogActivityModel::where('societe_id',auth()->user()->societe_id)->where('page', $page)->limit(50)->orderBy('id','desc')->get();
                 $logCount = $log->count();
 
                 // ceci pour selection droit (les radio)
@@ -824,16 +827,16 @@ class DetailRole extends Component
                 }
                 // Fin
 
-                $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->count();             
+                $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->count();             
                 if($deviseTva == 0){
                     $this->devise = 'FCFA';
                 }
                 else{
-                    $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->get(); 
+                    $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->get(); 
                     $this->devise = $deviseTva[0]->devise;                
                 }                    
                 toast()->success('Prêt', '')->position('top-right')->autoClose(2000)->background('#fff')->width('220px')->padding('5px');    
-                $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get(); 
+                $entite_mod = Entite::where('id',auth()->user()->societe_id)->get(); 
                 $jourValid = $entite_mod[0]->validite_mod; 
                 // ceci pour trouver le nombre de jour restant avant expiration
                 $nbjoursRestant = round((strtotime($jourValid) - strtotime($dateJour))/(60*60*24));
@@ -871,9 +874,9 @@ class DetailRole extends Component
     } 
     public function supprimer($id){ 
         
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->supprimer_role;
             $role_non = Role::select('nom')->where('id',$id)->get();
             $nom_role = $role_non[0]->nom;
@@ -1096,9 +1099,9 @@ class DetailRole extends Component
             
         ]);        
         
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->modifier_role;
             if($autoriser == 1){
                 if($id){    

@@ -61,9 +61,9 @@ class ListeTicket extends Component
         }
     }
     public function mount(){         
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->consulter_ticket;
             if($autoriser == 0){
                 alert()->error('Oups Désolé', 'Vous n\'êtes pas autorisé à ouvrir cette page !!!')->position('center')->autoClose(5000)->background('#fff')->width('460px')->padding('5px');
@@ -88,7 +88,7 @@ class ListeTicket extends Component
     public function render()
     {
         $dateJour = date('Y-m-d');            
-        $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();
+        $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();
         $jourValid = $entite_mod[0]->validite_mod;
         $mod_ticket = $entite_mod[0]->mod_ticket;
         $soldeClient = $entite_mod[0]->solde; 
@@ -125,16 +125,16 @@ class ListeTicket extends Component
                 else{                
 
                     if(empty($this->parAuteur) && empty($this->parSociete)){
-                        $ticket = Ticket::where('societe',auth()->user()->societe)->where('user_id',auth()->user()->id)->where('nom_ticket','like','%'.$this->query.'%')->where('reference','like','%'.$this->parRef.'%')->whereBetween('created_at',[$start, $end])->orderBy($this->orderField, $this->orderDirection)->paginate($this->parPage);
+                        $ticket = Ticket::where('societe_id',auth()->user()->societe_id)->where('user_id',auth()->user()->id)->where('nom_ticket','like','%'.$this->query.'%')->where('reference','like','%'.$this->parRef.'%')->whereBetween('created_at',[$start, $end])->orderBy($this->orderField, $this->orderDirection)->paginate($this->parPage);
                     }
                     elseif(!empty($this->parAuteur) && empty($this->parSociete)){
-                        $ticket = Ticket::where('societe',auth()->user()->societe)->where('user_id',auth()->user()->id)->where('nom_ticket','like','%'.$this->query.'%')->where('reference','like','%'.$this->parRef.'%')->where('user_id',$this->parAuteur)->whereBetween('created_at',[$start, $end])->orderBy($this->orderField, $this->orderDirection)->paginate($this->parPage);
+                        $ticket = Ticket::where('societe_id',auth()->user()->societe_id)->where('user_id',auth()->user()->id)->where('nom_ticket','like','%'.$this->query.'%')->where('reference','like','%'.$this->parRef.'%')->where('user_id',$this->parAuteur)->whereBetween('created_at',[$start, $end])->orderBy($this->orderField, $this->orderDirection)->paginate($this->parPage);
                     }
                     elseif(empty($this->parAuteur) && !empty($this->parSociete)){
-                        $ticket = Ticket::where('societe',auth()->user()->societe)->where('user_id',auth()->user()->id)->where('nom_ticket','like','%'.$this->query.'%')->where('reference','like','%'.$this->parRef.'%')->where('societe',$this->parSociete)->whereBetween('created_at',[$start, $end])->orderBy($this->orderField, $this->orderDirection)->paginate($this->parPage);
+                        $ticket = Ticket::where('societe_id',auth()->user()->societe_id)->where('user_id',auth()->user()->id)->where('nom_ticket','like','%'.$this->query.'%')->where('reference','like','%'.$this->parRef.'%')->where('societe',$this->parSociete)->whereBetween('created_at',[$start, $end])->orderBy($this->orderField, $this->orderDirection)->paginate($this->parPage);
                     }
                     else{ 
-                        $ticket = Ticket::where('societe',auth()->user()->societe)->where('user_id',auth()->user()->id)->where('nom_ticket','like','%'.$this->query.'%')->where('reference','like','%'.$this->parRef.'%')->where('user_id',$this->parAuteur)->where('societe',$this->parSociete)->whereBetween('created_at',[$start, $end])->orderBy($this->orderField, $this->orderDirection)->paginate($this->parPage);
+                        $ticket = Ticket::where('societe_id',auth()->user()->societe_id)->where('user_id',auth()->user()->id)->where('nom_ticket','like','%'.$this->query.'%')->where('reference','like','%'.$this->parRef.'%')->where('user_id',$this->parAuteur)->where('societe',$this->parSociete)->whereBetween('created_at',[$start, $end])->orderBy($this->orderField, $this->orderDirection)->paginate($this->parPage);
                     }
                 }  
                 $ticketCount = $ticket->count();
@@ -143,7 +143,7 @@ class ListeTicket extends Component
                 $liste_entite = Entite::orderBy('enseigne','asc')->get();
 
                 if(auth()->user()->societe == "Administration"){
-                    $listUser = Utilisateur::where('societe',auth()->user()->societe)->where('etat',1)->orderBy('name','asc')->get();
+                    $listUser = Utilisateur::where('societe_id',auth()->user()->societe_id)->where('etat',1)->orderBy('name','asc')->get();
                     
                     // PKI      
                     $resultat = Ticket::get();  
@@ -154,26 +154,26 @@ class ListeTicket extends Component
                     $listUser = Utilisateur::where('email','support@wamsco-cloud.net')->where('etat',1)->orderBy('name','asc')->get(); 
                     
                     // PKI      
-                    $resultat = Ticket::where('societe',auth()->user()->societe)->get();  
+                    $resultat = Ticket::where('societe_id',auth()->user()->societe_id)->get();  
                     $nbreTotalResolu = $resultat->where('statut','Résolu')->count();
                     $nbreTotalTicket = $resultat->count();  
                 }                        
 
-                $derniereActivite = Ticket::where('societe',auth()->user()->societe)->latest('updated_at')->first();
+                $derniereActivite = Ticket::where('societe_id',auth()->user()->societe_id)->latest('updated_at')->first();
                                
                 $page = 'Tickets'; // Pour evenement lie
-                $log = LogActivityModel::where('user_societe',auth()->user()->societe)->where('page', $page)->limit(50)->orderBy('id','desc')->get();
+                $log = LogActivityModel::where('societe_id',auth()->user()->societe_id)->where('page', $page)->limit(50)->orderBy('id','desc')->get();
                 $logCount = $log->count();
 
-                $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->count(); 
+                $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->count(); 
                 if($deviseTva == 0){
                     $this->devise = 'FCFA';
                 }
                 else{
-                    $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->get(); 
+                    $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->get(); 
                     $this->devise = $deviseTva[0]->devise;
                 }            
-                $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();          
+                $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();          
                 $jourValid = $entite_mod[0]->validite_mod; 
                 // ceci pour trouver le nombre de jour restant avant expiration
                 $nbjoursRestant = round((strtotime($jourValid) - strtotime($dateJour))/(60*60*24));
@@ -230,9 +230,9 @@ class ListeTicket extends Component
                 'societe'=>'nullable|max:255',
             ]); 
         }                            
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->creer_ticket;
             if($autoriser == 1){   
                 
@@ -241,23 +241,25 @@ class ListeTicket extends Component
                
                 $users = Utilisateur::where('id',$this->assignation)->where('etat',1)->orderBy('name','asc')->first();            
                 $name = $users->name;
+                $societe_id = $users->societe_id;
+
                 if(auth()->user()->societe == 'Administration'){
-                    Ticket::create(['nom_ticket'=>$this->nom_ticket,'reference'=>$this->reference,'type_demande'=>$this->type_demande,'priorite'=>$this->priorite,'description'=>$this->description,
+                    $tickt1 = Ticket::create(['nom_ticket'=>$this->nom_ticket,'reference'=>$this->reference,'type_demande'=>$this->type_demande,'priorite'=>$this->priorite,'description'=>$this->description,
                     'assignation'=>$name,'assignation_id'=>$this->assignation,'telephone_user'=>$this->telephone_user,'statut'=>$statut,'progression'=>$progression,                
-                    'societe'=>$this->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
+                    'societe'=>$this->societe,'societe_id'=>$societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
                 }
                 else{
-                     Ticket::create(['nom_ticket'=>$this->nom_ticket,'reference'=>$this->reference,'type_demande'=>$this->type_demande,'priorite'=>$this->priorite,'description'=>$this->description,
+                     $tickt2 = Ticket::create(['nom_ticket'=>$this->nom_ticket,'reference'=>$this->reference,'type_demande'=>$this->type_demande,'priorite'=>$this->priorite,'description'=>$this->description,
                     'assignation'=>$name,'assignation_id'=>$this->assignation,'telephone_user'=>$this->telephone_user,'statut'=>$statut,'progression'=>$progression,               
-                    'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
+                    'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
                 }                                    
                 
                 // ceci recupere le dernier enregistrement cree a l'instant
                 if(auth()->user()->societe == 'Administration'){
-                    $dernier_id = Ticket::where('societe',$this->societe)->where('user_id',auth()->user()->id)->latest()->first()->id; 
+                    $dernier_id = $tickt1->id; 
                 }
                 else{
-                    $dernier_id = Ticket::where('societe',auth()->user()->societe)->where('user_id',auth()->user()->id)->latest()->first()->id;
+                    $dernier_id = $tickt2->id;
                 }
                 $id_activite = $dernier_id;
                 $page = 'Tickets'; // Pour evenement lie
@@ -299,9 +301,9 @@ class ListeTicket extends Component
         $this->confirmer = $id;      
     } 
     public function supprimer($id){ 
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->supprimer_ticket;
             if($autoriser == 1){  
                 if($id){                     

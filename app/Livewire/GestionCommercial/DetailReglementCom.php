@@ -29,9 +29,9 @@ class DetailReglementCom extends Component
     public $devise;
 
     public function mount(){ 
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->consulter_souscription;
             if($autoriser == 0){
                 alert()->error('Oups Désolé', 'Vous n\'êtes pas autorisé à ouvrir cette page !!!')->position('center')->autoClose(5000)->background('#fff')->width('460px')->padding('5px');
@@ -47,7 +47,7 @@ class DetailReglementCom extends Component
     public function render(){    
         // $this->ids = request('id'); // id entite
         $dateJour = date('Y-m-d');            
-        $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();
+        $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();
         $jourValid = $entite_mod[0]->validite_mod; 
         $mod_gestion_commercial = $entite_mod[0]->mod_gestion_commercial; 
         $soldeClient = $entite_mod[0]->solde;
@@ -63,7 +63,7 @@ class DetailReglementCom extends Component
                 $dateJour = date('Y-m-d');                   
                 
                 $entite = Entite::orderBy('enseigne','asc')->get();               
-                $utilisateurAll = Utilisateur::where('societe_mere',auth()->user()->societe)->orderBy('name','asc')->get(); 
+                $utilisateurAll = Utilisateur::where('societe_mere_id',auth()->user()->societe_mere_id)->orderBy('name','asc')->get(); 
                 
                 // ceci au chargement de la page
                 if(auth()->user()->societe == "Administration"){
@@ -73,31 +73,31 @@ class DetailReglementCom extends Component
                     $user_id = $ent->user_id;
                 }
                 else{
-                    $entit = Entite::where('enseigne',auth()->user()->societe)->where('id',$this->ids)->get(); 
-                    $ent = Entite::where('enseigne',auth()->user()->societe)->where('id',$this->ids)->first(); 
+                    $entit = Entite::where('id',auth()->user()->societe_id)->where('id',$this->ids)->get(); 
+                    $ent = Entite::where('id',auth()->user()->societe_id)->where('id',$this->ids)->first(); 
                     $user_id = $ent->user_id;    
                 }                      
                 $entitCount = $entit->count();
-                $reglementCom = ReglementCommercial::where('societe',auth()->user()->societe)->where('id_societe',$this->ids)->orderBy('id','desc')->get();
+                $reglementCom = ReglementCommercial::where('societe_id',auth()->user()->societe_id)->where('id_societe',$this->ids)->orderBy('id','desc')->get();
                 $dejaRegler = $reglementCom->sum('montant_regler');
 
-                $user = Utilisateur::where('societe',auth()->user()->societe)->where('id',$user_id)->get();  
+                $user = Utilisateur::where('societe_id',auth()->user()->societe_id)->where('id',$user_id)->get();  
                 
                 $page = 'Entite'; // Pour evenement lie
-                $log = LogActivityModel::where('user_societe',auth()->user()->societe)->where('id_activite', $this->ids)->where('page', $page)->limit(50)->orderBy('id','desc')->get();
+                $log = LogActivityModel::where('societe_id',auth()->user()->societe_id)->where('id_activite', $this->ids)->where('page', $page)->limit(50)->orderBy('id','desc')->get();
                 $logCount = $log->count();                 
                 
-                $banque = CompteBancaire :: where('societe',auth()->user()->societe)->where('etat',1)->orderBy('nom_compte_bancaire','asc')->get();                
-                $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->count();             
+                $banque = CompteBancaire :: where('societe_id',auth()->user()->societe_id)->where('etat',1)->orderBy('nom_compte_bancaire','asc')->get();                
+                $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->count();             
                 if($deviseTva == 0){
                     $this->devise = 'FCFA';
                 }
                 else{
-                    $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->get(); 
+                    $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->get(); 
                     $this->devise = $deviseTva[0]->devise;                
                 }                    
                 toast()->success('Prêt', '')->position('top-right')->autoClose(2000)->background('#fff')->width('220px')->padding('5px');    
-                $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get(); 
+                $entite_mod = Entite::where('id',auth()->user()->societe_id)->get(); 
                 $jourValid = $entite_mod[0]->validite_mod; 
                 // ceci pour trouver le nombre de jour restant avant expiration
                 $nbjoursRestant = round((strtotime($jourValid) - strtotime($dateJour))/(60*60*24));

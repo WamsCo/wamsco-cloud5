@@ -45,9 +45,9 @@ class NouveauAvancePret extends Component
     public $envoi_mail;     
 
     public function mount(){         
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->creer_ticket;
             if($autoriser == 0){
                 alert()->error('Oups Désolé', 'Vous n\'êtes pas autorisé à ouvrir cette page !!!')->position('center')->autoClose(5000)->background('#fff')->width('460px')->padding('5px');
@@ -65,7 +65,7 @@ class NouveauAvancePret extends Component
     public function render()
     {
         $dateJour = date('Y-m-d');            
-        $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();
+        $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();
         $jourValid = $entite_mod[0]->validite_mod;
         $mod_ticket = $entite_mod[0]->mod_ticket;
         $soldeClient = $entite_mod[0]->solde; 
@@ -82,21 +82,21 @@ class NouveauAvancePret extends Component
                 toast()->success('Prêt', '')->position('top-right')->autoClose(2000)->background('#fff')->width('220px')->padding('5px'); 
                 
                 $page = 'AvancePret'; // Pour evenement lie
-                $log = LogActivityModel::where('user_societe',auth()->user()->societe)->where('page', $page)->limit(7)->orderBy('id','desc')->get();
+                $log = LogActivityModel::where('societe_id',auth()->user()->societe_id)->where('page', $page)->limit(7)->orderBy('id','desc')->get();
                 $logCount = $log->count();
 
-                $config = Parametre::where('societe',auth()->user()->societe)->limit(1)->get();
+                $config = Parametre::where('societe_id',auth()->user()->societe_id)->limit(1)->get();
                 $this->envoi_mail = $config[0]->envoi_mail;
 
-                $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->count(); 
+                $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->count(); 
                 if($deviseTva == 0){
                     $this->devise = 'FCFA';
                 }
                 else{
-                    $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->get(); 
+                    $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->get(); 
                     $this->devise = $deviseTva[0]->devise;
                 }            
-                $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();          
+                $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();          
                 $jourValid = $entite_mod[0]->validite_mod; 
                 // ceci pour trouver le nombre de jour restant avant expiration
                 $nbjoursRestant = round((strtotime($jourValid) - strtotime($dateJour))/(60*60*24));
@@ -131,13 +131,13 @@ class NouveauAvancePret extends Component
     public function searchResult(){ 
         if(!empty($this->utilisateur)){
             if(ctype_alpha($this->utilisateur)){ // ctype_alpha: cette fonction permet de savoir si le caractere ou mot est une lettre  
-                $this->records = Utilisateur::where('etat',1)->where('societe',auth()->user()->societe)->where('name','like','%'.$this->utilisateur.'%')->orderBy('name','asc')->limit(8)->get(); 
-                $this->recordCount = Utilisateur::where('etat',1)->where('societe',auth()->user()->societe)->where('name','like','%'.$this->utilisateur.'%')->count();
+                $this->records = Utilisateur::where('etat',1)->where('societe_id',auth()->user()->societe_id)->where('name','like','%'.$this->utilisateur.'%')->orderBy('name','asc')->limit(8)->get(); 
+                $this->recordCount = Utilisateur::where('etat',1)->where('societe_id',auth()->user()->societe_id)->where('name','like','%'.$this->utilisateur.'%')->count();
                 $this->showdiv = true;
             }
             else{
-                $this->records = Utilisateur::where('etat',1)->where('societe',auth()->user()->societe)->where('telephone','like','%'.$this->utilisateur.'%')->orderBy('name','asc')->limit(8)->get(); 
-                $this->recordCount = Utilisateur::where('etat',1)->where('societe',auth()->user()->societe)->where('telephone','like','%'.$this->utilisateur.'%')->count(); 
+                $this->records = Utilisateur::where('etat',1)->where('societe_id',auth()->user()->societe_id)->where('telephone','like','%'.$this->utilisateur.'%')->orderBy('name','asc')->limit(8)->get(); 
+                $this->recordCount = Utilisateur::where('etat',1)->where('societe_id',auth()->user()->societe_id)->where('telephone','like','%'.$this->utilisateur.'%')->count(); 
                 $this->showdiv = true;
             }        
         }
@@ -165,21 +165,21 @@ class NouveauAvancePret extends Component
             'date_paiement'=>'required|max:255',
             'etat'=>'required|numeric',
         ]);                                  
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->creer_ticket;
             if($autoriser == 1){  
                 
                 if(!empty($this->ids_utilisateur)){
                     try {
-                            AvancePret::create(['salarie'=>$this->utilisateur,'id_salarie'=>$this->ids_utilisateur,'type_pret'=>$this->type_pret,'libelle'=>$this->libelle,
+                            $avancPret = AvancePret::create(['salarie'=>$this->utilisateur,'id_salarie'=>$this->ids_utilisateur,'type_pret'=>$this->type_pret,'libelle'=>$this->libelle,
                                         'montant'=>$this->montant,'nombre_tranche'=>$this->nombre_tranche,'telephone'=>$this->telephone,'note'=>$this->note,
                                         'mode_reglement'=>$this->mode_reglement,'date_paiement'=>$this->date_paiement,'etat'=>$this->etat,'societe'=>auth()->user()->societe,
-                                        'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);                                               
+                                        'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);                                               
                         
                             // ceci recupere le dernier enregistrement cree a l'instant               
-                            $dernier_id = AvancePret::where('societe',auth()->user()->societe)->where('user_id',auth()->user()->id)->latest()->first()->id;                    
+                            $dernier_id = $avancPret->id;                    
 
                             // ************* debut envoi email ********************
                             if($this->envoi_mail == 1){
@@ -188,11 +188,12 @@ class NouveauAvancePret extends Component
                                 $email = $user[0]->email;
                                 $name = $user[0]->name;
                                 $societe = $user[0]->societe;
+                                $societe_id = $user[0]->societe_id;
 
-                                $entite_all = Entite::where('enseigne',auth()->user()->societe)->get();
+                                $entite_all = Entite::where('id',auth()->user()->societe_id)->get();
                                 $logo = $entite_all[0]->logo;
 
-                                $devises = DeviseTva::where('societe',auth()->user()->societe)->get();
+                                $devises = DeviseTva::where('societe_id',auth()->user()->societe_id)->get();
                                 $devise = $devises[0]->devise;
                                 
                                 $avance_all = AvancePret::where('id',$dernier_id)->first();

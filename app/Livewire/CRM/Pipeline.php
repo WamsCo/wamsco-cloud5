@@ -52,9 +52,9 @@ class Pipeline extends Component
         $this->priorite = 'Faible';
     }
     public function mount(){  
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->consulter_opportunite;
             if($autoriser == 0){
                 toast()->error('Oups Désolé', 'Vous n\'êtes pas autorisé à ouvrir cette page!')->position('top-end')->autoClose(5000)->background('#fff')->width('460px')->padding('5px');
@@ -70,7 +70,7 @@ class Pipeline extends Component
     public function render(){
     
         $dateJour = date('Y-m-d');            
-        $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();
+        $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();
         $jourValid = $entite_mod[0]->validite_mod;
         $mod_crm = $entite_mod[0]->mod_crm;
         $soldeClient = $entite_mod[0]->solde;
@@ -86,32 +86,32 @@ class Pipeline extends Component
                 $choix = request('choix');
                 $dateJour = date('Y-m-d');             
 
-                $etape = Etape :: where('societe',auth()->user()->societe)->orderBy('id','asc')->get(); 
+                $etape = Etape :: where('societe_id',auth()->user()->societe_id)->orderBy('id','asc')->get(); 
 
                 // if(auth()->user()->societe == "Administration" && auth()->user()->type_user == "Administrateur"){ 
                 if(auth()->user()->type_user == "Administrateur"){ 
 
-                    $opportuniter = Opportunite :: where('societe',auth()->user()->societe)->orderBy('step')->orderBy('position')->get()->groupBy('step');
+                    $opportuniter = Opportunite :: where('societe_id',auth()->user()->societe_id)->orderBy('step')->orderBy('position')->get()->groupBy('step');
                 }
                 else{
 
-                    $opportuniter = Opportunite::where('societe',auth()->user()->societe)->where('vendeur', auth()->user()->id)->orderBy('step')->orderBy('position')->get()->groupBy('step');
+                    $opportuniter = Opportunite::where('societe_id',auth()->user()->societe_id)->where('vendeur', auth()->user()->id)->orderBy('step')->orderBy('position')->get()->groupBy('step');
                 } 
 
                 $opportuniterCount = $opportuniter->count();
 
-                $user = Utilisateur::where('societe',auth()->user()->societe)->orderBy('name','asc')->get(); 
+                $user = Utilisateur::where('societe_id',auth()->user()->societe_id)->orderBy('name','asc')->get(); 
 
-                $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->count();             
+                $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->count();             
                 if($deviseTva == 0){
                     $this->devise = 'FCFA';
                 }
                 else{
-                    $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->get(); 
+                    $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->get(); 
                     $this->devise = $deviseTva[0]->devise;                
                 }  
                 toast()->success('Prêt', '')->position('top-right')->autoClose(2000)->background('#fff')->width('220px')->padding('5px');            
-                $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get(); 
+                $entite_mod = Entite::where('id',auth()->user()->societe_id)->get(); 
                 $jourValid = $entite_mod[0]->validite_mod; 
                 // ceci pour trouver le nombre de jour restant avant expiration
                 $nbjoursRestant = round((strtotime($jourValid) - strtotime($dateJour))/(60*60*24));           
@@ -146,13 +146,13 @@ class Pipeline extends Component
     public function searchResult(){ 
         if(!empty($this->client)){
             if(ctype_alpha($this->client)){ // ctype_alpha: cette fonction permet de savoir si le caractere ou mot est une lettre  
-                $this->records = Tier::where('etat',1)->where('societe',auth()->user()->societe)->where('nom','like','%'.$this->client.'%')->orderBy('nom','asc')->limit(8)->get(); 
-                $this->recordCount = Tier::where('etat',1)->where('societe',auth()->user()->societe)->where('nom','like','%'.$this->client.'%')->count();
+                $this->records = Tier::where('etat',1)->where('societe_id',auth()->user()->societe_id)->where('nom','like','%'.$this->client.'%')->orderBy('nom','asc')->limit(8)->get(); 
+                $this->recordCount = Tier::where('etat',1)->where('societe_id',auth()->user()->societe_id)->where('nom','like','%'.$this->client.'%')->count();
                 $this->showdiv = true;
             }
             else{
-                $this->records = Tier::where('etat',1)->where('societe',auth()->user()->societe)->where('telephone','like','%'.$this->client.'%')->orderBy('nom','asc')->limit(8)->get(); 
-                $this->recordCount = Tier::where('etat',1)->where('societe',auth()->user()->societe)->where('telephone','like','%'.$this->client.'%')->count(); 
+                $this->records = Tier::where('etat',1)->where('societe_id',auth()->user()->societe_id)->where('telephone','like','%'.$this->client.'%')->orderBy('nom','asc')->limit(8)->get(); 
+                $this->recordCount = Tier::where('etat',1)->where('societe_id',auth()->user()->societe_id)->where('telephone','like','%'.$this->client.'%')->count(); 
                 $this->showdiv = true;
             }        
         }
@@ -180,28 +180,30 @@ class Pipeline extends Component
             'evolution'=>'required|numeric', // id etape
             'priorite'=>'required|max:255', 
         ]);   
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->creer_opportunite;
             if($autoriser == 1){ 
 
-                $test_tiers = Tier ::where('societe',auth()->user()->societe)->where('id',$this->ids_client)->count();
+                $test_tiers = Tier ::where('societe_id',auth()->user()->societe_id)->where('id',$this->ids_client)->count();
                 if($test_tiers > 0){                    
 
-                    $test_etapes = Etape::where('societe',auth()->user()->societe)->where('id', $this->evolution)->count();
+                    $test_etapes = Etape::where('societe_id',auth()->user()->societe_id)->where('id', $this->evolution)->count();
                     if($test_etapes > 0){
 
-                        $etapes = Etape::where('societe',auth()->user()->societe)->where('id', $this->evolution)->first();
+                        $etapes = Etape::where('societe_id',auth()->user()->societe_id)->where('id', $this->evolution)->first();
                         $nom_etape = $etapes->nom_etape; 
                         $date_cloture = date('Y-m-d', strtotime('2 month'));                  
 
                         $position = 0;
-                        Opportunite :: create(['client'=>$this->client,'id_client'=>$this->ids_client,'nom_opportunite'=>$this->nom_opportunite,'email_contact'=>$this->email_contact,'nom_societe'=>$this->nom_societe,
+                        $opportu = Opportunite :: create(['client'=>$this->client,'id_client'=>$this->ids_client,'nom_opportunite'=>$this->nom_opportunite,'email_contact'=>$this->email_contact,'nom_societe'=>$this->nom_societe,
                         'telephone_contact'=>$this->telephone_contact,'montant_attendu'=>$this->montant_attendu,'etape'=>$nom_etape,'id_etape'=>$this->evolution,'step'=>$this->evolution,'position'=>$position,'priorite'=>$this->priorite,
-                        'date_cloture'=>$date_cloture,'pays'=>'Cameroon','langue'=>'Français','vendeur'=>auth()->user()->id,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->email,'user_id'=>auth()->user()->id]);
+                        'date_cloture'=>$date_cloture,'pays'=>'Cameroon','langue'=>'Français','vendeur'=>auth()->user()->id,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->email,'user_id'=>auth()->user()->id]);
+                        
                         // ceci recupere le dernier enregistrement cree a l'instant
-                        $dernier_id = Opportunite::where('societe',auth()->user()->societe)->where('user_id',auth()->user()->id)->latest()->first()->id; 
+                        $dernier_id = $opportu->id;
+
                         $this->dispatch('pipelineStore');
                         $id_activite = $dernier_id;   
                         $page = 'Opportunite';    
@@ -262,29 +264,29 @@ class Pipeline extends Component
         }   
     }
     public function opportuniter(int $id){
-        $etapes = Etape::where('societe',auth()->user()->societe)->where('id', $id)->first();
+        $etapes = Etape::where('societe_id',auth()->user()->societe_id)->where('id', $id)->first();
         $this->evolution = $etapes->id;
     }
     public function getTotalParEtape(int $id_etape){ 
 
         if(auth()->user()->type_user == "Administrateur"){ 
 
-            return Opportunite :: where('societe',auth()->user()->societe)->where('id_etape', $id_etape)->sum('montant_attendu'); 
+            return Opportunite :: where('societe_id',auth()->user()->societe_id)->where('id_etape', $id_etape)->sum('montant_attendu'); 
         }
         else{
 
-            return Opportunite :: where('societe',auth()->user()->societe)->where('vendeur', auth()->user()->id)->where('id_etape', $id_etape)->sum('montant_attendu'); 
+            return Opportunite :: where('societe_id',auth()->user()->societe_id)->where('vendeur', auth()->user()->id)->where('id_etape', $id_etape)->sum('montant_attendu'); 
         }            
     }
     public function getTotalParOpportunite(int $id_etape){
 
         if(auth()->user()->type_user == "Administrateur"){ 
 
-            return Opportunite :: where('societe',auth()->user()->societe)->where('id_etape', $id_etape)->count();  
+            return Opportunite :: where('societe_id',auth()->user()->societe_id)->where('id_etape', $id_etape)->count();  
         }
         else{
 
-            return Opportunite :: where('societe',auth()->user()->societe)->where('vendeur', auth()->user()->id)->where('id_etape', $id_etape)->count(); 
+            return Opportunite :: where('societe_id',auth()->user()->societe_id)->where('vendeur', auth()->user()->id)->where('id_etape', $id_etape)->count(); 
         }            
     }      
     public function moveTask($taskId, $newEtape, $newPosition){    
@@ -297,9 +299,9 @@ class Pipeline extends Component
             });
 
         // NB:  ceci enregistrer dans l'opportunite l'etape actuelle
-        $Task =  Opportunite::where('societe',auth()->user()->societe)->where('id',$taskId)->first();
+        $Task =  Opportunite::where('societe_id',auth()->user()->societe_id)->where('id',$taskId)->first();
         $id_step_task = $Task->step;
-        $etap =  Etape::where('societe',auth()->user()->societe)->where('id',$id_step_task)->first();
+        $etap =  Etape::where('societe_id',auth()->user()->societe_id)->where('id',$id_step_task)->first();
         $nom_etape = $etap->nom_etape;
         
         Opportunite :: find($taskId)->update(['etape'=>$nom_etape,'id_etape'=>$id_step_task,]);        

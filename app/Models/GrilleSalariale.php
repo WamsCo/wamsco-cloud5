@@ -8,5 +8,5 @@ use Illuminate\Database\Eloquent\Model;
 class GrilleSalariale extends Model
 {
     use HasFactory;
-    protected $fillable = ['reference','categorie','echelon','salaire_base','societe','nom_user','user_id'];
+    protected $fillable = ['reference','categorie','echelon','salaire_base','societe','societe_id','nom_user','user_id'];
 }

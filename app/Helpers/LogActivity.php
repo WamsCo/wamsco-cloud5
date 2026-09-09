@@ -23,6 +23,7 @@ class LogActivity
     	$log['user_id'] = auth()->check() ? auth()->user()->id : 1;
     	$log['user_email'] = auth()->check() ? auth()->user()->name : 0;
     	$log['user_societe'] = auth()->check() ? auth()->user()->societe : 0;
+    	$log['societe_id'] = auth()->check() ? auth()->user()->societe_id : 0;		
     	$log['profil'] = auth()->check() ? auth()->user()->profil : 0;
     	
     	LogActivityModel::create($log);

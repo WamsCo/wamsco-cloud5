@@ -21,9 +21,9 @@ class ListActivity extends Component
     // public $parPage = 20;
 
     public function mount(){ 
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->creer_entite;
             if($autoriser == 0){
                 alert()->error('Oups Désolé', 'Vous n\'êtes pas autorisé à ouvrir cette page !!!')->position('center')->autoClose(5000)->background('#fff')->width('460px')->padding('5px');
@@ -50,7 +50,7 @@ class ListActivity extends Component
         $logCount = LogActivity::logActivityLists()->count();
         $logTotal = LogActivity::logActivityLists()->total();
         
-        $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get(); 
+        $entite_mod = Entite::where('id',auth()->user()->societe_id)->get(); 
         $jourValid = $entite_mod[0]->validite_mod; 
         $soldeClient = $entite_mod[0]->solde;
         // ceci pour trouver le nombre de jour restant avant expiration
@@ -59,9 +59,9 @@ class ListActivity extends Component
     }
     public function supprimer(int $id){        
         
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->supprimer_entite;
             if($autoriser == 1){
                 \App\Models\LogActivity::find($id)->delete();

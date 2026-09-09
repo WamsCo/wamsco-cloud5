@@ -40,9 +40,9 @@ class CompteBanqueCaisses extends Component
         }
     }
     public function mount(){
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->consulter_compte;
             if($autoriser == 0){
                 alert()->error('Oups Désolé', 'Vous n\'êtes pas autorisé à ouvrir cette page !!!')->position('center')->autoClose(5000)->background('#fff')->width('460px')->padding('5px');
@@ -57,7 +57,7 @@ class CompteBanqueCaisses extends Component
     public function render()
     {
         $dateJour = date('Y-m-d');            
-        $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();
+        $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();
         $jourValid = $entite_mod[0]->validite_mod;
         $mod_banque_caisse = $entite_mod[0]->mod_banque_caisse; 
         $soldeClient = $entite_mod[0]->solde;
@@ -72,29 +72,29 @@ class CompteBanqueCaisses extends Component
                 $choix = request('choix');
                 $dateJour = date('Y-m-d');
                 toast()->success('Prêt', '')->position('top-right')->autoClose(2000)->background('#fff')->width('220px')->padding('5px');           
-                $banque = CompteBancaire :: where('societe',auth()->user()->societe)->where('nom_compte_bancaire','like','%'.$this->query.'%')->orderBy($this->orderField, $this->orderDirection)->paginate($this->parPage); 
+                $banque = CompteBancaire :: where('societe_id',auth()->user()->societe_id)->where('nom_compte_bancaire','like','%'.$this->query.'%')->orderBy($this->orderField, $this->orderDirection)->paginate($this->parPage); 
                 $banqueCount = $banque->count(); 
                 
-                $resultat = CompteBancaire::where('societe',auth()->user()->societe)->get();  
+                $resultat = CompteBancaire::where('societe_id',auth()->user()->societe_id)->get();  
                 $nbreTotalCompteBancaire = $resultat->count();     
                 $nbreTotalCompteBancaireActif = $resultat->where('etat',1)->count();     
 
-                $derniereActivite = CompteBancaire::where('societe',auth()->user()->societe)->latest('updated_at')->first();
+                $derniereActivite = CompteBancaire::where('societe_id',auth()->user()->societe_id)->latest('updated_at')->first();
                 
                 $page = 'CompteBancaire'; // pour evenement lies
-                $log = LogActivityModel::where('user_societe',auth()->user()->societe)->where('page', $page)->limit(50)->orderBy('id','desc')->get();
+                $log = LogActivityModel::where('societe_id',auth()->user()->societe_id)->where('page', $page)->limit(50)->orderBy('id','desc')->get();
                 $logCount = $log->count();
             
-                $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->count(); 
+                $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->count(); 
                 if($deviseTva == 0){
                     $this->devise = 'FCFA';
                 }
                 else{
-                    $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->get(); 
+                    $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->get(); 
                     $this->devise = $deviseTva[0]->devise;
                 }           
 
-                $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();                      
+                $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();                      
                 $jourValid = $entite_mod[0]->validite_mod; 
                 // ceci pour trouver le nombre de jour restant avant expiration
                 $nbjoursRestant = round((strtotime($jourValid) - strtotime($dateJour))/(60*60*24));
@@ -127,9 +127,9 @@ class CompteBanqueCaisses extends Component
         }
     }
     public function store(){
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->creer_compte;
             if($autoriser == 1){   
 
@@ -142,15 +142,14 @@ class CompteBanqueCaisses extends Component
                     $num_compte = '';
                     $nom_proprietaire = '';
                     $etat = 0;
-                    CompteBancaire::create(['reference'=>$reference,'nom_compte_bancaire'=>$nom_compte_bancaire,'type_compte'=>$type_compte,'solde'=>$solde,
+                    $cpteBanq = CompteBancaire::create(['reference'=>$reference,'nom_compte_bancaire'=>$nom_compte_bancaire,'type_compte'=>$type_compte,'solde'=>$solde,
                     'nom_banque'=>$nom_banque,'num_compte'=>$num_compte,'nom_proprietaire'=>$nom_proprietaire,'etat'=>$etat,'societe'=>auth()->user()->societe,
-                                    'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                    'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
 
                     // ceci recupere le dernier enregistrement cree a l'instant
-                    $dernier_id = CompteBancaire::where('societe',auth()->user()->societe)->where('user_id',auth()->user()->id)->latest()->first()->id; 
+                    $dernier_id = $cpteBanq->id; 
 
-                    // Creation en enregistrement ecriture bancaire
-                    
+                    // Creation en enregistrement ecriture bancaire                    
                     $description = '(Solde initial)';
                     $date_operation = date('Y-m-d');
                     $date_valeur = date('Y-m-d');
@@ -159,7 +158,7 @@ class CompteBanqueCaisses extends Component
                     $credit = 0;
                     $type_paiement = 'SoldeInitial';
                     EcritureBancaire::create(['id_compte_bancaire'=>$dernier_id,'id_type_paiement'=>$dernier_id,'nom_compte_bancaire'=>$nom_compte_bancaire,'reference'=>$reference,'description'=>$description,'date_operation'=>$date_operation,'date_valeur'=>$date_valeur,
-                    'debit'=>$debit,'credit'=>$credit,'solde'=>$solde,'type_paiement'=>$type_paiement,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);                    
+                    'debit'=>$debit,'credit'=>$credit,'solde'=>$solde,'type_paiement'=>$type_paiement,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);                    
                    
                     $page = 'CompteBancaire'; 
                     $id_activite = $dernier_id;
@@ -198,9 +197,9 @@ class CompteBanqueCaisses extends Component
         }  
     } 
     public function changeEtat(int $id, int $etat){
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->modifier_compte; 
             if($autoriser == 1){         
                 if($etat == 1){
@@ -270,17 +269,17 @@ class CompteBanqueCaisses extends Component
         $this->confirmer = $id;        
     } 
     public function supprimer($id){ 
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){ 
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->supprimer_compte;
             if($autoriser == 1){   
                 if($id){
                     
-                    $verifierEcriture = EcritureBancaire::where('societe',auth()->user()->societe)->where('id_compte_bancaire',$id)->count();
+                    $verifierEcriture = EcritureBancaire::where('societe_id',auth()->user()->societe_id)->where('id_compte_bancaire',$id)->count();
                     if($verifierEcriture == 0){
 
-                        $cpte = CompteBancaire::where('societe',auth()->user()->societe)->where('id',$id)->first();
+                        $cpte = CompteBancaire::where('societe_id',auth()->user()->societe_id)->where('id',$id)->first();
                         $test_solde = $cpte->solde;
                         $etat = $cpte->etat;
                         if($test_solde == 0 && $etat == 0){ 

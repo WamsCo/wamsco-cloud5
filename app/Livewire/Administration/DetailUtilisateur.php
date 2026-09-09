@@ -78,6 +78,7 @@ class DetailUtilisateur extends Component
     public $date_valide;
     public $etat = 1;
     public $societe; 
+    public $societe_id;
     public $salarie; 
     public $sexe;     
     public $profil;    
@@ -136,9 +137,9 @@ class DetailUtilisateur extends Component
     // Fin Rh
 
     public function mount(){ 
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->consulter_user;
             if($autoriser == 0){
                 alert()->error('Oups Désolé', 'Vous n\'êtes pas autorisé à ouvrir cette page !!!')->position('center')->autoClose(5000)->background('#fff')->width('460px')->padding('5px');
@@ -155,7 +156,7 @@ class DetailUtilisateur extends Component
         $this->society = request('soc'); // recupere societe
 
         $dateJour = date('Y-m-d');            
-        $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();
+        $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();
         $jourValid = $entite_mod[0]->validite_mod; 
         $mod_administration = $entite_mod[0]->mod_administration; 
         $soldeClient = $entite_mod[0]->solde;
@@ -171,15 +172,14 @@ class DetailUtilisateur extends Component
                 $dateJour = date('Y-m-d');                   
                 
                 // $entite = Entite::orderBy('enseigne','asc')->get();
-                $departe = Departement :: where('societe',auth()->user()->societe)->orderBy('nom_departement','asc')->get();  
-                $posteTravail = Poste_travail :: where('societe',auth()->user()->societe)->orderBy('nom_poste','asc')->get(); 
+                $departe = Departement :: where('societe_id',auth()->user()->societe_id)->orderBy('nom_departement','asc')->get();  
+                $posteTravail = Poste_travail :: where('societe_id',auth()->user()->societe_id)->orderBy('nom_poste','asc')->get(); 
                 if(auth()->user()->societe == "Administration"){
-                    $privillege = Role::where('societe', $this->societe)->orderBy('nom','asc')->get(); // ceci affiche en fonction de la societe choisie
+                    $privillege = Role::where('societe_id', $this->societe_id)->orderBy('nom','asc')->get(); // ceci affiche en fonction de la societe choisie
                 }
                 else{ 
-                    $privillege = Role::where('societe',auth()->user()->societe)->orderBy('nom','asc')->get();
-                }
-                
+                    $privillege = Role::where('societe_id',auth()->user()->societe_id)->orderBy('nom','asc')->get();
+                }                
                 
                 // ceci au chargement de la page
                 if(auth()->user()->societe == "Administration"){
@@ -188,20 +188,21 @@ class DetailUtilisateur extends Component
                     $entite = Entite::orderBy('enseigne','asc')->get();
                 }
                 else{
-                    $user = Utilisateur::where('societe',auth()->user()->societe)->where('id',$this->ids)->get();
-                    $entite = Entite::where('societe_mere',auth()->user()->societe_mere)->orderBy('enseigne','asc')->get();     
+                    $user = Utilisateur::where('societe_id',auth()->user()->societe_id)->where('id',$this->ids)->get();
+                    $entite = Entite::where('societe_mere_id',auth()->user()->societe_mere_id)->orderBy('enseigne','asc')->get();     
                 }                      
                 $usersCount = $user->count();
 
                     // Gere l'affichage du bouton suppression
                 $uti = Utilisateur::where('id',$this->ids)->first();
                 $societ =  $uti->societe;
-                $userSociete = Utilisateur::where('societe',$societ)->get();
+                $societe_id =  $uti->societe_id;
+                $userSociete = Utilisateur::where('societe_id',$societe_id)->get();
                 $userDispo = $userSociete->count();  
 
-                $configCount = Parametre::where('societe',auth()->user()->societe)->limit(1)->count();
+                $configCount = Parametre::where('societe_id',auth()->user()->societe_id)->limit(1)->count();
                 if($configCount > 0){
-                   $config = Parametre::where('societe',auth()->user()->societe)->limit(1)->get();
+                   $config = Parametre::where('societe_id',auth()->user()->societe_id)->limit(1)->get();
                     $this->envoi_mail = $config[0]->envoi_mail;
                 }
                 else{
@@ -209,24 +210,24 @@ class DetailUtilisateur extends Component
                 }
 
                 // Facture
-                $factClient_entete = factureClientEntete::where('societe',auth()->user()->societe)->where('user_id',$this->ids)->orderBy('id','DESC')->limit(15)->get();
+                $factClient_entete = factureClientEntete::where('societe_id',auth()->user()->societe_id)->where('user_id',$this->ids)->orderBy('id','DESC')->limit(15)->get();
                 $factCltEntCount = $factClient_entete->count();                 
 
-                $factClient_all = factureClientEntete::where('societe',auth()->user()->societe)->where('user_id',$this->ids)->orderBy('id','DESC')->get();
+                $factClient_all = factureClientEntete::where('societe_id',auth()->user()->societe_id)->where('user_id',$this->ids)->orderBy('id','DESC')->get();
                 $factClientEnteteCount = $factClient_all->count();                 
                 $factClientEnteteMarge = $factClient_all->sum('marge');   
                 $factClientEnteteTTC = $factClient_all->sum('montant_ttc');  
                 $factClientEnteteResteApercevoir = $factClient_all->sum('reste_a_percevoir'); 
                 
                  // commande
-                $cmd_client = CommandeClientEntete::where('societe',auth()->user()->societe)->where('user_id',$this->ids)->orderBy('id', 'DESC')->limit(15)->get();
+                $cmd_client = CommandeClientEntete::where('societe_id',auth()->user()->societe_id)->where('user_id',$this->ids)->orderBy('id', 'DESC')->limit(15)->get();
                 $cmdClientCount = $cmd_client->count(); 
 
                 $page = 'Utilisateur'; // Pour evenement lie
-                $log = LogActivityModel::where('user_societe',auth()->user()->societe)->where('id_activite', $this->ids)->where('page', $page)->limit(50)->orderBy('id','desc')->get();
+                $log = LogActivityModel::where('societe_id',auth()->user()->societe_id)->where('id_activite', $this->ids)->where('page', $page)->limit(50)->orderBy('id','desc')->get();
                 $logCount = $log->count();
                  
-                $utilisa = Utilisateur::where('societe',auth()->user()->societe)->orderBy('name','asc')->get();
+                $utilisa = Utilisateur::where('societe_id',auth()->user()->societe_id)->orderBy('name','asc')->get();
 
                 // gerer les heures employes
                 if($this->horaire_journalier > 0){
@@ -235,16 +236,16 @@ class DetailUtilisateur extends Component
                     $this->horaire_mensuel = number_format($this->horaire_hebdo * 52 / 12,2,',',' ');
                 } 
 
-                $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->count();             
+                $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->count();             
                 if($deviseTva == 0){
                     $this->devise = 'FCFA';
                 }
                 else{
-                    $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->get(); 
+                    $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->get(); 
                     $this->devise = $deviseTva[0]->devise;                
                 }                    
                 toast()->success('Prêt', '')->position('top-right')->autoClose(2000)->background('#fff')->width('220px')->padding('5px');    
-                $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get(); 
+                $entite_mod = Entite::where('id',auth()->user()->societe_id)->get(); 
                 $jourValid = $entite_mod[0]->validite_mod; 
                 // ceci pour trouver le nombre de jour restant avant expiration
                 $nbjoursRestant = round((strtotime($jourValid) - strtotime($dateJour))/(60*60*24));
@@ -283,9 +284,9 @@ class DetailUtilisateur extends Component
     } 
     public function supprimer($id){ 
 
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->supprimer_user;
             if($autoriser == 1){   
                 if($id){
@@ -295,10 +296,11 @@ class DetailUtilisateur extends Component
                     
                         $society =  Utilisateur::where('id',$id)->first();
                         $societe_user = $society->societe;
+                        $societe_id = $society->societe_id;
                         Utilisateur::where('id',$id)->delete(); 
                         
-                        $users = Utilisateur::where('societe',$societe_user)->count(); 
-                        Entite::where('enseigne',$societe_user)->update(['nombre_users'=>$users]);
+                        $users = Utilisateur::where('societe_id',$societe_id)->count(); 
+                        Entite::where('id',$societe_id)->update(['nombre_users'=>$users]);
                         
                         $page = 'Utilisateur';
                         LogActivityModel::where('id_activite',$id)->where('page',$page)->delete();
@@ -366,6 +368,7 @@ class DetailUtilisateur extends Component
         $this->date_valide = $user->date_valide;
         $this->note_interne = $user->note_interne;
         $this->societe = $user->societe;
+        $this->societe_id = $user->societe_id;
         $this->salarie = $user->salarie;
         $this->sexe = $user->sexe;
         $this->etat = $user->etat;
@@ -425,9 +428,9 @@ class DetailUtilisateur extends Component
     }
     public function update(){        
         // ceci teste pour verifier si l'user encours a un role dans la bd 
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->modifier_user;
             if($autoriser == 1){
                 if(empty($this->password_actuel)){ 
@@ -497,16 +500,18 @@ class DetailUtilisateur extends Component
                             $verification = Entite ::where('enseigne',$this->societe)->count(); 
                             if($verification > 0){
                                 $entiteEnseigne = Entite ::where('enseigne',$this->societe)->get(); 
+                                $societe_id = $entiteEnseigne[0]->id;   
                                 $societe_mere = $entiteEnseigne[0]->societe_mere;   
+                                $societe_mere_id = $entiteEnseigne[0]->societe_mere_id;   
                             }
                             else{
                                 $societe_mere = 'Inconnue';
                             }  
                             
                             // recuperer le nom du Departement via son id 
-                            $test_depart = Departement::where('societe',auth()->user()->societe)->where('id',$this->departement)->count();
+                            $test_depart = Departement::where('societe_id',auth()->user()->societe_id)->where('id',$this->departement)->count();
                             if($test_depart > 0){
-                                $depart = Departement::where('societe',auth()->user()->societe)->where('id',$this->departement)->get();
+                                $depart = Departement::where('societe_id',auth()->user()->societe_id)->where('id',$this->departement)->get();
                                 $nomDepart = $depart[0]->nom_departement;
                             }
                             else{
@@ -515,9 +520,9 @@ class DetailUtilisateur extends Component
                             }                            
 
                             // recuperer le nom du poste de travail via son id
-                            $test_postes = Poste_travail::where('societe',auth()->user()->societe)->where('id',$this->poste_travail)->count();
+                            $test_postes = Poste_travail::where('societe_id',auth()->user()->societe_id)->where('id',$this->poste_travail)->count();
                             if($test_postes > 0){
-                                $postes = Poste_travail::where('societe',auth()->user()->societe)->where('id',$this->poste_travail)->get();
+                                $postes = Poste_travail::where('societe_id',auth()->user()->societe_id)->where('id',$this->poste_travail)->get();
                                 $nomPostes = $postes[0]->nom_poste;
                             }
                             else{
@@ -532,7 +537,7 @@ class DetailUtilisateur extends Component
                             } 
 
                             Utilisateur::find($this->id)->update(['titre'=>$this->titre,'name'=>$this->nom,'telephone'=>$this->telephone,'salarie'=>$this->salarie,'sexe'=>$this->sexe,'nationalite'=>$this->nationalite,
-                                        'societe'=>$this->societe,'societe_mere'=>$societe_mere,'type_user'=>$this->role,'date_valide'=>$this->date_valide,'matricule'=>$this->matricule,'etat'=>$this->etat,
+                                        'societe'=>$this->societe,'societe_id'=>$societe_id,'societe_mere'=>$societe_mere,'societe_mere_id'=>$societe_mere_id,'type_user'=>$this->role,'date_valide'=>$this->date_valide,'matricule'=>$this->matricule,'etat'=>$this->etat,
                                         'cni'=>$this->cni,'passeport'=>$this->passeport,'niu'=>$this->niu,'date_naissance'=>$this->date_naissance,'lieu_naissance'=>$this->lieu_naissance,'etat_civil'=>$this->etat_civil,
                                         'nbre_enfant'=>$this->nbre_enfant,'nom_conjoint'=>$this->nom_conjoint,'date_nais_conjoint'=>$this->date_nais_conjoint,'persone_contact_urgence'=>$this->persone_contact_urgence,
                                         'telephone_urgence'=>$this->telephone_urgence,'departement'=>$nomDepart,'departement_id'=>$this->departement,'poste_travail'=>$nomPostes,'poste_travail_id'=>$this->poste_travail,
@@ -607,9 +612,9 @@ class DetailUtilisateur extends Component
                         if($this->id){  
 
                             // recuperer le nom du Departement via son id 
-                            $test_depart = Departement::where('societe',auth()->user()->societe)->where('id',$this->departement)->count();
+                            $test_depart = Departement::where('societe_id',auth()->user()->societe_id)->where('id',$this->departement)->count();
                             if($test_depart > 0){
-                                $depart = Departement::where('societe',auth()->user()->societe)->where('id',$this->departement)->get();
+                                $depart = Departement::where('societe_id',auth()->user()->societe_id)->where('id',$this->departement)->get();
                                 $nomDepart = $depart[0]->nom_departement;
                             }
                             else{
@@ -618,9 +623,9 @@ class DetailUtilisateur extends Component
                             }                            
 
                             // recuperer le nom du poste de travail via son id
-                            $test_postes = Poste_travail::where('societe',auth()->user()->societe)->where('id',$this->poste_travail)->count();
+                            $test_postes = Poste_travail::where('societe_id',auth()->user()->societe_id)->where('id',$this->poste_travail)->count();
                             if($test_postes > 0){
-                                $postes = Poste_travail::where('societe',auth()->user()->societe)->where('id',$this->poste_travail)->get();
+                                $postes = Poste_travail::where('societe_id',auth()->user()->societe_id)->where('id',$this->poste_travail)->get();
                                 $nomPostes = $postes[0]->nom_poste;
                             }
                             else{
@@ -781,11 +786,13 @@ class DetailUtilisateur extends Component
 
                                 $entiteEnseigne = Entite ::where('enseigne',$this->societe)->get(); 
                                 $societe_mere = $entiteEnseigne[0]->societe_mere; 
+                                $societe_id = $entiteEnseigne[0]->societe_id;   
+                                $societe_mere_id = $entiteEnseigne[0]->societe_mere_id;
 
                                 // recuperer le nom du Departement via son id 
-                                $test_depart = Departement::where('societe',auth()->user()->societe)->where('id',$this->departement)->count();
+                                $test_depart = Departement::where('societe_id',auth()->user()->societe_id)->where('id',$this->departement)->count();
                                 if($test_depart > 0){
-                                    $depart = Departement::where('societe',auth()->user()->societe)->where('id',$this->departement)->get();
+                                    $depart = Departement::where('societe_id',auth()->user()->societe_id)->where('id',$this->departement)->get();
                                     $nomDepart = $depart[0]->nom_departement;
                                 }
                                 else{
@@ -794,9 +801,9 @@ class DetailUtilisateur extends Component
                                 }                            
 
                                 // recuperer le nom du poste de travail via son id
-                                $test_postes = Poste_travail::where('societe',auth()->user()->societe)->where('id',$this->poste_travail)->count();
+                                $test_postes = Poste_travail::where('societe_id',auth()->user()->societe_id)->where('id',$this->poste_travail)->count();
                                 if($test_postes > 0){
-                                    $postes = Poste_travail::where('societe',auth()->user()->societe)->where('id',$this->poste_travail)->get();
+                                    $postes = Poste_travail::where('societe_id',auth()->user()->societe_id)->where('id',$this->poste_travail)->get();
                                     $nomPostes = $postes[0]->nom_poste;
                                 }
                                 else{
@@ -811,7 +818,7 @@ class DetailUtilisateur extends Component
                                 }                                 
 
                                 Utilisateur::find($this->id)->update(['titre'=>$this->titre,'name'=>$this->nom,'telephone'=>$this->telephone,'password'=>bcrypt($this->password),'salarie'=>$this->salarie,'sexe'=>$this->sexe,'nationalite'=>$this->nationalite,
-                                        'societe'=>$this->societe,'societe_mere'=>$societe_mere,'type_user'=>$this->role,'date_valide'=>$this->date_valide,'matricule'=>$this->matricule,'etat'=>$this->etat,
+                                        'societe'=>$this->societe,'societe_id'=>$societe_id,'societe_mere'=>$societe_mere,'societe_mere_id'=>$societe_mere_id,'type_user'=>$this->role,'date_valide'=>$this->date_valide,'matricule'=>$this->matricule,'etat'=>$this->etat,
                                         'cni'=>$this->cni,'passeport'=>$this->passeport,'niu'=>$this->niu,'date_naissance'=>$this->date_naissance,'lieu_naissance'=>$this->lieu_naissance,'etat_civil'=>$this->etat_civil,
                                         'nbre_enfant'=>$this->nbre_enfant,'nom_conjoint'=>$this->nom_conjoint,'date_nais_conjoint'=>$this->date_nais_conjoint,'persone_contact_urgence'=>$this->persone_contact_urgence,
                                         'telephone_urgence'=>$this->telephone_urgence,'departement'=>$nomDepart,'departement_id'=>$this->departement,'poste_travail'=>$nomPostes,'poste_travail_id'=>$this->poste_travail,
@@ -886,9 +893,9 @@ class DetailUtilisateur extends Component
                             if($this->id){                   
                                 
                                 // recuperer le nom du Departement via son id 
-                                $test_depart = Departement::where('societe',auth()->user()->societe)->where('id',$this->departement)->count();
+                                $test_depart = Departement::where('societe_id',auth()->user()->societe_id)->where('id',$this->departement)->count();
                                 if($test_depart > 0){
-                                    $depart = Departement::where('societe',auth()->user()->societe)->where('id',$this->departement)->get();
+                                    $depart = Departement::where('societe_id',auth()->user()->societe_id)->where('id',$this->departement)->get();
                                     $nomDepart = $depart[0]->nom_departement;
                                 }
                                 else{
@@ -897,9 +904,9 @@ class DetailUtilisateur extends Component
                                 }                            
 
                                 // recuperer le nom du poste de travail via son id
-                                $test_postes = Poste_travail::where('societe',auth()->user()->societe)->where('id',$this->poste_travail)->count();
+                                $test_postes = Poste_travail::where('societe_id',auth()->user()->societe_id)->where('id',$this->poste_travail)->count();
                                 if($test_postes > 0){
-                                    $postes = Poste_travail::where('societe',auth()->user()->societe)->where('id',$this->poste_travail)->get();
+                                    $postes = Poste_travail::where('societe_id',auth()->user()->societe_id)->where('id',$this->poste_travail)->get();
                                     $nomPostes = $postes[0]->nom_poste;
                                 }
                                 else{
@@ -1025,9 +1032,9 @@ class DetailUtilisateur extends Component
         $this->validate([                      
             'profil'=>'required|image|mimes:jpeg,jpg,png,gif|max:2048',          
         ]);
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->modifier_user;
             if($autoriser == 1){ 
             
@@ -1096,9 +1103,9 @@ class DetailUtilisateur extends Component
         }
         else{
 
-            $testPrecedant = Utilisateur::where('societe',auth()->user()->societe)->where('id','<',$id)->orderBy('id','desc')->count();
+            $testPrecedant = Utilisateur::where('societe_id',auth()->user()->societe_id)->where('id','<',$id)->orderBy('id','desc')->count();
             if($testPrecedant > 0){ 
-                $precedant = Utilisateur::where('societe',auth()->user()->societe)->where('id','<',$id)->orderBy('id','desc')->first();        
+                $precedant = Utilisateur::where('societe_id',auth()->user()->societe_id)->where('id','<',$id)->orderBy('id','desc')->first();        
                 $previous = $precedant->id; 
                 $this->redirect('/detail_user?id='.$previous.'&active=12&champ=1-1', navigate: true);                         
             }  
@@ -1139,9 +1146,9 @@ class DetailUtilisateur extends Component
         }
         else{
 
-            $testSuivant = Utilisateur::where('societe',auth()->user()->societe)->where('id','>',$id)->orderBy('id','asc')->count();
+            $testSuivant = Utilisateur::where('societe_id',auth()->user()->societe_id)->where('id','>',$id)->orderBy('id','asc')->count();
             if($testSuivant > 0){
-                $suivant = Utilisateur::where('societe',auth()->user()->societe)->where('id','>',$id)->orderBy('id','asc')->first();
+                $suivant = Utilisateur::where('societe_id',auth()->user()->societe_id)->where('id','>',$id)->orderBy('id','asc')->first();
                 $next = $suivant->id;             
                 $this->redirect('/detail_user?id='.$next.'&active=12&champ=1-1', navigate: true);  
             }  
@@ -1165,9 +1172,10 @@ class DetailUtilisateur extends Component
                 $email = $user[0]->email;
                 $name = $user[0]->name;
                 $societe = $user[0]->societe;
+                $societe_id = $user[0]->societe_id;
                 $created_at = $user[0]->created_at;                       
 
-                $entite_all = Entite::where('enseigne',$societe)->get();
+                $entite_all = Entite::where('id',$societe_id)->get();
                 $logo = $entite_all[0]->logo; 
 
                 $date = date('d-m-Y H:i:s');           

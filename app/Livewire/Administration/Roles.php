@@ -26,9 +26,9 @@ class Roles extends Component
         $this->resetPage();
     }
     public function mount(){        
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->consulter_role;
             if($autoriser == 0){
                 alert()->error('Oups Désolé', 'Vous n\'êtes pas autorisé à ouvrir cette page !!!')->position('center')->autoClose(5000)->background('#fff')->width('460px')->padding('5px');
@@ -45,7 +45,7 @@ class Roles extends Component
     public function render()
     {
         $dateJour = date('Y-m-d');            
-        $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();
+        $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();
         $jourValid = $entite_mod[0]->validite_mod; 
         $mod_administration = $entite_mod[0]->mod_administration; 
         $soldeClient = $entite_mod[0]->solde;
@@ -73,10 +73,10 @@ class Roles extends Component
                     $derniereActivite = Role::where('societe','like','%'.$this->parSociete.'%')->latest('updated_at')->first();    
                 
                     $page = 'Role'; // Pour evenement lie
-                    $log = LogActivityModel::where('user_societe',auth()->user()->societe)->where('page', $page)->limit(50)->orderBy('id','desc')->get();
+                    $log = LogActivityModel::where('societe_id',auth()->user()->societe_id)->where('page', $page)->limit(50)->orderBy('id','desc')->get();
                     $logCount = $log->count();
 
-                    $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();      
+                    $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();      
                     $jourValid = $entite_mod[0]->validite_mod; 
                     // ceci pour trouver le nombre de jour restant avant expiration
                     $nbjoursRestant = round((strtotime($jourValid) - strtotime($dateJour))/(60*60*24)); 
@@ -84,20 +84,20 @@ class Roles extends Component
                 }
                 else{
                 
-                    $liste_privillege = Role::where('societe',auth()->user()->societe)->where('nom','like','%'.$this->query.'%')->orderBy('id','desc')->paginate($this->parPage); 
+                    $liste_privillege = Role::where('societe_id',auth()->user()->societe_id)->where('nom','like','%'.$this->query.'%')->orderBy('id','desc')->paginate($this->parPage); 
                     $roleCount = $liste_privillege->count();
                     $entite = Entite::where('enseigne',auth()->user()->societe)->where('active',1)->orderBy('enseigne','asc')->get();
 
-                    $resultat = Role :: where('societe',auth()->user()->societe)->get();  
+                    $resultat = Role :: where('societe_id',auth()->user()->societe_id)->get();  
                     $nbreTotalRole = $resultat->count(); 
 
-                    $derniereActivite = Role::where('societe',auth()->user()->societe)->latest('updated_at')->first();   
+                    $derniereActivite = Role::where('societe_id',auth()->user()->societe_id)->latest('updated_at')->first();   
 
                     $page = 'Role'; // Pour evenement lie
-                    $log = LogActivityModel::where('user_societe',auth()->user()->societe)->where('page', $page)->limit(10)->orderBy('id','desc')->get();
+                    $log = LogActivityModel::where('societe_id',auth()->user()->societe_id)->where('page', $page)->limit(10)->orderBy('id','desc')->get();
                     $logCount = $log->count();
 
-                    $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get(); 
+                    $entite_mod = Entite::where('id',auth()->user()->societe_id)->get(); 
                     $jourValid = $entite_mod[0]->validite_mod; 
                     // ceci pour trouver le nombre de jour restant avant expiration
                     $nbjoursRestant = round((strtotime($jourValid) - strtotime($dateJour))/(60*60*24)); 

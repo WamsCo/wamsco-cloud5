@@ -32,7 +32,7 @@ class Bienvenue extends Component
     public function render()
     {
         $dateJour = date('Y-m-d');            
-        $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();
+        $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();
         $jourValid = $entite_mod[0]->validite_mod; 
         $soldeClient = $entite_mod[0]->solde; 
         if($dateJour <= $jourValid){
@@ -44,18 +44,18 @@ class Bienvenue extends Component
             $lien = 'bienvenue';
             $dateJour = date('Y-m-d');             
              
-            $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->count(); 
+            $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->count(); 
             if($deviseTva == 0){
                 $this->devise = 'FCFA';
             }
             else{
-                $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->get(); 
+                $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->get(); 
                 $this->devise = $deviseTva[0]->devise;
             }
             $id_activite = 0;
             $page = 'Bienvenue';
             LogActivity::addToLog('Bloc modules', $id_activite, $page);    
-            $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get(); 
+            $entite_mod = Entite::where('id',auth()->user()->societe_id)->get(); 
             $jourValid = $entite_mod[0]->validite_mod; 
             $soldeClient = $entite_mod[0]->solde; 
             // ceci pour trouver le nombre de jour restant avant expiration

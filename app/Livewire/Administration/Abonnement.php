@@ -53,10 +53,10 @@ class Abonnement extends Component
         $dateJour = date('Y-m-d');
         toast()->success('Prêt', '')->position('top-right')->autoClose(2000)->background('#fff')->width('220px')->padding('5px');
 
-        $derniereActivite = soldeClient::where('enseigne',auth()->user()->societe)->latest('updated_at')->first();  
+        $derniereActivite = soldeClient::where('id_enseigne',auth()->user()->societe_id)->latest('updated_at')->first();  
 
         $page = 'Abonnement'; // Pour evenement lie
-        $log = LogActivityModel::where('user_societe',auth()->user()->societe)->where('page', $page)->limit(50)->orderBy('id','desc')->get();
+        $log = LogActivityModel::where('societe_id',auth()->user()->societe_id)->where('page', $page)->limit(50)->orderBy('id','desc')->get();
         $logCount = $log->count();
 
         if($plan == 'Independant' && $abonnement == 'Mois'){
@@ -115,15 +115,15 @@ class Abonnement extends Component
             $this->solde = $this->prixTotalAbon + $this->prixTotalUser + $this->prixTotalSociete;           
         }
 
-        $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->count(); 
+        $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->count(); 
         if($deviseTva == 0){
             $this->devise = 'FCFA';
         }
         else{
-            $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->get(); 
+            $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->get(); 
             $this->devise = $deviseTva[0]->devise;
         }
-        $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();          
+        $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();          
         $jourValid = $entite_mod[0]->validite_mod; 
         // ceci pour trouver le nombre de jour restant avant expiration
         $nbjoursRestant = round((strtotime($jourValid) - strtotime($dateJour))/(60*60*24));
@@ -138,9 +138,9 @@ class Abonnement extends Component
             'quantite_saisie'=>'required|numeric|min:1',
             'quantite_societe'=>'required|numeric|min:1',
         ]);  
-        // $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        // $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         // if($test > 0){
-        //     $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+        //     $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
         //     $autoriser = $role[0]->transfer_stock_filiale;
         //     if($autoriser == 1){  
                 
@@ -179,13 +179,12 @@ class Abonnement extends Component
                         }
                         $soldeRestant = $soldeClient - $this->solde;
                         $periode = 'Standard-Annuel';                       
-                        Entite::where('enseigne',auth()->user()->societe)->update(['solde'=>$soldeRestant,'validite_mod'=>$anneesValider,'nbre_user_max'=>$this->quantite_saisie,
+                        Entite::where('id',auth()->user()->societe_id)->update(['solde'=>$soldeRestant,'validite_mod'=>$anneesValider,'nbre_user_max'=>$this->quantite_saisie,
                         'nombre_societe'=>$this->quantite_societe,'periode'=>$periode,'nom_user_modif'=>auth()->user()->email,'user_id_modif'=>auth()->user()->id]);
                         
                         $credit = 0;
                         soldeClient::create(['enseigne'=>$enseigne,'id_enseigne'=>$id,'societe_mere'=>$societe_mere,'raison_sociale'=>$raison_sociale,'designation'=>'Abonnement '.$periode,'debit'=>$this->solde,'credit'=>$credit,
-                                            'responsable_societe'=>$responsable_societe,'pays'=>$pays,'ville'=>$ville,'adresse'=>$adresse,
-                                            'telephone'=>$telephone,'email'=>$email,'registre_com'=>$registre_commerce,'logo'=>$old_image,
+                                            'responsable_societe'=>$responsable_societe,'pays'=>$pays,'ville'=>$ville,'adresse'=>$adresse,'telephone'=>$telephone,'email'=>$email,'registre_com'=>$registre_commerce,'logo'=>$old_image,
                                             'nom_user'=>auth()->user()->email,'user_id'=>auth()->user()->id]);                        
 
                         $id_activite = 0; 
@@ -235,13 +234,12 @@ class Abonnement extends Component
                         }                        
                         $soldeRestant = $soldeClient - $this->solde;
                         $periode = 'Standard-Mois';                        
-                        Entite::where('enseigne',auth()->user()->societe)->update(['solde'=>$soldeRestant,'validite_mod'=>$moisValider,'nbre_user_max'=>$this->quantite_saisie,
+                        Entite::where('id',auth()->user()->societe_id)->update(['solde'=>$soldeRestant,'validite_mod'=>$moisValider,'nbre_user_max'=>$this->quantite_saisie,
                         'nombre_societe'=>$this->quantite_societe,'periode'=>$periode,'nom_user_modif'=>auth()->user()->email,'user_id_modif'=>auth()->user()->id]); 
                         
                          $credit = 0;
                          soldeClient::create(['enseigne'=>$enseigne,'id_enseigne'=>$id,'societe_mere'=>$societe_mere,'raison_sociale'=>$raison_sociale,'designation'=>'Abonnement '.$periode,'debit'=>$this->solde,'credit'=>$credit,
-                                            'responsable_societe'=>$responsable_societe,'pays'=>$pays,'ville'=>$ville,'adresse'=>$adresse,
-                                            'telephone'=>$telephone,'email'=>$email,'registre_com'=>$registre_commerce,'logo'=>$old_image,
+                                            'responsable_societe'=>$responsable_societe,'pays'=>$pays,'ville'=>$ville,'adresse'=>$adresse,'telephone'=>$telephone,'email'=>$email,'registre_com'=>$registre_commerce,'logo'=>$old_image,
                                             'nom_user'=>auth()->user()->email,'user_id'=>auth()->user()->id]);    
 
                         $id_activite = 0; 
@@ -286,13 +284,12 @@ class Abonnement extends Component
                         
                         $soldeRestant = $soldeClient - $this->solde;
                         $periode = 'Independant-An';                        
-                        Entite::where('enseigne',auth()->user()->societe)->update(['solde'=>$soldeRestant,'validite_mod'=>$anneesValider,'nbre_user_max'=>$this->quantite_saisie,
+                        Entite::where('id',auth()->user()->societe_id)->update(['solde'=>$soldeRestant,'validite_mod'=>$anneesValider,'nbre_user_max'=>$this->quantite_saisie,
                         'nombre_societe'=>$this->quantite_societe,'periode'=>$periode,'nom_user_modif'=>auth()->user()->email,'user_id_modif'=>auth()->user()->id]); 
                         
                         $credit = 0;
                         soldeClient::create(['enseigne'=>$enseigne,'id_enseigne'=>$id,'societe_mere'=>$societe_mere,'raison_sociale'=>$raison_sociale,'designation'=>'Abonnement '.$periode,'debit'=>$this->solde,'credit'=>$credit,
-                                            'responsable_societe'=>$responsable_societe,'pays'=>$pays,'ville'=>$ville,'adresse'=>$adresse,
-                                            'telephone'=>$telephone,'email'=>$email,'registre_com'=>$registre_commerce,'logo'=>$old_image,
+                                            'responsable_societe'=>$responsable_societe,'pays'=>$pays,'ville'=>$ville,'adresse'=>$adresse,'telephone'=>$telephone,'email'=>$email,'registre_com'=>$registre_commerce,'logo'=>$old_image,
                                             'nom_user'=>auth()->user()->email,'user_id'=>auth()->user()->id]);    
 
                         $id_activite = 0; 
@@ -340,13 +337,12 @@ class Abonnement extends Component
                        
                         $soldeRestant = $soldeClient - $this->solde;
                         $periode = 'Independant-Mois';                        
-                        Entite::where('enseigne',auth()->user()->societe)->update(['solde'=>$soldeRestant,'validite_mod'=>$moisValider,'nbre_user_max'=>$this->quantite_saisie,
+                        Entite::where('id',auth()->user()->societe_id)->update(['solde'=>$soldeRestant,'validite_mod'=>$moisValider,'nbre_user_max'=>$this->quantite_saisie,
                         'nombre_societe'=>$this->quantite_societe,'periode'=>$periode,'nom_user_modif'=>auth()->user()->email,'user_id_modif'=>auth()->user()->id]);
                         
                         $credit = 0;
                         soldeClient::create(['enseigne'=>$enseigne,'id_enseigne'=>$id,'societe_mere'=>$societe_mere,'raison_sociale'=>$raison_sociale,'designation'=>'Abonnement '.$periode,'debit'=>$this->solde,'credit'=>$credit,
-                                            'responsable_societe'=>$responsable_societe,'pays'=>$pays,'ville'=>$ville,'adresse'=>$adresse,
-                                            'telephone'=>$telephone,'email'=>$email,'registre_com'=>$registre_commerce,'logo'=>$old_image,
+                                            'responsable_societe'=>$responsable_societe,'pays'=>$pays,'ville'=>$ville,'adresse'=>$adresse,'telephone'=>$telephone,'email'=>$email,'registre_com'=>$registre_commerce,'logo'=>$old_image,
                                             'nom_user'=>auth()->user()->email,'user_id'=>auth()->user()->id]);  
 
                         $id_activite = 0; 

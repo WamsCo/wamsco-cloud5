@@ -128,9 +128,9 @@ class Produits extends Component
         $this->responsable_achat ='';        
     }
     public function mount(){         
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->consulter_produit;
             if($autoriser == 0){
                 alert()->error('Oups Désolé', 'Vous n\'êtes pas autorisé à ouvrir cette page !!!')->position('center')->autoClose(5000)->background('#fff')->width('460px')->padding('5px');
@@ -155,7 +155,7 @@ class Produits extends Component
     public function render(){
 
         $dateJour = date('Y-m-d');            
-        $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();
+        $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();
         $jourValid = $entite_mod[0]->validite_mod;
         $mod_gestion_stock = $entite_mod[0]->mod_gestion_stock;
         $soldeClient = $entite_mod[0]->solde; 
@@ -171,38 +171,38 @@ class Produits extends Component
                 $dateJour = date('Y-m-d');
                 toast()->success('Prêt', '')->position('top-right')->autoClose(2000)->background('#fff')->width('220px')->padding('5px'); 
                 
-                $produit = Produit::where('societe',auth()->user()->societe)->where('nature_produit','like','%'.$this->parNature.'%')->where('categorie','like','%'.$this->parCat.'%')->where('nom_produit','like','%'.$this->query.'%')->orderBy($this->orderField, $this->orderDirection)->paginate($this->parPage);
+                $produit = Produit::where('societe_id',auth()->user()->societe_id)->where('nature_produit','like','%'.$this->parNature.'%')->where('categorie','like','%'.$this->parCat.'%')->where('nom_produit','like','%'.$this->query.'%')->orderBy($this->orderField, $this->orderDirection)->paginate($this->parPage);
                 $produitCount = $produit->count();
 
-                $listEntrepot = Entrepot::where('societe',auth()->user()->societe)->orderBy('nom','asc')->get();  
+                $listEntrepot = Entrepot::where('societe_id',auth()->user()->societe_id)->orderBy('nom','asc')->get();  
                     
-                $listCategorie = Categorie::where('societe',auth()->user()->societe)->orderBy('nom_categorie','asc')->get();  
-                $listFourni = Tier::where('societe',auth()->user()->societe)->where('type_tiers','Fournisseur')->where('etat', 1)->orderBy('nom','asc')->get(); 
-                $listUser = Utilisateur::where('societe',auth()->user()->societe)->where('type_user','!=','Super-admin')->where('etat',1)->orderBy('name','asc')->get(); 
-                $listedeviseTva = DeviseTva :: where('societe',auth()->user()->societe)->get();
+                $listCategorie = Categorie::where('societe_id',auth()->user()->societe_id)->orderBy('nom_categorie','asc')->get();  
+                $listFourni = Tier::where('societe_id',auth()->user()->societe_id)->where('type_tiers','Fournisseur')->where('etat', 1)->orderBy('nom','asc')->get(); 
+                $listUser = Utilisateur::where('societe_id',auth()->user()->societe_id)->where('type_user','!=','Super-admin')->where('etat',1)->orderBy('name','asc')->get(); 
+                $listedeviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->get();
 
-                $resultat = Produit :: where('societe',auth()->user()->societe)->get();  
+                $resultat = Produit :: where('societe_id',auth()->user()->societe_id)->get();  
                 $nbreTotalProduit = $resultat->count();     
 
-                $NbreTVA = Produit::where('societe', auth()->user()->societe)->distinct('tva')->count('tva');
-                $NbreProdOff = Produit::where('societe', auth()->user()->societe)->where('etat', '!=', 1)->count();
-                $NbreProdSansCodeBarre = Produit::where('societe', auth()->user()->societe)->where(function ($query) { $query->whereNull('code_barre')->orWhere('code_barre', ''); })->count();
+                $NbreTVA = Produit::where('societe_id',auth()->user()->societe_id)->distinct('tva')->count('tva');
+                $NbreProdOff = Produit::where('societe_id',auth()->user()->societe_id)->where('etat', '!=', 1)->count();
+                $NbreProdSansCodeBarre = Produit::where('societe_id',auth()->user()->societe_id)->where(function ($query) { $query->whereNull('code_barre')->orWhere('code_barre', ''); })->count();
 
-                $derniereActivite = Produit::where('societe',auth()->user()->societe)->latest('updated_at')->first(); 
+                $derniereActivite = Produit::where('societe_id',auth()->user()->societe_id)->latest('updated_at')->first(); 
 
                 $page = 'Produits'; // pour evenement lies
-                $log = LogActivityModel::where('user_societe',auth()->user()->societe)->where('page', $page)->limit(20)->orderBy('id','desc')->get();
+                $log = LogActivityModel::where('societe_id',auth()->user()->societe_id)->where('page', $page)->limit(20)->orderBy('id','desc')->get();
                 $logCount = $log->count();
             
-                $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->count(); 
+                $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->count(); 
                 if($deviseTva == 0){
                     $this->devise = 'FCFA';
                 }
                 else{
-                    $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->get(); 
+                    $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->get(); 
                     $this->devise = $deviseTva[0]->devise;
                 }            
-                $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();          
+                $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();          
                 $jourValid = $entite_mod[0]->validite_mod; 
                 // ceci pour trouver le nombre de jour restant avant expiration
                 $nbjoursRestant = round((strtotime($jourValid) - strtotime($dateJour))/(60*60*24));
@@ -241,7 +241,7 @@ class Produits extends Component
                 'nom_produit'=>'required|max:255',          
                 'reference'=>'required|max:255',  
                 // 'code_barre'=>'nullable|max:255',
-                'code_barre' => ['nullable','string','max:255', Rule::unique('produits', 'code_barre')->where(fn($query) => $query->where('societe', auth()->user()->societe)),],                         
+                'code_barre' => ['nullable','string','max:255', Rule::unique('produits', 'code_barre')->where(fn($query) => $query->where('societe_id',auth()->user()->societe_id)),],                         
                 'type_produit'=>'required|max:255',          
                 'nature_produit'=>'required|max:255',          
                 // 'description'=>'required|max:255',          
@@ -264,7 +264,7 @@ class Produits extends Component
                 'nom_produit'=>'required|max:255',          
                 'reference'=>'required|max:255', 
                 // 'code_barre'=>'nullable|max:2', 
-                'code_barre' => ['nullable','string','max:255', Rule::unique('produits', 'code_barre')->where(fn($query) => $query->where('societe', auth()->user()->societe)),],       
+                'code_barre' => ['nullable','string','max:255', Rule::unique('produits', 'code_barre')->where(fn($query) => $query->where('societe_id',auth()->user()->societe_id)),],       
                 'type_produit'=>'required|max:255',          
                 'nature_produit'=>'required|max:255',          
                 // 'description'=>'required|max:255',          
@@ -282,20 +282,20 @@ class Produits extends Component
                 'etat'=>'required|numeric',          
             ]); 
         }    
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->creer_produit;
             if($autoriser == 1){   
                     // pas enregistrement image en BD                    
-                    Produit::create(['nom_produit'=>$this->nom_produit,'reference'=>$this->reference,'code_barre'=>$this->code_barre,'type_produit'=>$this->type_produit,'nature_produit'=>$this->nature_produit,'description'=>$this->description,
+                   $prod = Produit::create(['nom_produit'=>$this->nom_produit,'reference'=>$this->reference,'code_barre'=>$this->code_barre,'type_produit'=>$this->type_produit,'nature_produit'=>$this->nature_produit,'description'=>$this->description,
                                     'fournisseur'=>$this->fournisseur,'prix_achat'=>$this->prix_achat,'prix_vente'=>$this->prix_vente,'prix_vente_min'=>$this->prix_vente_min,'entrepot'=>$this->entrepot,
                                     'categorie'=>$this->categorie,'tva'=>$this->tva,'limite_stock_alerte'=>$this->limite_stock_alerte,'pays_origine'=>$this->pays_origine,'date_peremption'=>$this->date_peremption,
-                                    'responsable_achat'=>$this->responsable_achat,'etat'=>$this->etat,'quantite_pv'=>$this->quantite_pv, 'montant_total'=>$this->montant_total,'societe'=>auth()->user()->societe,
+                                    'responsable_achat'=>$this->responsable_achat,'etat'=>$this->etat,'quantite_pv'=>$this->quantite_pv, 'montant_total'=>$this->montant_total,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,
                                     'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
 
                     // ceci recupere le dernier enregistrement cree a l'instant
-                    $dernier_id = Produit::where('societe',auth()->user()->societe)->where('user_id',auth()->user()->id)->latest()->first()->id; 
+                    $dernier_id = $prod->id; 
 
                     // Creation entrepot dans stock
                     if($this->entrepot > 0){
@@ -305,11 +305,11 @@ class Produits extends Component
                         $limite_stock_alerte_bd = 5;
                         Stock::create(['id_entrepot'=>$this->entrepot,'nom_produit'=>$this->nom_produit,'id_produit'=>$dernier_id,'reference'=>$this->reference,'code_barre'=>$this->code_barre,'categorie'=>$this->categorie,'type_produit'=>$this->type_produit,'nature_produit'=>$this->nature_produit,'quantite'=>$quantite,
                         'prix_achat_last'=>$this->prix_achat, 'prix_moyen_pondere_achat'=>$this->prix_achat, 'valorisation_achat_total'=>$valorisation_achat_total,'prix_vente_unitaire'=>$this->prix_vente,'prix_vente_min'=>$this->prix_vente_min,'valeur_vente_total'=>$valeur_vente_total,
-                        'limite_stock_alerte'=>$limite_stock_alerte_bd,'etat'=>$this->etat,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                        'limite_stock_alerte'=>$limite_stock_alerte_bd,'etat'=>$this->etat,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
                     }
                     $base_prix = 'HT';
                     PrixVente::create(['id_produit'=>$dernier_id,'base_prix'=>$base_prix,'taux_taxe'=>$this->tva,'prix_achat'=>$this->prix_achat,'prix_vente'=>$this->prix_vente,'prix_vente_min'=>$this->prix_vente_min,
-                                'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
+                                'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
 
                     $id_activite = $dernier_id;
                     $page = 'Produits';
@@ -369,7 +369,7 @@ class Produits extends Component
     public function genererCodeBarre(){    
         $this->validate([              
             'code_barre' => ['nullable','string','max:255',
-             Rule::unique('produits', 'code_barre')->where(fn($query) => $query->where('societe', auth()->user()->societe)),]
+             Rule::unique('produits', 'code_barre')->where(fn($query) => $query->where('societe_id',auth()->user()->societe_id)),]
         ]);         
                 
         do {   
@@ -388,9 +388,9 @@ class Produits extends Component
         ); 
     }
     public function changeEtat(int $id, int $etat){  
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->modifier_produit;
             if($autoriser == 1){        
                 if($etat == 1){
@@ -460,9 +460,9 @@ class Produits extends Component
     }
     // ceci permet de dupliquer un produit
     public function dupliquer(int $id){ 
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->creer_produit;
             if($autoriser == 1){        
                 $produit = Produit::find($id);
@@ -512,27 +512,27 @@ class Produits extends Component
         $this->confirmer = $id;      
     } 
     public function supprimer($id){
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->supprimer_produit;
             if($autoriser == 1){  
                 if($id){ 
-                    $test_stock = Stock::where('societe',auth()->user()->societe)->where('id_produit',$id)->sum('quantite');
+                    $test_stock = Stock::where('societe_id',auth()->user()->societe_id)->where('id_produit',$id)->sum('quantite');
                     if($test_stock == 0){                        
-                        $test_expedi = ExpeditionClientLigne::where('societe',auth()->user()->societe)->where('id_produit',$id)->count();
+                        $test_expedi = ExpeditionClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_produit',$id)->count();
                         if($test_expedi == 0){
-                            $test_cmd = CommandeClientLigne::where('societe',auth()->user()->societe)->where('id_produit',$id)->count();
+                            $test_cmd = CommandeClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_produit',$id)->count();
                             if($test_cmd == 0){ 
-                                $test_fact = factureClientLigne::where('societe',auth()->user()->societe)->where('id_produit',$id)->count();
+                                $test_fact = factureClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_produit',$id)->count();
                                 if($test_fact == 0){
-                                    $test_prof = ProformaClientLigne::where('societe',auth()->user()->societe)->where('id_produit',$id)->count();
+                                    $test_prof = ProformaClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_produit',$id)->count();
                                     if($test_prof == 0){
-                                        $test_compo = ComposantNomenclature::where('societe',auth()->user()->societe)->where('composant_id',$id)->count();
+                                        $test_compo = ComposantNomenclature::where('societe_id',auth()->user()->societe_id)->where('composant_id',$id)->count();
                                         if($test_compo == 0){ 
-                                            $test_compofo = ComposantNomenclatureOrdreFab::where('societe',auth()->user()->societe)->where('composant_id',$id)->count();
+                                            $test_compofo = ComposantNomenclatureOrdreFab::where('societe_id',auth()->user()->societe_id)->where('composant_id',$id)->count();
                                             if($test_compofo == 0){
-                                                $test_nomencl = Nomenclature::where('societe',auth()->user()->societe)->where('produit_id',$id)->count();
+                                                $test_nomencl = Nomenclature::where('societe_id',auth()->user()->societe_id)->where('produit_id',$id)->count();
                                                 if($test_nomencl == 0){                                                
                                                     
                                                     Produit::where('id',$id)->delete();

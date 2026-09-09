@@ -57,7 +57,7 @@ class DeviseTvas extends Component
         }  
         else{  
             $dateJour = date('Y-m-d');            
-            $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();
+            $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();
             $jourValid = $entite_mod[0]->validite_mod; 
             $mod_administration = $entite_mod[0]->mod_administration; 
             $soldeClient = $entite_mod[0]->solde;
@@ -72,19 +72,19 @@ class DeviseTvas extends Component
                     $choix = request('choix');
                     $dateJour = date('Y-m-d');
                     toast()->success('Prêt', '')->position('top-right')->autoClose(2000)->background('#fff')->width('220px')->padding('5px');           
-                    $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->where('taxe','like','%'.$this->query.'%')->orderBy('id','asc')->paginate($this->parPage); 
-                    $deviseTvacount = DeviseTva :: where('societe',auth()->user()->societe)->where('pays','like','%'.$this->query.'%')->count(); 
+                    $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->where('taxe','like','%'.$this->query.'%')->orderBy('id','asc')->paginate($this->parPage); 
+                    $deviseTvacount = DeviseTva :: where('societe_id',auth()->user()->societe_id)->where('pays','like','%'.$this->query.'%')->count(); 
                     
-                    $resultat = DeviseTva :: where('societe',auth()->user()->societe)->get();  
+                    $resultat = DeviseTva :: where('societe_id',auth()->user()->societe_id)->get();  
                     $nbreTotalDeviseTva = $resultat->count(); 
 
-                    $derniereActivite = DeviseTva::where('societe',auth()->user()->societe)->latest('updated_at')->first();  
+                    $derniereActivite = DeviseTva::where('societe_id',auth()->user()->societe_id)->latest('updated_at')->first();  
 
                     $page = 'DeviseTva'; // Pour evenement lie
-                    $log = LogActivityModel::where('user_societe',auth()->user()->societe)->where('page', $page)->limit(50)->orderBy('id','desc')->get();
+                    $log = LogActivityModel::where('societe_id',auth()->user()->societe_id)->where('page', $page)->limit(50)->orderBy('id','desc')->get();
                     $logCount = $log->count();
 
-                    $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();                    
+                    $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();                    
                     $jourValid = $entite_mod[0]->validite_mod; 
                     // ceci pour trouver le nombre de jour restant avant expiration
                     $nbjoursRestant = round((strtotime($jourValid) - strtotime($dateJour))/(60*60*24));
@@ -119,14 +119,15 @@ class DeviseTvas extends Component
     }
     public function store(){
         $this->validate();       
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->configurer;
             if($autoriser == 1){                
-                DeviseTva :: create(['pays'=>$this->pays,'devise'=>$this->devise,'taxe'=>$this->taxe,'taux_tva'=>$this->taux_tva,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                $devise = DeviseTva :: create(['pays'=>$this->pays,'devise'=>$this->devise,'taxe'=>$this->taxe,'taux_tva'=>$this->taux_tva,'societe'=>auth()->user()->societe,
+                'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
 
-                $dernier_id = DeviseTva::where('societe',auth()->user()->societe)->where('user_id',auth()->user()->id)->latest()->first()->id; 
+                $dernier_id = $devise->id; 
                 $id_activite = $dernier_id;  
                 $page = 'DeviseTva';    
                 LogActivity::addToLog('Taxe » '.$this->taxe.' créée', $id_activite, $page);   
@@ -172,13 +173,14 @@ class DeviseTvas extends Component
     }
     public function update(){
         $validatedata = $this->validate();            
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->configurer;
             if($autoriser == 1){  
                 if($this->ids){                    
-                    DeviseTva::find($this->ids)->update(['pays'=>$this->pays,'devise'=>$this->devise,'taxe'=>$this->taxe,'taux_tva'=>$this->taux_tva,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                    DeviseTva::find($this->ids)->update(['pays'=>$this->pays,'devise'=>$this->devise,'taxe'=>$this->taxe,'taux_tva'=>$this->taux_tva,'societe'=>auth()->user()->societe,
+                    'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
                     
                     $id_activite = $this->ids; 
                     $page = 'DeviseTva';
@@ -221,9 +223,9 @@ class DeviseTvas extends Component
         $this->confirmer = $id;        
     } 
     public function supprimer($id){
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){ 
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->configurer;
             if($autoriser == 1){   
                 if($id){

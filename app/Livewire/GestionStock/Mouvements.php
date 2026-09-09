@@ -44,9 +44,9 @@ class Mouvements extends Component
         }
     }
     public function mount(){        
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->mouvement_stock;
             if($autoriser == 0){
                 alert()->error('Oups Désolé', 'Vous n\'êtes pas autorisé à ouvrir cette page !!!')->position('center')->autoClose(5000)->background('#fff')->width('460px')->padding('5px');
@@ -83,7 +83,7 @@ class Mouvements extends Component
     public function render()
     {
         $dateJour = date('Y-m-d');            
-        $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();
+        $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();
         $jourValid = $entite_mod[0]->validite_mod; 
         $mod_gestion_stock = $entite_mod[0]->mod_gestion_stock;
         $soldeClient = $entite_mod[0]->solde;
@@ -104,34 +104,34 @@ class Mouvements extends Component
                 $end = Carbon::parse($dateFin )->endOfDay();     // 2016-09-29 23:59:59.000000   
 
                 toast()->success('Prêt', '')->position('top-right')->autoClose(2000)->background('#fff')->width('220px')->padding('5px'); 
-                $mouvement = Mouvement::where('societe',auth()->user()->societe)->where('reference','like','%'.$this->query.'%')->where('entrepot','like','%'.$this->ParMag.'%')->whereBetween('created_at',[$start, $end])->orderBy($this->orderField, $this->orderDirection)->paginate($this->parPage);  
+                $mouvement = Mouvement::where('societe_id',auth()->user()->societe_id)->where('reference','like','%'.$this->query.'%')->where('entrepot','like','%'.$this->ParMag.'%')->whereBetween('created_at',[$start, $end])->orderBy($this->orderField, $this->orderDirection)->paginate($this->parPage);  
                 $mouvCountAfficher = $mouvement->count();
                 $mouvSommeAfficher = $mouvement->sum('quantite');
 
-                $resultat = Mouvement :: where('societe',auth()->user()->societe)->get();  
+                $resultat = Mouvement :: where('societe_id',auth()->user()->societe_id)->get();  
                 $TotalMouvement = $resultat->count();     
                 $quantite_total = $resultat->sum('quantite');
                 $valorisation_achat_total = $resultat->sum('valorisation_achat_total');
                 $valeur_vente_total = $resultat->sum('valeur_vente_total');
 
-                $derniereActivite = Mouvement::where('societe',auth()->user()->societe)->latest('updated_at')->first(); 
+                $derniereActivite = Mouvement::where('societe_id',auth()->user()->societe_id)->latest('updated_at')->first(); 
 
                 $page = 'Mouvement'; // Pour evenement lie
-                $log = LogActivityModel::where('user_societe',auth()->user()->societe)->where('page', $page)->limit(50)->orderBy('id','desc')->get();
+                $log = LogActivityModel::where('societe_id',auth()->user()->societe_id)->where('page', $page)->limit(50)->orderBy('id','desc')->get();
                 $logCount = $log->count();     
 
-                $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->count(); 
+                $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->count(); 
                 if($deviseTva == 0){
                     $this->devise = 'FCFA';
                 }
                 else{
-                    $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->get(); 
+                    $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->get(); 
                     $this->devise = $deviseTva[0]->devise;
                 }
                 // $id_activite = 0;
                 // $page = 'Mouvement'; // Pour evenement lie
                 // LogActivity::addToLog('Liste mouvements',  $id_activite, $page);    
-                $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();          
+                $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();          
                 $jourValid = $entite_mod[0]->validite_mod; 
                 // ceci pour trouver le nombre de jour restant avant expiration
                 $nbjoursRestant = round((strtotime($jourValid) - strtotime($dateJour))/(60*60*24));

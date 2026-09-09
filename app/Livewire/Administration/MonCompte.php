@@ -109,7 +109,7 @@ class MonCompte extends Component
     public function render(){
     
         $dateJour = date('Y-m-d');            
-        $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();
+        $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();
         $jourValid = $entite_mod[0]->validite_mod; 
         $mod_administration = $entite_mod[0]->mod_administration; 
         $soldeClient = $entite_mod[0]->solde;
@@ -125,43 +125,43 @@ class MonCompte extends Component
                 $dateJour = date('Y-m-d');                   
                 
                 // $entite = Entite::orderBy('enseigne','asc')->get();
-                $departe = Departement :: where('societe',auth()->user()->societe)->orderBy('nom_departement','asc')->get();  
-                $posteTravail = Poste_travail :: where('societe',auth()->user()->societe)->orderBy('nom_poste','asc')->get(); 
+                $departe = Departement :: where('societe_id',auth()->user()->societe_id)->orderBy('nom_departement','asc')->get();  
+                $posteTravail = Poste_travail :: where('societe_id',auth()->user()->societe_id)->orderBy('nom_poste','asc')->get(); 
                 
                 // ceci au chargement de la page                
-                $user = Utilisateur::where('societe',auth()->user()->societe)->where('id',$this->ids)->get();
+                $user = Utilisateur::where('societe_id',auth()->user()->societe_id)->where('id',$this->ids)->get();
                 $entite = Entite::where('societe_mere',auth()->user()->societe_mere)->orderBy('enseigne','asc')->get(); 
                 $usersCount = $user->count();
 
                 // Facture
-                $factClient_entete = factureClientEntete::where('societe',auth()->user()->societe)->where('user_id',$this->ids)->orderBy('id','DESC')->limit(15)->get();
+                $factClient_entete = factureClientEntete::where('societe_id',auth()->user()->societe_id)->where('user_id',$this->ids)->orderBy('id','DESC')->limit(15)->get();
                 $factCltEntCount = $factClient_entete->count();                 
 
-                $factClient_all = factureClientEntete::where('societe',auth()->user()->societe)->where('user_id',$this->ids)->orderBy('id','DESC')->get();
+                $factClient_all = factureClientEntete::where('societe_id',auth()->user()->societe_id)->where('user_id',$this->ids)->orderBy('id','DESC')->get();
                 $factClientEnteteCount = $factClient_all->count();                 
                 $factClientEnteteMarge = $factClient_all->sum('marge');   
                 $factClientEnteteTTC = $factClient_all->sum('montant_ttc');  
                 $factClientEnteteResteApercevoir = $factClient_all->sum('reste_a_percevoir'); 
                 // commande
-                $cmd_client = CommandeClientEntete::where('societe',auth()->user()->societe)->where('user_id',$this->ids)->orderBy('id', 'DESC')->limit(15)->get();
+                $cmd_client = CommandeClientEntete::where('societe_id',auth()->user()->societe_id)->where('user_id',$this->ids)->orderBy('id', 'DESC')->limit(15)->get();
                 $cmdClientCount = $cmd_client->count(); 
                 
                 $page = 'Utilisateur'; // Pour evenement lie
-                $log = LogActivityModel::where('user_societe',auth()->user()->societe)->where('id_activite', $this->ids)->where('page', $page)->limit(9)->orderBy('id','desc')->get();
+                $log = LogActivityModel::where('societe_id',auth()->user()->societe_id)->where('id_activite', $this->ids)->where('page', $page)->limit(9)->orderBy('id','desc')->get();
                 $logCount = $log->count();
                
                         
-                $utilisa = Utilisateur::where('societe',auth()->user()->societe)->orderBy('name','asc')->get();  
-                $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->count();             
+                $utilisa = Utilisateur::where('societe_id',auth()->user()->societe_id)->orderBy('name','asc')->get();  
+                $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->count();             
                 if($deviseTva == 0){
                     $this->devise = 'FCFA';
                 }
                 else{
-                    $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->get(); 
+                    $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->get(); 
                     $this->devise = $deviseTva[0]->devise;                
                 }                    
                 toast()->success('Prêt', '')->position('top-right')->autoClose(2000)->background('#fff')->width('220px')->padding('5px');    
-                $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get(); 
+                $entite_mod = Entite::where('id',auth()->user()->societe_id)->get(); 
                 $jourValid = $entite_mod[0]->validite_mod; 
                 // ceci pour trouver le nombre de jour restant avant expiration
                 $nbjoursRestant = round((strtotime($jourValid) - strtotime($dateJour))/(60*60*24));
@@ -265,9 +265,9 @@ class MonCompte extends Component
     }
      public function update(){        
         // ceci teste pour verifier si l'user encours a un role dans la bd 
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();            
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();            
             if(empty($this->password_actuel)){
                 $this->validate([ 
                     'email'=>'required|email|max:255',

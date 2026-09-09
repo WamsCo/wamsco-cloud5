@@ -42,9 +42,9 @@ class EtapeTaches extends Component
         $this->resetPage();
     }
     public function mount(){  
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->consulter_etapeTache;
             if($autoriser == 0){
                 toast()->error('Oups Désolé', 'Vous n\'êtes pas autorisé à ouvrir cette page!')->position('top-end')->autoClose(5000)->background('#fff')->width('460px')->padding('5px');
@@ -59,7 +59,7 @@ class EtapeTaches extends Component
     public function render()
     {
         $dateJour = date('Y-m-d');            
-        $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();
+        $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();
         $jourValid = $entite_mod[0]->validite_mod;
         $mod_tache = $entite_mod[0]->mod_tache;
         $soldeClient = $entite_mod[0]->solde;
@@ -74,25 +74,25 @@ class EtapeTaches extends Component
                 $champ = request('champ');
                 $choix = request('choix');
                 toast()->success('Prêt', '')->position('top-right')->autoClose(2000)->background('#fff')->width('220px')->padding('5px');           
-                $etape = EtapeTache :: where('societe',auth()->user()->societe)->where('nom_etape','like','%'.$this->query.'%')->orderBy('id','asc')->paginate($this->parPage); 
+                $etape = EtapeTache :: where('societe_id',auth()->user()->societe_id)->where('nom_etape','like','%'.$this->query.'%')->orderBy('id','asc')->paginate($this->parPage); 
                 $etapeCount = $etape->count();   
 
-                $resultat = EtapeTache :: where('societe',auth()->user()->societe)->get();  
+                $resultat = EtapeTache :: where('societe_id',auth()->user()->societe_id)->get();  
                 $nbreTotalEtapeTache = $resultat->count(); 
                 // $catRestau = $resultat->where('restaurant','Oui')->count(); 
                 
-                $derniereActivite = EtapeTache::where('societe',auth()->user()->societe)->latest('updated_at')->first();                 
+                $derniereActivite = EtapeTache::where('societe_id',auth()->user()->societe_id)->latest('updated_at')->first();                 
 
                 $page = 'EtapeTache'; // Pour evenement lie
-                $log = LogActivityModel::where('user_societe',auth()->user()->societe)->where('page', $page)->limit(50)->orderBy('id','desc')->get();
+                $log = LogActivityModel::where('societe_id',auth()->user()->societe_id)->where('page', $page)->limit(50)->orderBy('id','desc')->get();
                 $logCount = $log->count();
 
-                $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->count();             
+                $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->count();             
                 if($deviseTva == 0){
                     $this->devise = 'FCFA';
                 }
                 else{
-                    $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->get(); 
+                    $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->get(); 
                     $this->devise = $deviseTva[0]->devise;                
                 }  
                 toast()->success('Prêt', '')->position('top-right')->autoClose(2000)->background('#fff')->width('220px')->padding('5px');            
@@ -131,14 +131,14 @@ class EtapeTaches extends Component
     public function store(){        
         $this->validate(); 
 
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->creer_etapeTache;
             if($autoriser == 1){ 
-                EtapeTache :: create(['nom_etape'=>$this->nom_etape,'description'=>$this->description,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->email,'user_id'=>auth()->user()->id]);
+                $etapTach = EtapeTache :: create(['nom_etape'=>$this->nom_etape,'description'=>$this->description,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->email,'user_id'=>auth()->user()->id]);
                 // ceci recupere le dernier enregistrement cree a l'instant
-                $dernier_id = EtapeTache::where('societe',auth()->user()->societe)->where('user_id',auth()->user()->id)->latest()->first()->id; 
+                $dernier_id = $etapTach->id; 
                 $id_activite = $dernier_id;   
                 $page = 'EtapeTache';    
                 LogActivity::addToLog('Étape tâche » '.$this->nom_etape.' créée', $id_activite, $page); 
@@ -183,13 +183,14 @@ class EtapeTaches extends Component
     }
     public function update(){
         $this->validate();        
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->modifier_etapeTache;
             if($autoriser == 1){  
                 if($this->ids){
-                    EtapeTache::find($this->ids)->update(['nom_etape'=>$this->nom_etape,'description'=>$this->description,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->email,'user_id'=>auth()->user()->id]);
+                    EtapeTache::find($this->ids)->update(['nom_etape'=>$this->nom_etape,'description'=>$this->description,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,
+                    'nom_user'=>auth()->user()->email,'user_id'=>auth()->user()->id]);
                     $this->dispatch('etapeUpdate');
                     $id_activite = $this->ids; 
                     $page = 'EtapeTache';
@@ -232,13 +233,13 @@ class EtapeTaches extends Component
         $this->confirmer = $id;        
     } 
     public function supprimer($id){
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){ 
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->supprimer_etapeTache;
             if($autoriser == 1){   
                 if($id){
-                    $test_tache = Tache::where('societe',auth()->user()->societe)->where('id_etape',$id)->count();
+                    $test_tache = Tache::where('societe_id',auth()->user()->societe_id)->where('id_etape',$id)->count();
                     if($test_tache == 0){  
 
                         $page = 'EtapeTache'; // Pour evenement lie
@@ -297,23 +298,23 @@ class EtapeTaches extends Component
 
         if(auth()->user()->type_user == "Administrateur"){ 
 
-            return Tache :: where('societe',auth()->user()->societe)->where('id_etape', $id_etape)->count();  
+            return Tache :: where('societe_id',auth()->user()->societe_id)->where('id_etape', $id_etape)->count();  
         }
         else{
 
-            return Tache :: where('societe',auth()->user()->societe)->where('vendeur', auth()->user()->id)->where('id_etape', $id_etape)->count(); 
+            return Tache :: where('societe_id',auth()->user()->societe_id)->where('vendeur', auth()->user()->id)->where('id_etape', $id_etape)->count(); 
         }            
     } 
     // Ceci permet d'activer l'opacite sur les taches
     public function activer(){
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){ 
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->modifier_etapeTache;
             if($autoriser == 1){ 
                 
                 $opacite = 'Non';
-                EtapeTache::where('societe',auth()->user()->societe)->update(['opacite'=>$opacite]);
+                EtapeTache::where('societe_id',auth()->user()->societe_id)->update(['opacite'=>$opacite]);
                 $opacite = 'Oui';
                 EtapeTache::find($this->ids)->update(['opacite'=>$opacite]);                       
                 

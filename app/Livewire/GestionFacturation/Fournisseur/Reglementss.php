@@ -51,9 +51,9 @@ class Reglementss extends Component
         }
     }
     public function mount(){
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->consulter_reglement_fourni;
             if($autoriser == 0){
                 alert()->error('Oups Désolé', 'Vous n\'êtes pas autorisé à ouvrir cette page !!!')->position('center')->autoClose(5000)->background('#fff')->width('460px')->padding('5px');
@@ -71,7 +71,7 @@ class Reglementss extends Component
     public function render(){
     
         $dateJour = date('Y-m-d');            
-        $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();
+        $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();
         $jourValid = $entite_mod[0]->validite_mod; 
         $mod_facturation = $entite_mod[0]->mod_facturation;
         $soldeClient = $entite_mod[0]->solde;
@@ -90,29 +90,29 @@ class Reglementss extends Component
                 $start = Carbon::parse($this->date_debut)->startOfDay(); //2016-09-29 00:00:00.000000
                 $end = Carbon::parse($this->date_fin)->endOfDay();     // 2016-09-29 23:59:59.000000
 
-                $Reglement_fournisseur = Reglement_fourni::where('societe',auth()->user()->societe)->where('ref_reglement','like','%'.$this->parRef.'%')->where('code_facture','like','%'.$this->parFact.'%')->where('nom_fournisseur','like','%'.$this->query.'%')->whereBetween('created_at',[$start, $end])->orderBy($this->orderField, $this->orderDirection)->paginate($this->parPage);
+                $Reglement_fournisseur = Reglement_fourni::where('societe_id',auth()->user()->societe_id)->where('ref_reglement','like','%'.$this->parRef.'%')->where('code_facture','like','%'.$this->parFact.'%')->where('nom_fournisseur','like','%'.$this->query.'%')->whereBetween('created_at',[$start, $end])->orderBy($this->orderField, $this->orderDirection)->paginate($this->parPage);
                 $regleFournisseurCount = $Reglement_fournisseur->count();
                 $montantTregler = $Reglement_fournisseur->sum('montant_regler');  
                 
-                $resultat = Reglement_fourni::where('societe',auth()->user()->societe)->get();  
+                $resultat = Reglement_fourni::where('societe_id',auth()->user()->societe_id)->get();  
                 $nbreTotalReglement = $resultat->count();  
                 $montantTregler_all = $resultat->sum('montant_regler');   
 
-                $derniereActivite = Reglement_fourni::where('societe',auth()->user()->societe)->latest('updated_at')->first();
+                $derniereActivite = Reglement_fourni::where('societe_id',auth()->user()->societe_id)->latest('updated_at')->first();
                 
                 $page = 'Reglement_fourni'; // pour evenement lies
-                $log = LogActivityModel::where('user_societe',auth()->user()->societe)->where('page', $page)->limit(50)->orderBy('id','desc')->get();
+                $log = LogActivityModel::where('societe_id',auth()->user()->societe_id)->where('page', $page)->limit(50)->orderBy('id','desc')->get();
                 $logCount = $log->count();
                 
-                $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->count(); 
+                $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->count(); 
                 if($deviseTva == 0){
                     $this->devise = 'FCFA';
                 }
                 else{
-                    $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->get(); 
+                    $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->get(); 
                     $this->devise = $deviseTva[0]->devise;
                 }
-                $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();          
+                $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();          
                 $jourValid = $entite_mod[0]->validite_mod; 
                 // ceci pour trouver le nombre de jour restant avant expiration
                 $nbjoursRestant = round((strtotime($jourValid) - strtotime($dateJour))/(60*60*24));

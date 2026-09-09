@@ -61,6 +61,7 @@ class DetailTiers extends Component
     public $compte;    
 
     public $societe;
+    public $societe_id;
     public $code_tier; 
     
     public $activite; 
@@ -71,9 +72,9 @@ class DetailTiers extends Component
     // public $logo;
 
     public function mount(){  
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->consulter_tier;
             if($autoriser == 0){
                 toast()->error('Oups Désolé', 'Vous n\'êtes pas autorisé à ouvrir cette page!')->position('top-end')->autoClose(5000)->background('#fff')->width('460px')->padding('5px');
@@ -89,7 +90,7 @@ class DetailTiers extends Component
     public function render(){
         
         $dateJour = date('Y-m-d');            
-        $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();
+        $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();
         $jourValid = $entite_mod[0]->validite_mod; 
         $mod_gestion_tier = $entite_mod[0]->mod_gestion_tier; 
         $soldeClient = $entite_mod[0]->solde;
@@ -105,40 +106,40 @@ class DetailTiers extends Component
                 $choix = request('choix'); 
                 $dateJour = date('Y-m-d');
                 // $menuModule = request('module');
-                $utilisateur = Utilisateur::where('societe',auth()->user()->societe)->orderBy('name','asc')->get();
-                $tier = Tier::where('societe',auth()->user()->societe)->where('id',$this->ids)->get();           
-                $tiersCount = Tier::where('societe',auth()->user()->societe)->count(); 
+                $utilisateur = Utilisateur::where('societe_id',auth()->user()->societe_id)->orderBy('name','asc')->get();
+                $tier = Tier::where('societe_id',auth()->user()->societe_id)->where('id',$this->ids)->get();           
+                $tiersCount = Tier::where('societe_id',auth()->user()->societe_id)->count(); 
                 $page = 'Tiers'; // pour evenement lies
                 
                 // ceci au chargement de la page
-                $tier = Tier::where('societe',auth()->user()->societe)->where('id',$this->ids)->get();      
+                $tier = Tier::where('societe_id',auth()->user()->societe_id)->where('id',$this->ids)->get();      
                 $tiersCount = $tier->count(); 
                 // Facture
-                $factClient_entete = factureClientEntete::where('societe',auth()->user()->societe)->where('id_client',$this->ids)->orderBy('id','DESC')->limit(15)->get();
+                $factClient_entete = factureClientEntete::where('societe_id',auth()->user()->societe_id)->where('id_client',$this->ids)->orderBy('id','DESC')->limit(15)->get();
                 $factCltEntCount = $factClient_entete->count();   
 
-                $factClient_all = factureClientEntete::where('societe',auth()->user()->societe)->where('id_client',$this->ids)->orderBy('id', 'DESC')->get();
+                $factClient_all = factureClientEntete::where('societe_id',auth()->user()->societe_id)->where('id_client',$this->ids)->orderBy('id', 'DESC')->get();
                 $factClientEnteteCount = $factClient_all->count(); 
                 $factClientEnteteMarge = $factClient_all->sum('marge'); 
                 $factClientEnteteTTC = $factClient_all->sum('montant_ttc'); 
                 $factClientEnteteResteApercevoir = $factClient_all->sum('reste_a_percevoir');                               
                 // commande
-                $cmd_client = CommandeClientEntete::where('societe',auth()->user()->societe)->where('id_client',$this->ids)->orderBy('id', 'DESC')->limit(10)->get();
+                $cmd_client = CommandeClientEntete::where('societe_id',auth()->user()->societe_id)->where('id_client',$this->ids)->orderBy('id', 'DESC')->limit(10)->get();
                 $cmdClientCount = $cmd_client->count();
 
-                $log = LogActivityModel::where('user_societe',auth()->user()->societe)->where('id_activite', $this->ids)->where('page', $page)->where('subject','like','%'.$this->activite.'%')->limit(50)->orderBy('id','desc')->get();
+                $log = LogActivityModel::where('societe_id',auth()->user()->societe_id)->where('id_activite', $this->ids)->where('page', $page)->where('subject','like','%'.$this->activite.'%')->limit(50)->orderBy('id','desc')->get();
                 $logCount = $log->count();                
 
-                $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->count();             
+                $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->count();             
                 if($deviseTva == 0){
                     $this->devise = 'FCFA';
                 }
                 else{
-                    $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->get(); 
+                    $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->get(); 
                     $this->devise = $deviseTva[0]->devise;                
                 }                    
                 toast()->success('Prêt', '')->position('top-right')->autoClose(2000)->background('#fff')->width('220px')->padding('5px');    
-                $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get(); 
+                $entite_mod = Entite::where('id',auth()->user()->societe_id)->get(); 
                 $jourValid = $entite_mod[0]->validite_mod; 
                 // ceci pour trouver le nombre de jour restant avant expiration
                 $nbjoursRestant = round((strtotime($jourValid) - strtotime($dateJour))/(60*60*24));
@@ -190,14 +191,15 @@ class DetailTiers extends Component
         $this->sexe =$tiers->sexe;           
         $this->solde =$tiers->solde;  
         $this->societe =$tiers->societe;  
+        $this->societe_id =$tiers->societe_id;         
         $this->code_tier =$tiers->code_tier;  
                  
     }
     public function update(){        
         $this->validate();       
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->modifier_tier;
             if($autoriser == 1){   
                 if($this->id){ 
@@ -212,12 +214,12 @@ class DetailTiers extends Component
                         
                         Tier::find($this->id)->update(['nom'=>$this->nom,'code_tier'=>$newCode,'raison_sociale'=>$this->raison_sociale,'type_tiers'=>$this->type_tiers,'etat'=>$this->etat,'telephone'=>$this->telephone,
                         'adresse'=>$this->adresse,'code_postal'=>$this->code_postal,'ville'=>$this->ville,'pays'=>$this->pays,'email'=>$this->email,'site_web'=>$this->site_web,
-                        'commercial_charge'=>$this->commercial_charge,'sexe'=>$this->sexe,'societe'=>auth()->user()->societe,'nom_user_modif'=>auth()->user()->name]); 
+                        'commercial_charge'=>$this->commercial_charge,'sexe'=>$this->sexe,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user_modif'=>auth()->user()->name]); 
 
                         // Mise a jour
                         SoldeTier::where('id_tier',$this->id)->update(['nom_tier'=>$this->nom,'code_tier'=>$newCode,'raison_sociale'=>$this->raison_sociale,
                         'telephone'=>$this->telephone,'adresse'=>$this->adresse,'ville'=>$this->ville,'pays'=>$this->pays,'email'=>$this->email,
-                        'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name]);
+                        'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name]);
                     }
                     else{
                         $dates = date('dmy-His');
@@ -233,12 +235,12 @@ class DetailTiers extends Component
 
                         Tier::find($this->id)->update(['nom'=>$this->nom,'code_tier'=>$token_ok,'raison_sociale'=>$this->raison_sociale,'type_tiers'=>$this->type_tiers,'etat'=>$this->etat,'telephone'=>$this->telephone,
                         'adresse'=>$this->adresse,'code_postal'=>$this->code_postal,'ville'=>$this->ville,'pays'=>$this->pays,'email'=>$this->email,'site_web'=>$this->site_web,
-                        'commercial_charge'=>$this->commercial_charge,'sexe'=>$this->sexe,'societe'=>auth()->user()->societe,'nom_user_modif'=>auth()->user()->name]); 
+                        'commercial_charge'=>$this->commercial_charge,'sexe'=>$this->sexe,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user_modif'=>auth()->user()->name]); 
                         
                         // Mise a jour
                         SoldeTier::where('id_tier',$this->id)->update(['nom_tier'=>$this->nom,'code_tier'=>$token_ok,'raison_sociale'=>$this->raison_sociale,
                         'telephone'=>$this->telephone,'adresse'=>$this->adresse,'ville'=>$this->ville,'pays'=>$this->pays,'email'=>$this->email,
-                        'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name]);
+                        'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name]);
                     }                    
                     
                     factureClientEntete::where('id_client',$this->id)->update(['nom_client'=>$this->nom]);
@@ -291,13 +293,13 @@ class DetailTiers extends Component
     } 
     public function supprimer($id){ 
 
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->supprimer_tier;
             if($autoriser == 1){   
                 if($id){
-                    $test_opport = Opportunite::where('societe',auth()->user()->societe)->where('id_client',$id)->count();
+                    $test_opport = Opportunite::where('societe_id',auth()->user()->societe_id)->where('id_client',$id)->count();
                     if($test_opport == 0){
                         Tier::where('id',$id)->delete();
                         SoldeTier::where('id_tier',$id)->delete();                                         
@@ -349,9 +351,9 @@ class DetailTiers extends Component
         }        
     } 
     public function precedant(int $id){ 
-        $testPrecedant = Tier::where('societe',auth()->user()->societe)->where('id','<',$id)->orderBy('id','desc')->count();
+        $testPrecedant = Tier::where('societe_id',auth()->user()->societe_id)->where('id','<',$id)->orderBy('id','desc')->count();
         if($testPrecedant > 0){ 
-            $precedant = Tier::where('societe',auth()->user()->societe)->where('id','<',$id)->orderBy('id','desc')->first();        
+            $precedant = Tier::where('societe_id',auth()->user()->societe_id)->where('id','<',$id)->orderBy('id','desc')->first();        
             $previous = $precedant->id; 
             $this->redirect('/detail_tier?id='.$previous.'&active=3&champ=3-2', navigate: true);              
         }  
@@ -369,9 +371,9 @@ class DetailTiers extends Component
     }    
     public function suivant(int $id){    
         
-        $testSuivant = Tier::where('societe',auth()->user()->societe)->where('id','>',$id)->orderBy('id','asc')->count();
+        $testSuivant = Tier::where('societe_id',auth()->user()->societe_id)->where('id','>',$id)->orderBy('id','asc')->count();
         if($testSuivant > 0){
-            $suivant = Tier::where('societe',auth()->user()->societe)->where('id','>',$id)->orderBy('id','asc')->first();
+            $suivant = Tier::where('societe_id',auth()->user()->societe_id)->where('id','>',$id)->orderBy('id','asc')->first();
             $next = $suivant->id;             
             $this->redirect('/detail_tier?id='.$next.'&active=3&champ=3-2', navigate: true);                     
         }  
@@ -398,9 +400,9 @@ class DetailTiers extends Component
             'sens'=>'required|max:6', 
                      
         ]);
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count(); 
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count(); 
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->modifier_tier;
             if($autoriser == 1){
                 if($this->id){  
@@ -410,7 +412,7 @@ class DetailTiers extends Component
                         $debit = 0;
                         SoldeTier::create(['id_tier'=>$this->id,'nom_tier'=>$this->nom,'code_tier'=>$this->code_tier,'raison_sociale'=>$this->raison_sociale,'designation'=>$designation,'debit'=>$debit,'credit'=>$this->montant_recu,
                                             'compte'=>$this->compte,'pays'=>$this->pays,'ville'=>$this->ville,'adresse'=>$this->adresse,
-                                            'telephone'=>$this->telephone,'email'=>$this->email,'societe'=>$this->societe,
+                                            'telephone'=>$this->telephone,'email'=>$this->email,'societe'=>$this->societe,'societe_id'=>$this->societe_id,
                                             'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
                         Tier::find($this->id)->update(['solde'=>$solde_final,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
                         
@@ -421,7 +423,7 @@ class DetailTiers extends Component
                         $credit = 0;
                         SoldeTier::create(['id_tier'=>$this->id,'nom_tier'=>$this->nom,'code_tier'=>$this->code_tier,'raison_sociale'=>$this->raison_sociale,'designation'=>$designation,'debit'=>$this->montant_recu,'credit'=>$credit,
                                             'compte'=>$this->compte,'pays'=>$this->pays,'ville'=>$this->ville,'adresse'=>$this->adresse,
-                                            'telephone'=>$this->telephone,'email'=>$this->email,'societe'=>$this->societe,
+                                            'telephone'=>$this->telephone,'email'=>$this->email,'societe'=>$this->societe,'societe_id'=>$this->societe_id,
                                             'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
                         Tier::find($this->id)->update(['solde'=>$solde_final,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
                     }

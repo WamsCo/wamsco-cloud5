@@ -45,9 +45,9 @@ class SessionRestaurant extends Component
         }
     }
     public function mount(){  
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->consulter_session_restau;
             if($autoriser == 0){
                 alert()->error('Oups Désolé', 'Vous n\'êtes pas autorisé à ouvrir cette page !!!')->position('center')->autoClose(5000)->background('#fff')->width('460px')->padding('5px');
@@ -66,7 +66,7 @@ class SessionRestaurant extends Component
     public function render()
     {
         $dateJour = date('Y-m-d');            
-        $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();
+        $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();
         $jourValid = $entite_mod[0]->validite_mod;
         $mod_pointe_vente = $entite_mod[0]->mod_pointe_vente; 
         $soldeClient = $entite_mod[0]->solde;
@@ -85,35 +85,35 @@ class SessionRestaurant extends Component
                 $start = Carbon::parse($this->date_debut)->startOfDay(); //2016-09-29 00:00:00.000000           
                 $end = Carbon::parse($this->date_fin)->endOfDay();     // 2016-09-29 23:59:59.000000
 
-                $utilisat = Utilisateur::where('societe',auth()->user()->societe)->orderBy('name','asc')->get();  
+                $utilisat = Utilisateur::where('societe_id',auth()->user()->societe_id)->orderBy('name','asc')->get();  
                 
                 if(empty($this->parUser)){
-                    $session = SessionRestau::where('societe',auth()->user()->societe)->where('nom_user','like','%'.$this->query.'%')->whereBetween('created_at',[$start, $end])->orderBy($this->orderField, $this->orderDirection)->paginate($this->parPage);
+                    $session = SessionRestau::where('societe_id',auth()->user()->societe_id)->where('nom_user','like','%'.$this->query.'%')->whereBetween('created_at',[$start, $end])->orderBy($this->orderField, $this->orderDirection)->paginate($this->parPage);
                 }
                 else{
-                    $session = SessionRestau::where('societe',auth()->user()->societe)->where('nom_user','like','%'.$this->query.'%')->where('user_id', $this->parUser)->whereBetween('created_at',[$start, $end])->orderBy($this->orderField, $this->orderDirection)->paginate($this->parPage);
+                    $session = SessionRestau::where('societe_id',auth()->user()->societe_id)->where('nom_user','like','%'.$this->query.'%')->where('user_id', $this->parUser)->whereBetween('created_at',[$start, $end])->orderBy($this->orderField, $this->orderDirection)->paginate($this->parPage);
                 }
                 $sessionCount = $session->count();  
                                     
-                $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->count(); 
+                $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->count(); 
                 if($deviseTva == 0){
                     $this->devise = 'FCFA';
                 }
                 else{
-                    $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->get(); 
+                    $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->get(); 
                     $this->devise = $deviseTva[0]->devise;
                 }
 
-                $resultat = SessionRestau::where('societe',auth()->user()->societe)->get();  
+                $resultat = SessionRestau::where('societe_id',auth()->user()->societe_id)->get();  
                 $nbreTotalSessionRestau = $resultat->count();     
 
-                $derniereActivite = SessionRestau::where('societe',auth()->user()->societe)->latest('updated_at')->first();
+                $derniereActivite = SessionRestau::where('societe_id',auth()->user()->societe_id)->latest('updated_at')->first();
 
                 $page = 'SessionRestau'; // pour evenement lies
-                $log = LogActivityModel::where('user_societe',auth()->user()->societe)->where('page', $page)->limit(50)->orderBy('id','desc')->get();
+                $log = LogActivityModel::where('societe_id',auth()->user()->societe_id)->where('page', $page)->limit(50)->orderBy('id','desc')->get();
                 $logCount = $log->count();
 
-                $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();          
+                $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();          
                 $jourValid = $entite_mod[0]->validite_mod; 
                 // ceci pour trouver le nombre de jour restant avant expiration
                 $nbjoursRestant = round((strtotime($jourValid) - strtotime($dateJour))/(60*60*24));
@@ -148,18 +148,16 @@ class SessionRestaurant extends Component
     }
     public function store(){
             
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->creer_session_restau;
             if($autoriser == 1){   
                 
-                $countSession = SessionRestau::where('societe',auth()->user()->societe)->where('user_id',auth()->user()->id)->count(); 
+                $countSession = SessionRestau::where('societe_id',auth()->user()->societe_id)->where('user_id',auth()->user()->id)->count(); 
                 if($countSession == 0){  
                      // creation et enregistrement auto Pos session 
-                     $nom_point_vente = auth()->user()->societe;              
-                     // $date_ouverture = date('Y-m-d');
-                     // $date_fermeture = date('Y-m-d');
+                     $nom_point_vente = auth()->user()->societe; 
                      $solde_initial = 0;
                      $solde_final = 0;
                      $solde_cloture_theorique = 0;         
@@ -168,11 +166,12 @@ class SessionRestaurant extends Component
                      $length = 2;
                      $token = bin2hex(random_bytes($length));
                      $token_ok = 'SESR/'.$dates.'/'.$token;                     
-                     SessionRestau :: create(['session_id'=>$token_ok,'nom_point_vente'=>$nom_point_vente,'solde_initial'=>$solde_initial,
-                                 'solde_final'=>$solde_final,'solde_cloture_theorique'=>$solde_cloture_theorique,'etat'=>$etat,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                     $session = SessionRestau :: create(['session_id'=>$token_ok,'nom_point_vente'=>$nom_point_vente,'solde_initial'=>$solde_initial,
+                                 'solde_final'=>$solde_final,'solde_cloture_theorique'=>$solde_cloture_theorique,'etat'=>$etat,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,
+                                 'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
  
                      // ceci recupere le dernier enregistrement cree a l'instant
-                     $dernier_id = SessionRestau::where('societe',auth()->user()->societe)->where('user_id',auth()->user()->id)->latest()->first()->id; 
+                     $dernier_id = $session->id; 
                      $id_activite = $dernier_id;
                      $page = 'SessionRestau';
                      LogActivity::addToLog('Session '.$token_ok.' POS créé', $id_activite, $page);
@@ -188,15 +187,13 @@ class SessionRestaurant extends Component
                 }
                 else{
                     
-                    $dernier_id = SessionRestau::where('societe',auth()->user()->societe)->where('user_id',auth()->user()->id)->latest()->first()->id; 
-                    $test_session = SessionRestau::where('societe',auth()->user()->societe)->where('id',$dernier_id)->first();
+                    $dernier_id = SessionRestau::where('societe_id',auth()->user()->societe_id)->where('user_id',auth()->user()->id)->latest()->first()->id; 
+                    $test_session = SessionRestau::where('societe_id',auth()->user()->societe_id)->where('id',$dernier_id)->first();
                     $etat = $test_session->etat;  
                     if($etat == 'Clôturée'){
     
                         // creation et enregistrement auto Pos session               
                         $nom_point_vente = auth()->user()->societe;              
-                        // $date_ouverture = date('Y-m-d');
-                        // $date_fermeture = date('Y-m-d');
                         $solde_initial = 0;
                         $solde_final = 0;
                         $solde_cloture_theorique = 0;         
@@ -206,11 +203,12 @@ class SessionRestaurant extends Component
                         $length = 2;
                         $token = bin2hex(random_bytes($length));
                         $token_ok = 'SESR/'.$dates.'/'.$token;                       
-                        SessionRestau :: create(['session_id'=>$token_ok,'nom_point_vente'=>$nom_point_vente,'solde_initial'=>$solde_initial,
-                                    'solde_final'=>$solde_final,'solde_cloture_theorique'=>$solde_cloture_theorique,'etat'=>$etat,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                        $session = SessionRestau :: create(['session_id'=>$token_ok,'nom_point_vente'=>$nom_point_vente,'solde_initial'=>$solde_initial,
+                                    'solde_final'=>$solde_final,'solde_cloture_theorique'=>$solde_cloture_theorique,'etat'=>$etat,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,
+                                    'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
     
                                 // ceci recupere le dernier enregistrement cree a l'instant
-                        $dernier_id = SessionRestau::where('societe',auth()->user()->societe)->where('user_id',auth()->user()->id)->latest()->first()->id; 
+                        $dernier_id = $session->id; 
                         $id_activite = $dernier_id;
                         $page = 'SessionRestau';
                         LogActivity::addToLog('Session '.$token_ok.' POS créé', $id_activite, $page);

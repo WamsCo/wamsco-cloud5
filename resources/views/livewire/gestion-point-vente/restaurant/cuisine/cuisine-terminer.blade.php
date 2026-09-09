@@ -41,7 +41,7 @@
                                                         <div class="d-flex flex-nowrap align-items-center justify-content-between px-1 pb-1 fw-bold gap-1 entete_card_cuine_color">
                                                             <div class="text-break" style="max-width: 200px;" title="{{$emplacement_terminers->nom_table}}">{{Str::limit($emplacement_terminers->nom_table, 15)}} (<span class="text-danger" title="{{$emplacement_terminers->nom_espace}}">{{Str::limit($emplacement_terminers->nom_espace, 12)}}</span>)</div>
                                                             <div class="flex-shrink-0 ps-2 text-end">
-                                                                <i class="fa fa-user-circle pe-1" aria-hidden="true"></i><span title="{{$emplacement_terminers->non_caissiere}}">{{Str::limit($emplacement_terminers->non_caissiere, 15)}}</span>
+                                                                <i class="fa fa-user-circle pe-1" aria-hidden="true"></i><span title="Auteur » {{$emplacement_terminers->non_caissiere}}">{{Str::limit($emplacement_terminers->non_caissiere, 15)}}</span>
                                                             </div>
                                                         </div>
                                                         <div class="d-grid p-2 bg-100">
@@ -50,17 +50,18 @@
                                                                 <div class="d-flex gap-0 align-items-center justify-content-center">
                                                                     <span class="px-2 py-1 rounded-pill fw-semibold" style="background-color: @if($emplacement_terminers->lieu_consommation == "A emporter") #3b0da6; @elseif($emplacement_terminers->lieu_consommation == "Livraison") #0a9682; @else #a63c96; @endif; color: #ffffff;">{{$emplacement_terminers->lieu_consommation}}</span>
                                                                 </div>
-                                                                <div class="">
+                                                                {{-- <div class="">
                                                                     <div class="rounded-pill py-1 px-2 text-bg-danger">
+                                                                        <div class="px-2 rounded-pill"><i class="fas fa-thumbs-up text-success" aria-hidden="true"></i><span> </span></div>
                                                                     </div>
-                                                                </div>
+                                                                </div> --}}
                                                             </div>
                                                         </div>
                                                     </div>
                                                     <div class="w-100 bg-white overflow-auto">
                                                         @foreach($cmdAttenteLigne as $cmdAttenteLignes)
                                                             @if($emplacement_terminers->reference == $cmdAttenteLignes->ref_table)
-                                                                <section class="py-2 border-0 text-800 pointer" wire:click.prevent="barrerProd({{$cmdAttenteLignes->id}},'{{$cmdAttenteLignes->statut_cuisine}}')">
+                                                                <section class="py-1 border-0 text-800 pointer" wire:click.prevent="barrerProd({{$cmdAttenteLignes->id}},'{{$cmdAttenteLignes->statut_cuisine}}')">
                                                                     <div class="d-flex pe-2 @if($cmdAttenteLignes->statut_cuisine == "Barrer") text-decoration-line-through text-muted @endif">
                                                                         <div class="px-2 text-center text-muted">
                                                                             <div class="qte_pro">{{$cmdAttenteLignes->quantite}}x</div>
@@ -68,20 +69,20 @@
                                                                         <div class="flex-grow-1">{{$cmdAttenteLignes->produit}}</div>
                                                                     </div>
                                                                     <div class="">
-                                                                        <div class="d-flex flex-wrap gap-1 pt-2 ms-2 bg-opacity-75"></div>
+                                                                        {{-- <div class="d-flex flex-wrap gap-1 pt-2 ms-2 bg-opacity-75"></div> --}}
                                                                     </div>
                                                                 </section>
                                                             @endif
                                                         @endforeach
                                                     </div>
                                                     <div class="cmd_card_footer bg-100">
-                                                        <div class="d-flex pt-1">
-                                                            <button wire:click.prevent="reinitialiser('{{$emplacement_terminers->reference}}')" class="btn btn-lg btn-light flex-grow-1 border-end border-white rounded text-black" type="button">
+                                                        <div class="d-flex pt-1 gap-1">
+                                                            <button wire:click.prevent="reinitialiser('{{$emplacement_terminers->reference}}')" class="btn btn-lg btn-outline-danger fw-semibold flex-fill py-2 rounded" type="button">
                                                                 <i class="fa fa-undo pe-1" aria-hidden="true"></i>
                                                                 <span>Réinitialiser</span>
                                                             </button>
-                                                            <button wire:click.prevent="barrerAllProd('{{$emplacement_terminers->reference}}')" class="btn btn-lg btn-light flex-grow-1 border-start border-white rounded text-black" type="button">
-                                                                <span>Terminé</span>
+                                                            <button wire:click.prevent="barrerAllProd('{{$emplacement_terminers->reference}}')" class="btn btn-lg btn-outline-dark fw-semibold flex-fill py-2 rounded" title="Cliquez pour barrer toutes les lignes de la commande" type="button">
+                                                                <i class="fas fa-check-circle" aria-hidden="true"></i><span> Finir</span>
                                                             </button>
                                                         </div>
                                                     </div>

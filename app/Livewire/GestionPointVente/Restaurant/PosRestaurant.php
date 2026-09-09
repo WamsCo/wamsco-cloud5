@@ -160,9 +160,9 @@ class PosRestaurant extends Component
         $this->remise = 0;
     }   
     public function mount(){        
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->passe_cmd_restau;
             if($autoriser == 0){
                 alert()->error('Oups Désolé', 'Vous n\'êtes pas autorisé à ouvrir cette page !!!')->position('center')->autoClose(5000)->background('#fff')->width('460px')->padding('5px');
@@ -186,7 +186,7 @@ class PosRestaurant extends Component
     public function render()
     {
         $dateJour = date('Y-m-d');            
-        $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();
+        $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();
         $jourValid = $entite_mod[0]->validite_mod; 
         $mod_pointe_vente = $entite_mod[0]->mod_pointe_vente; 
         $soldeClient = $entite_mod[0]->solde;
@@ -208,16 +208,16 @@ class PosRestaurant extends Component
                 $ref = $this->ref_session_restau;
                 
                 
-                $devise_tva = DeviseTva::where('societe',auth()->user()->societe)->orderBy('taux_tva','asc')->get();
-                $produitSimple = Produit::where('societe',auth()->user()->societe)->where('etat',1)->get();
-                $listeEntrepot = Entrepot::where('societe',auth()->user()->societe)->where('active',1)->get();
-                $categorieProd = Categorie::where('societe',auth()->user()->societe)->where('restaurant','Oui')->orderBy('nom_categorie','asc')->get(); 
+                $devise_tva = DeviseTva::where('societe_id',auth()->user()->societe_id)->orderBy('taux_tva','asc')->get();
+                $produitSimple = Produit::where('societe_id',auth()->user()->societe_id)->where('etat',1)->get();
+                $listeEntrepot = Entrepot::where('societe_id',auth()->user()->societe_id)->where('active',1)->get();
+                $categorieProd = Categorie::where('societe_id',auth()->user()->societe_id)->where('restaurant','Oui')->orderBy('nom_categorie','asc')->get(); 
 
                 // Parametre
-                $verifie = Parametre ::where('societe',auth()->user()->societe)->count();
+                $verifie = Parametre ::where('societe_id',auth()->user()->societe_id)->count();
                 if($verifie > 0){
                     
-                    $config = Parametre::where('societe',auth()->user()->societe)->limit(1)->get();
+                    $config = Parametre::where('societe_id',auth()->user()->societe_id)->limit(1)->get();
                     $id_entrepot = $config[0]->id_entrepot_restau;
                     $this->activer_fidelite = $config[0]->activer_fidelite; 
                     $this->activer_ecran_cuisine = $config[0]->activer_ecran_cuisine;                              
@@ -240,71 +240,71 @@ class PosRestaurant extends Component
             
 
                 if($this->recherchePar == 'nom'){
-                    $stockProd = Stock::where('societe',auth()->user()->societe)->where('etat',1)->where('id_entrepot', $id_entrepot)->where('nom_produit','like','%'.$this->query.'%')->where('categorie','like','%'.$this->filtre.'%')->where('nature_produit','!=','Matière première')->where('type_produit','Produit')->orderBy('nom_produit','asc')->get();
+                    $stockProd = Stock::where('societe_id',auth()->user()->societe_id)->where('etat',1)->where('id_entrepot', $id_entrepot)->where('nom_produit','like','%'.$this->query.'%')->where('categorie','like','%'.$this->filtre.'%')->where('nature_produit','!=','Matière première')->where('type_produit','Produit')->orderBy('nom_produit','asc')->get();
                     $produitCount = $stockProd->count(); 
                 }
                 elseif($this->recherchePar == 'reference'){                    
-                    $stockProd = Stock::where('societe',auth()->user()->societe)->where('etat',1)->where('id_entrepot', $id_entrepot)->where('reference','like','%'.$this->query.'%')->where('categorie','like','%'.$this->filtre.'%')->where('nature_produit','!=','Matière première')->where('type_produit','Produit')->orderBy('nom_produit','asc')->get();
+                    $stockProd = Stock::where('societe_id',auth()->user()->societe_id)->where('etat',1)->where('id_entrepot', $id_entrepot)->where('reference','like','%'.$this->query.'%')->where('categorie','like','%'.$this->filtre.'%')->where('nature_produit','!=','Matière première')->where('type_produit','Produit')->orderBy('nom_produit','asc')->get();
                     $produitCount = $stockProd->count(); 
                 }  
-                // $test_vide = RestauPosFactureClientLigne ::where('user_id',auth()->user()->id)->where('societe',auth()->user()->societe)->where('ref_table',$this->id_table_restau)->count();
-                $test_vide = RestauPosFactureClientLigne ::where('societe',auth()->user()->societe)->where('ref_table',$this->id_table_restau)->count();
-                $ligne_cmd = RestauPosFactureClientLigne::where('societe',auth()->user()->societe)->where('ref_table',$this->id_table_restau)->orderBy('id','asc')->get(); 
+                // $test_vide = RestauPosFactureClientLigne ::where('user_id',auth()->user()->id)->where('societe_id',auth()->user()->societe_id)->where('ref_table',$this->id_table_restau)->count();
+                $test_vide = RestauPosFactureClientLigne ::where('societe_id',auth()->user()->societe_id)->where('ref_table',$this->id_table_restau)->count();
+                $ligne_cmd = RestauPosFactureClientLigne::where('societe_id',auth()->user()->societe_id)->where('ref_table',$this->id_table_restau)->orderBy('id','asc')->get(); 
                 $nbreCmd = $ligne_cmd->count();
                 $QteCmd = $ligne_cmd->sum('quantite');
                 $montant_ttc = $ligne_cmd->sum('montant_ttc');                
-                $reste_a_percevoir = RestauPosfactureClientEntete::where('societe',auth()->user()->societe)->where('ref_table',$this->id_table_restau)->sum('reste_a_percevoir');
+                $reste_a_percevoir = RestauPosfactureClientEntete::where('societe_id',auth()->user()->societe_id)->where('ref_table',$this->id_table_restau)->sum('reste_a_percevoir');
 
             
-                $test_posFcltEnteteExiste = RestauPosfactureClientEntete::where('societe',auth()->user()->societe)->where('ref_table',$this->id_table_restau)->limit(1)->count();
+                $test_posFcltEnteteExiste = RestauPosfactureClientEntete::where('societe_id',auth()->user()->societe_id)->where('ref_table',$this->id_table_restau)->limit(1)->count();
                 if($test_posFcltEnteteExiste > 0){
-                    $this->client = RestauPosfactureClientEntete::where('societe',auth()->user()->societe)->where('ref_table',$this->id_table_restau)->limit(1)->get();
-                    $clients = RestauPosfactureClientEntete::where('societe',auth()->user()->societe)->where('ref_table',$this->id_table_restau)->limit(1)->get();
+                    $this->client = RestauPosfactureClientEntete::where('societe_id',auth()->user()->societe_id)->where('ref_table',$this->id_table_restau)->limit(1)->get();
+                    $clients = RestauPosfactureClientEntete::where('societe_id',auth()->user()->societe_id)->where('ref_table',$this->id_table_restau)->limit(1)->get();
                     $idFclt = $clients[0]->id;
                     $code_fact = $clients[0]->code_facture; 
                     $this->etat = $clients[0]->etat;
                     $this->lieu_consommation = $clients[0]->lieu_consommation;
                     $this->adresse_livraison = $clients[0]->adresse_livraison;
-                    $this->reglementClient = Reglement::where('societe',auth()->user()->societe)->where('code_facture',$code_fact)->get();
-                    $this->reglementClientCount = Reglement::where('societe',auth()->user()->societe)->where('code_facture',$code_fact)->count();
+                    $this->reglementClient = Reglement::where('societe_id',auth()->user()->societe_id)->where('code_facture',$code_fact)->get();
+                    $this->reglementClientCount = Reglement::where('societe_id',auth()->user()->societe_id)->where('code_facture',$code_fact)->count();
                 }
                 else{
                     
                     $idFclt = 0;
                     $code_fact = 0;
                     $this->etat = "";
-                    // $this->reglementClient = Reglement::where('societe',auth()->user()->societe)->where('id_facture_client_entete',0)->get();
+                    // $this->reglementClient = Reglement::where('societe_id',auth()->user()->societe_id)->where('id_facture_client_entete',0)->get();
                     $this->reglementClient = Null;
                     $this->reglementClientCount = 0;
                 }
                 
-                // $tier = Tier::where('societe',auth()->user()->societe)->where('etat',1)->where('nom','like','%'.$this->chercher.'%')->where('type_tiers','!=','Fournisseur')->orderBy($this->orderField, $this->orderDirection)->paginate($this->parPage);                    
-                $tier = Tier::where('societe',auth()->user()->societe)->where('etat',1)->where('nom','like','%'.$this->chercher.'%')->orderBy($this->orderField, $this->orderDirection)->paginate($this->parPage);                    
+                // $tier = Tier::where('societe_id',auth()->user()->societe_id)->where('etat',1)->where('nom','like','%'.$this->chercher.'%')->where('type_tiers','!=','Fournisseur')->orderBy($this->orderField, $this->orderDirection)->paginate($this->parPage);                    
+                $tier = Tier::where('societe_id',auth()->user()->societe_id)->where('etat',1)->where('nom','like','%'.$this->chercher.'%')->orderBy($this->orderField, $this->orderDirection)->paginate($this->parPage);                    
                 $tiersCount = $tier->count();  
-                $banque = CompteBancaire :: where('societe',auth()->user()->societe)->where('etat',1)->orderBy('nom_compte_bancaire','asc')->get();
+                $banque = CompteBancaire :: where('societe_id',auth()->user()->societe_id)->where('etat',1)->orderBy('nom_compte_bancaire','asc')->get();
 
                 // ceci gere le règlement reçu et reste a payer modal         
-                $reste_a_payer = RestauPosfactureClientEntete::where('societe',auth()->user()->societe)->where('ref_table',$this->id_table_restau)->sum('reste_a_percevoir');
+                $reste_a_payer = RestauPosfactureClientEntete::where('societe_id',auth()->user()->societe_id)->where('ref_table',$this->id_table_restau)->sum('reste_a_percevoir');
                 $this->Reste_a_Percevoir =  ((double)$reste_a_payer - (double)$this->montant_reglement);  
 
-                $statu = TableRestau::where('societe',auth()->user()->societe)->where('reference',$this->id_table_restau)->first(); 
+                $statu = TableRestau::where('societe_id',auth()->user()->societe_id)->where('reference',$this->id_table_restau)->first(); 
                 $statut_cmd = $statu->statut;                
                 
-                $utilisateur = Utilisateur::where('societe',auth()->user()->societe)->orderBy('name','asc')->get();
+                $utilisateur = Utilisateur::where('societe_id',auth()->user()->societe_id)->orderBy('name','asc')->get();
 
-                $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->count(); 
+                $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->count(); 
                 if($deviseTva == 0){
                     $this->devise = 'FCFA';
                 }
                 else{
-                    $deviseTva = DeviseTva :: where('societe',auth()->user()->societe)->limit(1)->orderBy('id','asc')->get(); 
+                    $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->get(); 
                     $this->devise = $deviseTva[0]->devise;
                 }
                 // ceci verifie si une session est ouverte ou pas
-                // $verifieSession = SessionRestau::where('societe',auth()->user()->societe)->where('user_id',auth()->user()->id)->where('etat','En cours')->count();
-                $verifieSession = SessionRestau::where('societe',auth()->user()->societe)->where('session_id',$this->ref_session_restau)->where('etat','En cours')->count();                
+                // $verifieSession = SessionRestau::where('societe_id',auth()->user()->societe_id)->where('user_id',auth()->user()->id)->where('etat','En cours')->count();
+                $verifieSession = SessionRestau::where('societe_id',auth()->user()->societe_id)->where('session_id',$this->ref_session_restau)->where('etat','En cours')->count();                
 
-                $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();          
+                $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();          
                 $jourValid = $entite_mod[0]->validite_mod; 
                 // ceci pour trouver le nombre de jour restant avant expiration
                 $nbjoursRestant = round((strtotime($jourValid) - strtotime($dateJour))/(60*60*24));
@@ -345,14 +345,14 @@ class PosRestaurant extends Component
         $this->filtre = '';
     }
     public function choisir($id){
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->passe_cmd_restau;
             if($autoriser == 1){
                 // ceci verifie si une session est ouverte ou pas
-                // $testSessions = SessionRestau::where('societe',auth()->user()->societe)->where('user_id',auth()->user()->id)->where('etat','En cours')->count(); 
-                $testSessions = SessionRestau::where('societe',auth()->user()->societe)->where('session_id',$this->ref_session_restau)->where('etat','En cours')->count(); 
+                // $testSessions = SessionRestau::where('societe_id',auth()->user()->societe_id)->where('user_id',auth()->user()->id)->where('etat','En cours')->count(); 
+                $testSessions = SessionRestau::where('societe_id',auth()->user()->societe_id)->where('session_id',$this->ref_session_restau)->where('etat','En cours')->count(); 
                 if($testSessions > 0){ 
                     // $prod = Stock::where('code_barre', $this->query)->first();  //********** */ pour mettre code_barre a mettre en place  (important)  **************
                     $prod = Stock::where('id',$id)->first();
@@ -371,7 +371,7 @@ class PosRestaurant extends Component
                     $nom_entrepot = $entrepo->nom; 
 
                     // pour mouvement
-                    $sessions = SessionRestau::where('societe',auth()->user()->societe)->where('session_id',$this->ref_session_restau)->where('etat','En cours')->first(); 
+                    $sessions = SessionRestau::where('societe_id',auth()->user()->societe_id)->where('session_id',$this->ref_session_restau)->where('etat','En cours')->first(); 
                     $id_session_pos = $sessions->id;
                     $ref_session_pos = $sessions->session_id;
 
@@ -391,16 +391,16 @@ class PosRestaurant extends Component
                         );  
                     }
                     else{ 
-                        $test = RestauPosfactureClientEntete ::where('societe',auth()->user()->societe)->where('ref_table',$this->id_table_restau)->count();
+                        $test = RestauPosfactureClientEntete ::where('societe_id',auth()->user()->societe_id)->where('ref_table',$this->id_table_restau)->count();
                         if($test > 0){     
-                            $test_paye = RestauPosfactureClientEntete ::where('societe',auth()->user()->societe)->where('ref_table',$this->id_table_restau)->first();
+                            $test_paye = RestauPosfactureClientEntete ::where('societe_id',auth()->user()->societe_id)->where('ref_table',$this->id_table_restau)->first();
                             $etat_payes = $test_paye->etat;
                             if($etat_payes == "Brouillon"){
-                                $test2 = RestauPosFactureClientLigne ::where('societe',auth()->user()->societe)->where('ref_table',$this->id_table_restau)->where('id_produit',$id_produit)->where('id_entrepot',$id_entrepot)->count();
+                                $test2 = RestauPosFactureClientLigne ::where('societe_id',auth()->user()->societe_id)->where('ref_table',$this->id_table_restau)->where('id_produit',$id_produit)->where('id_entrepot',$id_entrepot)->count();
                                 if($test2 > 0){
                                     
                                     $quantite = 1;   
-                                    $cmd = RestauPosFactureClientLigne ::where('societe',auth()->user()->societe)->where('ref_table',$this->id_table_restau)->where('id_produit',$id_produit)->where('id_entrepot',$id_entrepot)->first();
+                                    $cmd = RestauPosFactureClientLigne ::where('societe_id',auth()->user()->societe_id)->where('ref_table',$this->id_table_restau)->where('id_produit',$id_produit)->where('id_entrepot',$id_entrepot)->first();
                                     $id_Fligne = $cmd->id;
                                     $quantite_db = $cmd->quantite;
                                     $remise_db = $cmd->remise;
@@ -413,7 +413,7 @@ class PosRestaurant extends Component
                                     $qteSockFinal2 = $quantite_stock - $quantite;
                                     $valorisation_achat_total2 = $prix_moyen_pondere_achat * $qteSockFinal2;
                                     $valeur_vente_total2 = $prix_vente_unitaire * $qteSockFinal2;
-                                    Stock::where('societe',auth()->user()->societe)->where('id',$id_stockProd)->update(['quantite'=>$qteSockFinal2,'valorisation_achat_total'=>$valorisation_achat_total2,'valeur_vente_total'=>$valeur_vente_total2,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);   
+                                    Stock::where('societe_id',auth()->user()->societe_id)->where('id',$id_stockProd)->update(['quantite'=>$qteSockFinal2,'valorisation_achat_total'=>$valorisation_achat_total2,'valeur_vente_total'=>$valeur_vente_total2,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);   
                                     //
 
                                     $quantiteFinal = $quantite_db + $quantite; // nouvelle quantite apres rajout
@@ -440,9 +440,9 @@ class PosRestaurant extends Component
                                     $offrir = 'Non';
                                     RestauPosFactureClientLigne::where('id',$id_Fligne)->update(['quantite'=>$quantiteFinal,'quantite_expediee'=>$quantiteFinal,'montant_remise'=>$remise_montant,
                                                         'montant_tva'=>$tva_montant,'montant_precompte'=>$precompte_montant,'montant_ht'=>$montant_remiser_ht,'montant_ttc'=>$montant_ttc,
-                                                        'marge'=>$marge,'offrir'=>$offrir,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                                                        'marge'=>$marge,'offrir'=>$offrir,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
                                                         
-                                    $ligne_resto = RestauPosFactureClientLigne::where('societe',auth()->user()->societe)->where('id_facture_client_entete',$id_Posfact_cltEntete)->where('ref_table',$this->id_table_restau)->get(); 
+                                    $ligne_resto = RestauPosFactureClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_facture_client_entete',$id_Posfact_cltEntete)->where('ref_table',$this->id_table_restau)->get(); 
                                     $montantHT = $ligne_resto->sum('montant_ht');
                                     $montantTTC = $ligne_resto->sum('montant_ttc');
                                     $montantRemise = $ligne_resto->sum('montant_remise');
@@ -452,10 +452,10 @@ class PosRestaurant extends Component
 
                                     // Montant TTC en arrondi en + ou en - 
                                     RestauPosfactureClientEntete::find($id_Posfact_cltEntete)->update(['montant_ht'=>$montantHT,'montant_remise'=>$montantRemise,'montant_tva'=>$montantTva,'montant_precompte'=>$montantPrecompte,'montant_ttc'=>number_format($montantTTC,0,',',''),
-                                                            'reste_a_percevoir'=>number_format($montantTTC,0,',',''),'marge'=>$marge,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                                                            'reste_a_percevoir'=>number_format($montantTTC,0,',',''),'marge'=>$marge,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
 
                                     Mouvement::create(['id_entrepot'=>$id_entrepot,'nom_produit'=>$nom_produit,'id_produit'=>$id_produit,'reference'=>$reference,'quantite'=>-$quantite,'libele_mouvement'=>$libele_mouvement.$code_facture,
-                                    'code_mouvement'=>$code_mouvement,'statut'=>$statut,'entrepot'=>$nom_entrepot,'origine'=>$ref_session_pos,'id_session_pos'=>$id_session_pos,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
+                                    'code_mouvement'=>$code_mouvement,'statut'=>$statut,'entrepot'=>$nom_entrepot,'origine'=>$ref_session_pos,'id_session_pos'=>$id_session_pos,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
                                     
                                     $id_activite = $id_session_pos;
                                     $page = 'SessionRestau';
@@ -513,10 +513,10 @@ class PosRestaurant extends Component
                                         $qteSockFinal = $quantite_stock - $quantite;
                                         $valorisation_achat_total = $prix_moyen_pondere_achat * $qteSockFinal;
                                         $valeur_vente_total = $prix_vente_unitaire * $qteSockFinal;
-                                        Stock::where('societe',auth()->user()->societe)->where('id',$id_stockProd)->update(['quantite'=>$qteSockFinal,'valorisation_achat_total'=>$valorisation_achat_total,'valeur_vente_total'=>$valeur_vente_total,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);   
+                                        Stock::where('societe_id',auth()->user()->societe_id)->where('id',$id_stockProd)->update(['quantite'=>$qteSockFinal,'valorisation_achat_total'=>$valorisation_achat_total,'valeur_vente_total'=>$valeur_vente_total,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);   
                                     //
 
-                                    $recup = RestauPosfactureClientEntete ::where('societe',auth()->user()->societe)->where('ref_table',$this->id_table_restau)->first();
+                                    $recup = RestauPosfactureClientEntete ::where('societe_id',auth()->user()->societe_id)->where('ref_table',$this->id_table_restau)->first();
                                     $id_fPosEntete = $recup->id;
                                     $code_facture = $recup->code_facture;
                                     $nom_client = $recup->nom_client;
@@ -525,9 +525,9 @@ class PosRestaurant extends Component
                                     RestauPosFactureClientLigne::create(['ref_table'=>$this->id_table_restau,'nom_table'=>$this->nom_table,'id_session_pos'=>$id_session_pos,'ref_session_pos'=>$ref_session_pos,'code_facture'=>$code_facture,'id_facture_client_entete'=>$id_fPosEntete,'produit'=>$nom_produit,'id_produit'=>$id_produit,'reference'=>$reference,'type_produit'=>$typeProd,'prix_achat'=>$prix_moyen_pondere_achat,
                                                         'prix_vente'=>$prix_vente_unitaire,'quantite'=>$quantite,'quantite_expediee'=>$quantite,'reste_a_expedier'=>$quantite_expediee,'remise'=>$remise,'montant_remise'=>$remise_montant,
                                                         'tva'=>$tva,'montant_tva'=>$tva_montant,'precompte'=>$precompte,'montant_precompte'=>$precompte_montant,'montant_ht'=>$montant_remiser_ht,'montant_ttc'=>$montant_ttc,'marge'=>$marge,'id_entrepot'=>$id_entrepot,
-                                                        'nom_client'=>$nom_client,'id_client'=>$id_client,'offrir'=>$offrir,'etat'=>$etat,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);                     
+                                                        'nom_client'=>$nom_client,'id_client'=>$id_client,'offrir'=>$offrir,'etat'=>$etat,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);                     
                                     
-                                    $ligne_restos = RestauPosFactureClientLigne::where('societe',auth()->user()->societe)->where('id_facture_client_entete',$id_fPosEntete)->where('ref_table',$this->id_table_restau)->get(); 
+                                    $ligne_restos = RestauPosFactureClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_facture_client_entete',$id_fPosEntete)->where('ref_table',$this->id_table_restau)->get(); 
                                     $montantHT = $ligne_restos->sum('montant_ht');
                                     $montantTTC = $ligne_restos->sum('montant_ttc');
                                     $montantRemise = $ligne_restos->sum('montant_remise');
@@ -537,10 +537,10 @@ class PosRestaurant extends Component
 
                                     // Montant TTC en arrondi en + ou en - 
                                     RestauPosfactureClientEntete::find($id_fPosEntete)->update(['montant_ht'=>$montantHT,'montant_remise'=>$montantRemise,'montant_tva'=>$montantTva,'montant_precompte'=>$montantPrecompte,'montant_ttc'=>number_format($montantTTC,0,',',''),
-                                    'reste_a_percevoir'=>number_format($montantTTC,0,',',''),'marge'=>$marge,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                                    'reste_a_percevoir'=>number_format($montantTTC,0,',',''),'marge'=>$marge,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
 
                                     Mouvement::create(['id_entrepot'=>$id_entrepot,'nom_produit'=>$nom_produit,'id_produit'=>$id_produit,'reference'=>$reference,'quantite'=>-$quantite,'libele_mouvement'=>$libele_mouvement.$code_facture,
-                                    'code_mouvement'=>$code_mouvement,'statut'=>$statut,'entrepot'=>$nom_entrepot,'origine'=>$ref_session_pos,'id_session_pos'=>$id_session_pos,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
+                                    'code_mouvement'=>$code_mouvement,'statut'=>$statut,'entrepot'=>$nom_entrepot,'origine'=>$ref_session_pos,'id_session_pos'=>$id_session_pos,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
 
                                     $utiliser = 'Oui';                                
                                     TableRestau::where('reference',$this->id_table_restau)->update(['utiliser'=>$utiliser,'id_session_restau'=>$this->id_session_restau,'ref_session_restau'=>$this->ref_session_restau,'id_caissiere'=>auth()->user()->id,'non_caissiere'=>auth()->user()->name,]);
@@ -566,9 +566,9 @@ class PosRestaurant extends Component
                         }
                         else{   
                             
-                            $test_count = RestauPosfactureClientEntete ::where('societe',auth()->user()->societe)->where('ref_table',$this->id_table_restau)->count();
+                            $test_count = RestauPosfactureClientEntete ::where('societe_id',auth()->user()->societe_id)->where('ref_table',$this->id_table_restau)->count();
                             if($test_count != 0){
-                                $test_paye = RestauPosfactureClientEntete ::where('societe',auth()->user()->societe)->where('ref_table',$this->id_table_restau)->first();
+                                $test_paye = RestauPosfactureClientEntete ::where('societe_id',auth()->user()->societe_id)->where('ref_table',$this->id_table_restau)->first();
                                 $etat_paye = $test_paye->etat;                            
                             }
                             else{
@@ -606,13 +606,13 @@ class PosRestaurant extends Component
                                 $token_ok = 'RES/'.$dates;  
                                 $lieu_conso = 'Sur place'; // pour lieu consommation
                                 $date_conso = date('Y-m-d H:i'); // pour Date consommation 
-                                RestauPosfactureClientEntete :: create(['ref_table'=>$this->id_table_restau,'nom_table'=>$this->nom_table,'id_session_pos'=>$id_session_pos,'ref_session_pos'=>$ref_session_pos,'code_facture'=>$token_ok,'nom_client'=>$client,'id_client'=>$id_client,'date_facturation'=>$date_facturation,'date_echeance'=>$date_echeance,
+                                $restoPosfactcltentet = RestauPosfactureClientEntete :: create(['ref_table'=>$this->id_table_restau,'nom_table'=>$this->nom_table,'id_session_pos'=>$id_session_pos,'ref_session_pos'=>$ref_session_pos,'code_facture'=>$token_ok,'nom_client'=>$client,'id_client'=>$id_client,'date_facturation'=>$date_facturation,'date_echeance'=>$date_echeance,
                                             'montant_ht'=>$montant_ht,'montant_remise'=>$montant_remise,'montant_tva'=>$montant_tva,'montant_precompte'=>$montant_precompte,'montant_ttc'=>$montant_ttc,'marge'=>$marge,
                                             'montant_recu'=>$montant_recu,'reste_a_percevoir'=>$reste_a_percevoir,'mode_reglement'=>$mode_reglement,'compte_bancaire'=>$compte_bancaire,'note'=>$note,'etat'=>$etat,
-                                            'lieu_consommation'=>$lieu_conso,'date_consommation'=>$date_conso,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                                            'lieu_consommation'=>$lieu_conso,'date_consommation'=>$date_conso,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
                                 
                                 // ceci recupere le dernier enregistrement cree a l'instant
-                                $dernier_id = RestauPosfactureClientEntete::where('societe',auth()->user()->societe)->where('ref_table',$this->id_table_restau)->latest()->first()->id; 
+                                $dernier_id = $restoPosfactcltentet->id; 
                                 
                                 // ************ Calul ***********
                                 $montant_vente =  $prix_vente_unitaire * $quantite;                        
@@ -639,15 +639,15 @@ class PosRestaurant extends Component
                                     $qteSockFinal = $quantite_stock - $quantite;
                                     $valorisation_achat_total = $prix_moyen_pondere_achat * $qteSockFinal;
                                     $valeur_vente_total = $prix_vente_unitaire * $qteSockFinal;
-                                    Stock::where('societe',auth()->user()->societe)->where('id',$id_stockProd)->update(['quantite'=>$qteSockFinal,'valorisation_achat_total'=>$valorisation_achat_total,'valeur_vente_total'=>$valeur_vente_total,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);   
+                                    Stock::where('societe_id',auth()->user()->societe_id)->where('id',$id_stockProd)->update(['quantite'=>$qteSockFinal,'valorisation_achat_total'=>$valorisation_achat_total,'valeur_vente_total'=>$valeur_vente_total,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);   
                                 //
 
                                 RestauPosFactureClientLigne::create(['ref_table'=>$this->id_table_restau,'nom_table'=>$this->nom_table,'id_session_pos'=>$id_session_pos,'ref_session_pos'=>$ref_session_pos,'code_facture'=>$token_ok,'id_facture_client_entete'=>$dernier_id,'produit'=>$nom_produit,'id_produit'=>$id_produit,'reference'=>$reference,'type_produit'=>$typeProd,'prix_achat'=>$prix_moyen_pondere_achat,
                                                     'prix_vente'=>$prix_vente_unitaire,'quantite'=>$quantite,'quantite_expediee'=>$quantite,'reste_a_expedier'=>$quantite_expediee,'remise'=>$remise,'montant_remise'=>$remise_montant,
                                                     'tva'=>$tva,'montant_tva'=>$tva_montant,'precompte'=>$precompte,'montant_precompte'=>$precompte_montant,'montant_ht'=>$montant_remiser_ht,'montant_ttc'=>$montant_ttc,'marge'=>$marge,'id_entrepot'=>$id_entrepot,
-                                                    'nom_client'=>$client,'id_client'=>$id_client,'offrir'=>$offrir,'etat'=>$etat,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);                     
+                                                    'nom_client'=>$client,'id_client'=>$id_client,'offrir'=>$offrir,'etat'=>$etat,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);                     
                                 
-                                $ligne_restos = RestauPosFactureClientLigne::where('societe',auth()->user()->societe)->where('id_facture_client_entete',$dernier_id)->where('ref_table',$this->id_table_restau)->get(); 
+                                $ligne_restos = RestauPosFactureClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_facture_client_entete',$dernier_id)->where('ref_table',$this->id_table_restau)->get(); 
                                 $montantHT = $ligne_restos->sum('montant_ht');
                                 $montantTTC = $ligne_restos->sum('montant_ttc');
                                 $montantRemise = $ligne_restos->sum('montant_remise');
@@ -657,10 +657,10 @@ class PosRestaurant extends Component
 
                                 // Montant TTC en arrondi en + ou en - 
                                 RestauPosfactureClientEntete::find($dernier_id)->update(['montant_ht'=>$montantHT,'montant_remise'=>$montantRemise,'montant_tva'=>$montantTva,'montant_precompte'=>$montantPrecompte,'montant_ttc'=>number_format($montantTTC,0,',',''),
-                                                    'reste_a_percevoir'=>number_format($montantTTC,0,',',''),'marge'=>$marge,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                                                    'reste_a_percevoir'=>number_format($montantTTC,0,',',''),'marge'=>$marge,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
                                                     
                                 Mouvement::create(['id_entrepot'=>$id_entrepot,'nom_produit'=>$nom_produit,'id_produit'=>$id_produit,'reference'=>$reference,'quantite'=>-$quantite,'libele_mouvement'=>$libele_mouvement.$token_ok,
-                                'code_mouvement'=>$code_mouvement,'statut'=>$statut,'entrepot'=>$nom_entrepot,'origine'=>$ref_session_pos,'id_session_pos'=>$id_session_pos,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                                'code_mouvement'=>$code_mouvement,'statut'=>$statut,'entrepot'=>$nom_entrepot,'origine'=>$ref_session_pos,'id_session_pos'=>$id_session_pos,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
                                 
                                 $utiliser = 'Oui';                                
                                 TableRestau::where('reference',$this->id_table_restau)->update(['utiliser'=>$utiliser,'id_session_restau'=>$this->id_session_restau,'ref_session_restau'=>$this->ref_session_restau,'id_caissiere'=>auth()->user()->id,'non_caissiere'=>auth()->user()->name,]);
@@ -721,14 +721,14 @@ class PosRestaurant extends Component
         $this->confirmer = $id;      
     } 
     public function supprimer(int $id, int $id_prod, int $id_entrepot){        
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->passe_cmd_restau;
             if($autoriser == 1){      
                 if($id){   
                     
-                    $stockAtuel = Stock :: where('societe',auth()->user()->societe)->where('id_entrepot',$id_entrepot)->where('id_produit',$id_prod)->first(); 
+                    $stockAtuel = Stock :: where('societe_id',auth()->user()->societe_id)->where('id_entrepot',$id_entrepot)->where('id_produit',$id_prod)->first(); 
                     $id_stockProd = $stockAtuel->id;
                     $QteStockActuel = $stockAtuel->quantite;
                     $prix_moyen_pondere_achat = $stockAtuel->prix_moyen_pondere_achat;
@@ -745,7 +745,7 @@ class PosRestaurant extends Component
                     $code_mouvement = date('YmdHis');
                     $statut = 'POS';
 
-                    $quantitActuel = RestauPosFactureClientLigne::where('societe',auth()->user()->societe)->where('id',$id)->where('ref_table',$this->id_table_restau)->first();
+                    $quantitActuel = RestauPosFactureClientLigne::where('societe_id',auth()->user()->societe_id)->where('id',$id)->where('ref_table',$this->id_table_restau)->first();
                     $qte_ligne = $quantitActuel->quantite;
                     $code_facture = $quantitActuel->code_facture;
                     $id_Posfact_cltEntete = $quantitActuel->id_facture_client_entete;
@@ -754,16 +754,16 @@ class PosRestaurant extends Component
                      $qteSockFinal = $QteStockActuel + $qte_ligne;
                      $valorisation_achat_total = $prix_moyen_pondere_achat * $qteSockFinal;
                      $valeur_vente_total = $prix_vente_unitaire * $qteSockFinal;
-                     Stock::where('societe',auth()->user()->societe)->where('id',$id_stockProd)->update(['quantite'=>$qteSockFinal,'valorisation_achat_total'=>$valorisation_achat_total,'valeur_vente_total'=>$valeur_vente_total,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);   
+                     Stock::where('societe_id',auth()->user()->societe_id)->where('id',$id_stockProd)->update(['quantite'=>$qteSockFinal,'valorisation_achat_total'=>$valorisation_achat_total,'valeur_vente_total'=>$valeur_vente_total,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);   
                     //                  
                     
-                    $testLigne =  RestauPosFactureClientLigne::where('societe',auth()->user()->societe)->where('ref_table',$this->id_table_restau)->count();
+                    $testLigne =  RestauPosFactureClientLigne::where('societe_id',auth()->user()->societe_id)->where('ref_table',$this->id_table_restau)->count();
                     if($testLigne == 1){ 
                        RestauPosFactureClientLigne::where('id',$id)->delete();
-                       RestauPosfactureClientEntete::where('societe',auth()->user()->societe)->where('ref_table',$this->id_table_restau)->delete();
+                       RestauPosfactureClientEntete::where('societe_id',auth()->user()->societe_id)->where('ref_table',$this->id_table_restau)->delete();
 
-                       RestauCommandeAttenteEntete::where('societe',auth()->user()->societe)->where('ref_table',$this->id_table_restau)->delete(); 
-                       RestauCommandeAttenteLigne::where('societe',auth()->user()->societe)->where('ref_table',$this->id_table_restau)->delete();
+                       RestauCommandeAttenteEntete::where('societe_id',auth()->user()->societe_id)->where('ref_table',$this->id_table_restau)->delete(); 
+                       RestauCommandeAttenteLigne::where('societe_id',auth()->user()->societe_id)->where('ref_table',$this->id_table_restau)->delete();
                        // Suppression Fin 
                                               
                        $utiliser = 'Non';                                
@@ -779,7 +779,7 @@ class PosRestaurant extends Component
                        RestauPosFactureClientLigne::where('id',$id)->delete();
                     }
                    
-                    $ligne_restau = RestauPosFactureClientLigne::where('societe',auth()->user()->societe)->where('id_facture_client_entete',$id_Posfact_cltEntete)->where('ref_table',$this->id_table_restau)->get(); 
+                    $ligne_restau = RestauPosFactureClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_facture_client_entete',$id_Posfact_cltEntete)->where('ref_table',$this->id_table_restau)->get(); 
                     $montantHT = $ligne_restau->sum('montant_ht');
                     $montantTTC = $ligne_restau->sum('montant_ttc');
                     $montantRemise = $ligne_restau->sum('montant_remise');
@@ -787,20 +787,20 @@ class PosRestaurant extends Component
                     $montantPrecompte = $ligne_restau->sum('montant_precompte');
                     $marge = $ligne_restau->sum('marge');
                     
-                    $testEntete =  RestauPosfactureClientEntete::where('societe',auth()->user()->societe)->where('ref_table',$this->id_table_restau)->count();
+                    $testEntete =  RestauPosfactureClientEntete::where('societe_id',auth()->user()->societe_id)->where('ref_table',$this->id_table_restau)->count();
                     if($testEntete > 0){
                         // Mise a jour RestauPosfactureClientEntete
                          RestauPosfactureClientEntete::find($id_Posfact_cltEntete)->update(['montant_ht'=>$montantHT,'montant_remise'=>$montantRemise,'montant_tva'=>$montantTva,'montant_precompte'=>$montantPrecompte,'montant_ttc'=>number_format($montantTTC,0,',',''),
-                         'reste_a_percevoir'=>number_format($montantTTC,0,',',''),'marge'=>$marge,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                         'reste_a_percevoir'=>number_format($montantTTC,0,',',''),'marge'=>$marge,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
                     }
 
-                    // $sessions = SessionRestau::where('societe',auth()->user()->societe)->where('user_id',auth()->user()->id)->where('etat','En cours')->first(); 
-                    $sessions = SessionRestau::where('societe',auth()->user()->societe)->where('session_id',$this->ref_session_restau)->where('etat','En cours')->first();
+                    // $sessions = SessionRestau::where('societe_id',auth()->user()->societe_id)->where('user_id',auth()->user()->id)->where('etat','En cours')->first(); 
+                    $sessions = SessionRestau::where('societe_id',auth()->user()->societe_id)->where('session_id',$this->ref_session_restau)->where('etat','En cours')->first();
                     $id_session_pos = $sessions->id;
                     $ref_session_pos = $sessions->session_id;
 
                     Mouvement::create(['id_entrepot'=>$id_entrepot,'nom_produit'=>$nom_produit,'id_produit'=>$id_produit,'reference'=>$reference,'quantite'=>$qte_ligne,'libele_mouvement'=>$libele_mouvement.$code_facture,
-                                    'code_mouvement'=>$code_mouvement,'statut'=>$statut,'entrepot'=>$nom_entrepot,'origine'=>$ref_session_pos,'id_session_pos'=>$id_session_pos,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);      
+                                    'code_mouvement'=>$code_mouvement,'statut'=>$statut,'entrepot'=>$nom_entrepot,'origine'=>$ref_session_pos,'id_session_pos'=>$id_session_pos,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);      
                     
                     $this->Commander(); // renvoi a la cuisine mais n'affiche pas
 
@@ -845,7 +845,7 @@ class PosRestaurant extends Component
         $this->redirect('/pipeline_restau?id='.$this->id_session_restau.'&ref='.$this->ref_session_restau.'&active=5&champ=2-1&choix=1', navigate: true);
     }
     public function edit($id){  
-        $cmd = RestauPosFactureClientLigne ::where('societe',auth()->user()->societe)->where('id',$id)->where('ref_table',$this->id_table_restau)->first();
+        $cmd = RestauPosFactureClientLigne ::where('societe_id',auth()->user()->societe_id)->where('id',$id)->where('ref_table',$this->id_table_restau)->first();
         $this->ids = $cmd->id;
         $this->quantite_ajoute = $cmd->quantite;
         $this->quantite_base = $cmd->quantite; // normal
@@ -873,11 +873,11 @@ class PosRestaurant extends Component
             'infos'=>'max:255', 
         ]);    
         
-        $test_paye = RestauPosfactureClientEntete ::where('societe',auth()->user()->societe)->where('ref_table',$this->id_table_restau)->first();
+        $test_paye = RestauPosfactureClientEntete ::where('societe_id',auth()->user()->societe_id)->where('ref_table',$this->id_table_restau)->first();
         $etat_paye = $test_paye->etat;
         if($etat_paye == "Brouillon"){
 
-            $prod = Stock::where('societe',auth()->user()->societe)->where('id_produit',$this->id_produit)->where('id_entrepot',$this->id_entrepot)->first();
+            $prod = Stock::where('societe_id',auth()->user()->societe_id)->where('id_produit',$this->id_produit)->where('id_entrepot',$this->id_entrepot)->first();
             $id_stockProd = $prod->id;  
             $id_entrepot = $prod->id_entrepot;  
             $nom_produit = $prod->nom_produit;      
@@ -892,8 +892,8 @@ class PosRestaurant extends Component
             $entrepo = Entrepot::where('id',$id_entrepot)->first();
             $nom_entrepot = $entrepo->nom;
             // pour movement
-            // $sessions = SessionRestau::where('societe',auth()->user()->societe)->where('user_id',auth()->user()->id)->where('etat','En cours')->first(); 
-            $sessions = SessionRestau::where('societe',auth()->user()->societe)->where('session_id',$this->ref_session_restau)->where('etat','En cours')->first();
+            // $sessions = SessionRestau::where('societe_id',auth()->user()->societe_id)->where('user_id',auth()->user()->id)->where('etat','En cours')->first(); 
+            $sessions = SessionRestau::where('societe_id',auth()->user()->societe_id)->where('session_id',$this->ref_session_restau)->where('etat','En cours')->first();
             $id_session_pos = $sessions->id;
             $ref_session_pos = $sessions->session_id;
 
@@ -980,10 +980,10 @@ class PosRestaurant extends Component
                         $qteSockFinal = $quantite_stock - $quantite;
                         $valorisation_achat_total = $prix_moyen_pondere_achat * $qteSockFinal;
                         $valeur_vente_total = $prix_vente_unitaire * $qteSockFinal;
-                        Stock::where('societe',auth()->user()->societe)->where('id',$id_stockProd)->update(['quantite'=>$qteSockFinal,'valorisation_achat_total'=>$valorisation_achat_total,'valeur_vente_total'=>$valeur_vente_total,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);   
+                        Stock::where('societe_id',auth()->user()->societe_id)->where('id',$id_stockProd)->update(['quantite'=>$qteSockFinal,'valorisation_achat_total'=>$valorisation_achat_total,'valeur_vente_total'=>$valeur_vente_total,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);   
                         //
 
-                        $recup = RestauPosfactureClientEntete ::where('societe',auth()->user()->societe)->where('ref_table',$this->id_table_restau)->first();
+                        $recup = RestauPosfactureClientEntete ::where('societe_id',auth()->user()->societe_id)->where('ref_table',$this->id_table_restau)->first();
                         $id_fPosEntete = $recup->id;
                         $code_facture = $recup->code_facture;
                         $nom_client = $recup->nom_client;
@@ -994,9 +994,9 @@ class PosRestaurant extends Component
                         RestauPosFactureClientLigne::where('id',$this->ids)->update(['prix_vente'=>$this->prix_vente_client,'quantite'=>$quantiteFinal,'quantite_expediee'=>$quantite_expediee,'reste_a_expedier'=>$reste_a_expedier,
                         'remise'=>$this->remise,'montant_remise'=>$remise_montant,'tva'=>$this->tva,'montant_tva'=>$tva_montant,'precompte'=>$this->precompte,'montant_precompte'=>$precompte_montant,
                         'montant_ht'=>$montant_remiser_ht,'montant_ttc'=>$montant_ttc,'marge'=>$marge,'nom_client'=>$nom_client,'id_client'=>$id_client,'offrir'=>$offrir,'infos'=>$this->infos,
-                        'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
+                        'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]); 
                         
-                        $ligne_restau = RestauPosFactureClientLigne::where('societe',auth()->user()->societe)->where('id_facture_client_entete',$id_fPosEntete)->where('ref_table',$this->id_table_restau)->get(); 
+                        $ligne_restau = RestauPosFactureClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_facture_client_entete',$id_fPosEntete)->where('ref_table',$this->id_table_restau)->get(); 
                         $montantHT = $ligne_restau->sum('montant_ht');
                         $montantTTC = $ligne_restau->sum('montant_ttc');
                         $montantRemise = $ligne_restau->sum('montant_remise');
@@ -1006,10 +1006,10 @@ class PosRestaurant extends Component
 
                         // Montant TTC en arrondi en + ou en - 
                         RestauPosfactureClientEntete::find($id_fPosEntete)->update(['montant_ht'=>$montantHT,'montant_remise'=>$montantRemise,'montant_tva'=>$montantTva,'montant_precompte'=>$montantPrecompte,'montant_ttc'=>number_format($montantTTC,0,',',''),
-                        'reste_a_percevoir'=>number_format($montantTTC,0,',',''),'marge'=>$marge,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                        'reste_a_percevoir'=>number_format($montantTTC,0,',',''),'marge'=>$marge,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
                         
                         Mouvement::create(['id_entrepot'=>$id_entrepot,'nom_produit'=>$nom_produit,'id_produit'=>$id_produit,'reference'=>$reference,'quantite'=>-$quantite,'libele_mouvement'=>$libele_mouvement.$code_facture,
-                                    'code_mouvement'=>$code_mouvement,'statut'=>$statut,'entrepot'=>$nom_entrepot,'origine'=>$ref_session_pos,'id_session_pos'=>$id_session_pos,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);  
+                                    'code_mouvement'=>$code_mouvement,'statut'=>$statut,'entrepot'=>$nom_entrepot,'origine'=>$ref_session_pos,'id_session_pos'=>$id_session_pos,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);  
 
                         $this->Commander(); // renvoi a la cuisine mais n'affiche pas
 
@@ -1090,10 +1090,10 @@ class PosRestaurant extends Component
                     $qteSockFinal = $quantite_stock - $quantite;
                     $valorisation_achat_total = $prix_moyen_pondere_achat * $qteSockFinal;
                     $valeur_vente_total = $prix_vente_unitaire * $qteSockFinal;
-                    Stock::where('societe',auth()->user()->societe)->where('id',$id_stockProd)->update(['quantite'=>$qteSockFinal,'valorisation_achat_total'=>$valorisation_achat_total,'valeur_vente_total'=>$valeur_vente_total,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);   
+                    Stock::where('societe_id',auth()->user()->societe_id)->where('id',$id_stockProd)->update(['quantite'=>$qteSockFinal,'valorisation_achat_total'=>$valorisation_achat_total,'valeur_vente_total'=>$valeur_vente_total,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);   
                     //
 
-                    $recup = RestauPosfactureClientEntete ::where('societe',auth()->user()->societe)->where('ref_table',$this->id_table_restau)->first();
+                    $recup = RestauPosfactureClientEntete ::where('societe_id',auth()->user()->societe_id)->where('ref_table',$this->id_table_restau)->first();
                     $id_fPosEntete = $recup->id;
                     $code_facture = $recup->code_facture;
                     $nom_client = $recup->nom_client;
@@ -1108,9 +1108,9 @@ class PosRestaurant extends Component
                     RestauPosFactureClientLigne::where('id',$this->ids)->update(['prix_vente'=>$prix_vente_initial,'quantite'=>$quantiteFinal,'quantite_expediee'=>$quantite_expediee,'reste_a_expedier'=>$reste_a_expedier,
                     'remise'=>$this->remise,'montant_remise'=>$remise_montant,'tva'=>$this->tva,'montant_tva'=>$tva_montant,'precompte'=>$this->precompte,'montant_precompte'=>$precompte_montant,
                     'montant_ht'=>$montant_remiser_ht,'montant_ttc'=>$montant_ttc,'marge'=>$marge_final,'nom_client'=>$nom_client,'id_client'=>$id_client,'offrir'=>$offrir,'infos'=>$this->infos,
-                    'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);                     
+                    'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);                     
                             
-                    $ligne_restau = RestauPosFactureClientLigne::where('societe',auth()->user()->societe)->where('id_facture_client_entete',$id_fPosEntete)->where('ref_table',$this->id_table_restau)->get(); 
+                    $ligne_restau = RestauPosFactureClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_facture_client_entete',$id_fPosEntete)->where('ref_table',$this->id_table_restau)->get(); 
                     $montantHT = $ligne_restau->sum('montant_ht');
                     $montantTTC = $ligne_restau->sum('montant_ttc');
                     $montantRemise = $ligne_restau->sum('montant_remise');
@@ -1120,10 +1120,11 @@ class PosRestaurant extends Component
 
                     // Montant TTC en arrondi en + ou en - 
                     RestauPosfactureClientEntete::find($id_fPosEntete)->update(['montant_ht'=>$montantHT,'montant_remise'=>$montantRemise,'montant_tva'=>$montantTva,'montant_precompte'=>$montantPrecompte,'montant_ttc'=>number_format($montantTTC,0,',',''),
-                    'reste_a_percevoir'=>number_format($montantTTC,0,',',''),'marge'=>$marge_final,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                    'reste_a_percevoir'=>number_format($montantTTC,0,',',''),'marge'=>$marge_final,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
                     
                     Mouvement::create(['id_entrepot'=>$id_entrepot,'nom_produit'=>$nom_produit,'id_produit'=>$id_produit,'reference'=>$reference,'quantite'=>-$quantite,'libele_mouvement'=>$libele_mouvement.$code_facture,
-                                    'code_mouvement'=>$code_mouvement,'statut'=>$statut,'entrepot'=>$nom_entrepot,'origine'=>$ref_session_pos,'id_session_pos'=>$id_session_pos,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);  
+                                    'code_mouvement'=>$code_mouvement,'statut'=>$statut,'entrepot'=>$nom_entrepot,'origine'=>$ref_session_pos,'id_session_pos'=>$id_session_pos,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,
+                                    'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);  
                     
                     $this->Commander(); // renvoi a la cuisine mais n'affiche pas
 
@@ -1159,12 +1160,12 @@ class PosRestaurant extends Component
         // laisser cette fonction vide: permet de mettre a jour le modal apres modif de donnees dans back office (tres important)             
     }
     public function prendre(int $id){
-        $tiers = Tier::where('societe',auth()->user()->societe)->where('id',$id)->first();
+        $tiers = Tier::where('societe_id',auth()->user()->societe_id)->where('id',$id)->first();
         $id_tier = $tiers->id;
         $nom_tier = $tiers->nom;
 
-        RestauPosfactureClientEntete::where('societe',auth()->user()->societe)->where('ref_table',$this->id_table_restau)->update(['nom_client'=>$nom_tier,'id_client'=>$id_tier,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
-        RestauPosFactureClientLigne::where('societe',auth()->user()->societe)->where('ref_table',$this->id_table_restau)->update(['nom_client'=>$nom_tier,'id_client'=>$id_tier,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+        RestauPosfactureClientEntete::where('societe_id',auth()->user()->societe_id)->where('ref_table',$this->id_table_restau)->update(['nom_client'=>$nom_tier,'id_client'=>$id_tier,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+        RestauPosFactureClientLigne::where('societe_id',auth()->user()->societe_id)->where('ref_table',$this->id_table_restau)->update(['nom_client'=>$nom_tier,'id_client'=>$id_tier,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
         $this->dispatch('alert',                    
             title:$nom_tier.' sélectionné!',
             timer:5000,
@@ -1173,8 +1174,8 @@ class PosRestaurant extends Component
             showConfirmButton: false,
             position:'top-end',
         );  
-        // $sessions = SessionRestau::where('societe',auth()->user()->societe)->where('user_id',auth()->user()->id)->where('etat','En cours')->first();
-        $sessions = SessionRestau::where('societe',auth()->user()->societe)->where('session_id',$this->ref_session_restau)->where('etat','En cours')->first(); 
+        // $sessions = SessionRestau::where('societe_id',auth()->user()->societe_id)->where('user_id',auth()->user()->id)->where('etat','En cours')->first();
+        $sessions = SessionRestau::where('societe_id',auth()->user()->societe_id)->where('session_id',$this->ref_session_restau)->where('etat','En cours')->first(); 
         $this->id_pos = $sessions->id;
         $this->ref_pos = $sessions->session_id; 
         // $this->dispatch('fermerTier'); 
@@ -1182,7 +1183,7 @@ class PosRestaurant extends Component
         $this->redirect('/pos_restau?id='.$this->id_table_restau.'&table='.$this->nom_table.'&id_session_restau='.$this->id_session_restau.'&ref_session_restau='.$this->ref_session_restau.'&active=14&champ=1-1', navigate: true); // ceci permet d'actualiser la page (important)
     }
     public function affichPoint(){        
-        $entit = Entite::where('enseigne',auth()->user()->societe)->first();        
+        $entit = Entite::where('id',auth()->user()->societe_id)->first();        
         $this->montant_point = $entit->montant_point;
         $this->objectif_point = $entit->objectif_point;
     }
@@ -1192,13 +1193,13 @@ class PosRestaurant extends Component
             'objectif_point'=>'required|numeric',                           
         ]);
         
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->modifier_fidelite;
             if($autoriser == 1){                     
-                Entite::where('enseigne',auth()->user()->societe)->update(['montant_point'=>$this->montant_point,'objectif_point'=>$this->objectif_point]);
-                Tier::where('societe',auth()->user()->societe)->update(['objectif_point'=>$this->objectif_point]);
+                Entite::where('id',auth()->user()->societe_id)->update(['montant_point'=>$this->montant_point,'objectif_point'=>$this->objectif_point]);
+                Tier::where('societe_id',auth()->user()->societe_id)->update(['objectif_point'=>$this->objectif_point]);
                 $id_activite = 0;
                 $page = 'Tiers';
                 LogActivity::addToLog('Ajout montant correspondant 1 pts fidelite', $id_activite, $page);
@@ -1249,17 +1250,17 @@ class PosRestaurant extends Component
             // 'commercial_charge'=>'required',                           
             'statut'=>'required|numeric',                               
         ]);
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){      
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->creer_tier;
             if($autoriser == 1){                   
                 $validation = 'Non Confirmé';
                 $paiement = 'En attente';
 
-                $test_point = Tier::where('societe',auth()->user()->societe)->count();
+                $test_point = Tier::where('societe_id',auth()->user()->societe_id)->count();
                 if($test_point > 0){
-                    $objectifPoint = Tier::where('societe',auth()->user()->societe)->get();
+                    $objectifPoint = Tier::where('societe_id',auth()->user()->societe_id)->get();
                     $objectif_point = $objectifPoint[0]->objectif_point;
                 }
                 else{
@@ -1269,19 +1270,19 @@ class PosRestaurant extends Component
                 Tier::create(['nom'=>$this->nom,'raison_sociale'=>$this->raison_sociale,'solde'=>$solde,'type_tiers'=>$this->type_tiers,'etat'=>$this->statut,'telephone'=>$this->telephone,
                     'adresse'=>$this->adresse,'code_postal'=>$this->code_postal,'ville'=>$this->ville,'pays'=>$this->pays,'email'=>$this->email,'site_web'=>$this->site_web,
                     'validation'=>$validation,'paiement'=>$paiement,'commercial_charge'=>$this->commercial_charge,'sexe'=>$this->sexe,'objectif_point'=>$objectif_point,
-                    'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);  
+                    'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);  
 
                     // ceci recupere le dernier enregistrement cree a l'instant
-                    $dernier_id = Tier::where('societe',auth()->user()->societe)->where('user_id',auth()->user()->id)->latest()->first()->id; 
+                    $dernier_id = Tier::where('societe_id',auth()->user()->societe_id)->where('user_id',auth()->user()->id)->latest()->first()->id; 
 
-                    // $sessions = SessionRestau::where('societe',auth()->user()->societe)->where('user_id',auth()->user()->id)->where('etat','En cours')->first();
-                    $sessions = SessionRestau::where('societe',auth()->user()->societe)->where('session_id',$this->ref_session_restau)->where('etat','En cours')->first(); 
+                    // $sessions = SessionRestau::where('societe_id',auth()->user()->societe_id)->where('user_id',auth()->user()->id)->where('etat','En cours')->first();
+                    $sessions = SessionRestau::where('societe_id',auth()->user()->societe_id)->where('session_id',$this->ref_session_restau)->where('etat','En cours')->first(); 
                     $id_pos = $sessions->id;
                     $ref_pos = $sessions->session_id; 
 
                     // Affecter automatique le nom client cree au RestauPosfactureClientEntete et RestauPosFactureClientLigne
-                    RestauPosfactureClientEntete::where('societe',auth()->user()->societe)->where('ref_table',$this->id_table_restau)->update(['nom_client'=>$this->nom,'id_client'=>$dernier_id]);
-                    RestauPosFactureClientLigne::where('societe',auth()->user()->societe)->where('ref_table',$this->id_table_restau)->update(['nom_client'=>$this->nom,'id_client'=>$dernier_id]);
+                    RestauPosfactureClientEntete::where('societe_id',auth()->user()->societe_id)->where('ref_table',$this->id_table_restau)->update(['nom_client'=>$this->nom,'id_client'=>$dernier_id]);
+                    RestauPosFactureClientLigne::where('societe_id',auth()->user()->societe_id)->where('ref_table',$this->id_table_restau)->update(['nom_client'=>$this->nom,'id_client'=>$dernier_id]);
 
                     $id_activite = $dernier_id;
                     $page = 'Tiers';
@@ -1321,7 +1322,7 @@ class PosRestaurant extends Component
         }   
     }
     public function AffichePaie(){
-        $comptes = RestauPosfactureClientEntete::where('societe',auth()->user()->societe)->where('ref_table',$this->id_table_restau)->first(); 
+        $comptes = RestauPosfactureClientEntete::where('societe_id',auth()->user()->societe_id)->where('ref_table',$this->id_table_restau)->first(); 
         $this->idPosFClt = $comptes->id;
         $this->client_id = $comptes->id_client;
         $this->nom_client = $comptes->nom_client;
@@ -1331,22 +1332,20 @@ class PosRestaurant extends Component
         $this->montantRecu = $comptes->montant_recu;
         $this->resteApercevoir = $this->montantTTC - $this->montantRecu;
         $this->Reste_a_Percevoir = $this->resteApercevoir;
-        $this->etats = $this->etat;
-        
+        $this->etats = $this->etat;        
 
-        // $sessions = SessionRestau::where('societe',auth()->user()->societe)->where('user_id',auth()->user()->id)->where('etat','En cours')->first(); 
-        $sessions = SessionRestau::where('societe',auth()->user()->societe)->where('session_id',$this->ref_session_restau)->where('etat','En cours')->first();
+        $sessions = SessionRestau::where('societe_id',auth()->user()->societe_id)->where('session_id',$this->ref_session_restau)->where('etat','En cours')->first();
         $this->id_pos = $sessions->id;
         $this->ref_pos = $sessions->session_id;
 
-        $tiercltCount = Tier::where('societe',auth()->user()->societe)->where('id',$this->client_id)->count(); 
+        $tiercltCount = Tier::where('societe_id',auth()->user()->societe_id)->where('id',$this->client_id)->count(); 
         if($tiercltCount > 0){
-            $tierclt = Tier::where('societe',auth()->user()->societe)->where('id',$this->client_id)->first();         
+            $tierclt = Tier::where('societe_id',auth()->user()->societe_id)->where('id',$this->client_id)->first();         
             $this->soldeClientDispo = $tierclt->solde;
         }
     }
     public function coller(){
-        $comptes = RestauPosfactureClientEntete::where('societe',auth()->user()->societe)->where('id',$this->idPosFClt)->where('ref_table',$this->id_table_restau)->first();               
+        $comptes = RestauPosfactureClientEntete::where('societe_id',auth()->user()->societe_id)->where('id',$this->idPosFClt)->where('ref_table',$this->id_table_restau)->first();               
         $montantTTC = $comptes->montant_ttc;
         $montantRecu = $comptes->montant_recu;
         $this->montant_reglement = $montantTTC - $montantRecu;               
@@ -1358,13 +1357,13 @@ class PosRestaurant extends Component
             'commentaire'=>'max:250', 
             'montant_reglement'=>'required|numeric', 
         ]);  
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){      
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->eff_paie_restau;
             if($autoriser == 1){
                 // ceci verifie si une session est ouverte ou pas
-                $testSessions = SessionRestau::where('societe',auth()->user()->societe)->where('session_id',$this->ref_session_restau)->where('etat','En cours')->count();
+                $testSessions = SessionRestau::where('societe_id',auth()->user()->societe_id)->where('session_id',$this->ref_session_restau)->where('etat','En cours')->count();
                 if($testSessions > 0){ 
 
                     if(!empty($this->nom_client)){
@@ -1373,7 +1372,7 @@ class PosRestaurant extends Component
                             if($this->montant_reglement >= $this->resteApercevoir){
                                         
                                 // Compte bancaire
-                                $CompteBq = CompteBancaire::where('societe',auth()->user()->societe)->where('id',$this->compte_bancaire)->first();   
+                                $CompteBq = CompteBancaire::where('societe_id',auth()->user()->societe_id)->where('id',$this->compte_bancaire)->first();   
                                 $nom_compte_bancaire = $CompteBq->nom_compte_bancaire;
 
                                 // Ecriture bancaire
@@ -1385,35 +1384,36 @@ class PosRestaurant extends Component
                                 $solde = 0;  
                                 $type_paiement = 'ReglementClientNonOk';  
                                 $statut = 'En cours';            
-                                EcritureBancaire::create(['id_compte_bancaire'=>$this->compte_bancaire,'id_type_paiement'=>$this->compte_bancaire,'nom_compte_bancaire'=>$nom_compte_bancaire,'reference'=>$ref_ecritureBq,'description'=>$description,
+                                $ecritureBanq =  EcritureBancaire::create(['id_compte_bancaire'=>$this->compte_bancaire,'id_type_paiement'=>$this->compte_bancaire,'nom_compte_bancaire'=>$nom_compte_bancaire,'reference'=>$ref_ecritureBq,'description'=>$description,
                                                 'date_operation'=>$date_operation,'date_valeur'=>$date_valeur,'type_operation'=>$this->mode_reglement,'debit'=>$debit,'credit'=>number_format($this->resteApercevoir,0,',',''),'solde'=>$solde,
                                                 'type_paiement'=>$type_paiement,'id_facture_client_entete'=>$this->idPosFClt,'code_facture'=>$this->reference,'id_tiers'=>$this->client_id,'tiers'=>$this->nom_client,'statut'=>$statut,
-                                                'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);                    
+                                                'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);                    
 
                                 // ceci recupere le dernier enregistrement cree a l'instant
-                                $dernier_id = EcritureBancaire::where('societe',auth()->user()->societe)->where('user_id',auth()->user()->id)->latest()->first()->id; 
+                                $dernier_id = $ecritureBanq->id; 
 
                                 // ceci calcul le solde
-                                $soldeCredit = EcritureBancaire::where('societe',auth()->user()->societe)->where('id_compte_bancaire',$this->compte_bancaire)->sum('credit');
-                                $soldeDebit = EcritureBancaire::where('societe',auth()->user()->societe)->where('id_compte_bancaire',$this->compte_bancaire)->sum('debit');  
+                                $soldeCredit = EcritureBancaire::where('societe_id',auth()->user()->societe_id)->where('id_compte_bancaire',$this->compte_bancaire)->sum('credit');
+                                $soldeDebit = EcritureBancaire::where('societe_id',auth()->user()->societe_id)->where('id_compte_bancaire',$this->compte_bancaire)->sum('debit');  
                                 $solde = $soldeCredit - $soldeDebit;
-                                CompteBancaire::where('societe',auth()->user()->societe)->where('id',$this->compte_bancaire)->update(['solde'=>$solde,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                                CompteBancaire::where('societe_id',auth()->user()->societe_id)->where('id',$this->compte_bancaire)->update(['solde'=>$solde,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,
+                                'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
 
                                 // Reglement 
                                 $refReglement = 'PAY'.date('ymd-His');
                                 Reglement::create(['ref_reglement'=>$refReglement,'id_facture_client_entete'=>$this->idPosFClt,'code_facture'=>$this->reference,'id_client'=>$this->client_id,'nom_client'=>$this->nom_client,'id_ecriture_bancaire'=>$dernier_id,'ecriture_bancaire'=>$ref_ecritureBq,
                                                 'mode_reglement'=>$this->mode_reglement,'compte_bancaire'=>$nom_compte_bancaire,'id_compte_bancaire'=>$this->compte_bancaire,'date_reglement'=>$date_operation,'id_session_pos'=>$this->id_pos,'ref_session_pos'=>$this->ref_pos,
-                                                'commentaire'=>$this->commentaire,'montant_regler'=>number_format($this->resteApercevoir,0,',',''),'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                                                'commentaire'=>$this->commentaire,'montant_regler'=>number_format($this->resteApercevoir,0,',',''),'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
 
-                                $dejaRegler = Reglement::where('societe',auth()->user()->societe)->where('code_facture',$this->reference)->sum('montant_regler');                            
+                                $dejaRegler = Reglement::where('societe_id',auth()->user()->societe_id)->where('code_facture',$this->reference)->sum('montant_regler');                            
 
                                 // Facture entete
                                 $etat ='Payée';
                                 $reste_a_percevoir = 0;
                                 RestauPosfactureClientEntete::find($this->idPosFClt)->update(['montant_recu'=>number_format($dejaRegler,0,',',''),'reste_a_percevoir'=>number_format($reste_a_percevoir,0,',',''),'mode_reglement'=>$this->mode_reglement,
-                                                    'note'=>$this->commentaire,'etat'=>$etat,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                                                    'note'=>$this->commentaire,'etat'=>$etat,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
 
-                                RestauPosFactureClientLigne::where('societe',auth()->user()->societe)->where('id_facture_client_entete',$this->idPosFClt)->update(['etat'=>$etat,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                                RestauPosFactureClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_facture_client_entete',$this->idPosFClt)->update(['etat'=>$etat,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
                             
                                 // Point fidelite
                                 if($this->activer_fidelite == 1){  
@@ -1425,11 +1425,11 @@ class PosRestaurant extends Component
                                         $nbrePts = number_format($this->montant_reglement / $this->montantPointBD,0,'','');
                                     }
 
-                                    $Tiers = Tier ::where('societe',auth()->user()->societe)->where('id',$this->client_id)->get();                            
+                                    $Tiers = Tier ::where('societe_id',auth()->user()->societe_id)->where('id',$this->client_id)->get();                            
                                     $this->pointsNbreBD = $Tiers[0]->nombre_point; 
 
                                     $nbrePtsTotal = $nbrePts + $this->pointsNbreBD;
-                                    Tier::where('societe',auth()->user()->societe)->where('id',$this->client_id)->update(['nombre_point'=>$nbrePtsTotal]);
+                                    Tier::where('societe_id',auth()->user()->societe_id)->where('id',$this->client_id)->update(['nombre_point'=>$nbrePtsTotal]);
                                 }
 
                                 $id_activite = $this->id_pos;
@@ -1452,7 +1452,7 @@ class PosRestaurant extends Component
                             else{
                             
                                 // Compte bancaire
-                                $CompteBq = CompteBancaire::where('societe',auth()->user()->societe)->where('id',$this->compte_bancaire)->first();   
+                                $CompteBq = CompteBancaire::where('societe_id',auth()->user()->societe_id)->where('id',$this->compte_bancaire)->first();   
                                 $nom_compte_bancaire = $CompteBq->nom_compte_bancaire;
 
                                 // Ecriture bancaire
@@ -1464,35 +1464,35 @@ class PosRestaurant extends Component
                                 $solde = 0;  
                                 $type_paiement = 'ReglementClientNonOk'; 
                                 $statut = 'En cours';              
-                                EcritureBancaire::create(['id_compte_bancaire'=>$this->compte_bancaire,'id_type_paiement'=>$this->compte_bancaire,'nom_compte_bancaire'=>$nom_compte_bancaire,'reference'=>$ref_ecritureBq,'description'=>$description,
+                                $ecritureBanq = EcritureBancaire::create(['id_compte_bancaire'=>$this->compte_bancaire,'id_type_paiement'=>$this->compte_bancaire,'nom_compte_bancaire'=>$nom_compte_bancaire,'reference'=>$ref_ecritureBq,'description'=>$description,
                                                 'date_operation'=>$date_operation,'date_valeur'=>$date_valeur,'type_operation'=>$this->mode_reglement,'debit'=>$debit,'credit'=>number_format($this->montant_reglement,0,',',''),'solde'=>$solde,
                                                 'type_paiement'=>$type_paiement,'id_facture_client_entete'=>$this->idPosFClt,'code_facture'=>$this->reference,'id_tiers'=>$this->client_id,'tiers'=>$this->nom_client,'statut'=>$statut,
-                                                'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);                    
+                                                'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);                    
                                 
                                 // ceci recupere le dernier enregistrement cree a l'instant
-                                $dernier_id = EcritureBancaire::where('societe',auth()->user()->societe)->where('user_id',auth()->user()->id)->latest()->first()->id; 
+                                $dernier_id = $ecritureBanq->id; 
 
                                 // ceci calcul le solde
-                                $soldeCredit = EcritureBancaire::where('societe',auth()->user()->societe)->where('id_compte_bancaire',$this->compte_bancaire)->sum('credit');
-                                $soldeDebit = EcritureBancaire::where('societe',auth()->user()->societe)->where('id_compte_bancaire',$this->compte_bancaire)->sum('debit');  
+                                $soldeCredit = EcritureBancaire::where('societe_id',auth()->user()->societe_id)->where('id_compte_bancaire',$this->compte_bancaire)->sum('credit');
+                                $soldeDebit = EcritureBancaire::where('societe_id',auth()->user()->societe_id)->where('id_compte_bancaire',$this->compte_bancaire)->sum('debit');  
                                 $solde = $soldeCredit - $soldeDebit;
-                                CompteBancaire::where('societe',auth()->user()->societe)->where('id',$this->compte_bancaire)->update(['solde'=>$solde,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                                CompteBancaire::where('societe_id',auth()->user()->societe_id)->where('id',$this->compte_bancaire)->update(['solde'=>$solde,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
                                 
                                 // Reglement 
                                 $refReglement = 'PAY'.date('ymd-His');
                                 Reglement::create(['ref_reglement'=>$refReglement,'id_facture_client_entete'=>$this->idPosFClt,'code_facture'=>$this->reference,'id_client'=>$this->client_id,'nom_client'=>$this->nom_client,'id_ecriture_bancaire'=>$dernier_id,'ecriture_bancaire'=>$ref_ecritureBq,
                                                 'mode_reglement'=>$this->mode_reglement,'compte_bancaire'=>$nom_compte_bancaire,'id_compte_bancaire'=>$this->compte_bancaire,'date_reglement'=>$date_operation,'id_session_pos'=>$this->id_pos,'ref_session_pos'=>$this->ref_pos,
-                                                'commentaire'=>$this->commentaire,'montant_regler'=>number_format($this->montant_reglement,0,',',''),'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                                                'commentaire'=>$this->commentaire,'montant_regler'=>number_format($this->montant_reglement,0,',',''),'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
                                                 
-                                $dejaRegle = Reglement::where('societe',auth()->user()->societe)->where('code_facture',$this->reference)->sum('montant_regler');
+                                $dejaRegle = Reglement::where('societe_id',auth()->user()->societe_id)->where('code_facture',$this->reference)->sum('montant_regler');
 
                                 // Facture entete
                                 $etat ='Commencée';
                                 $reste = $this->resteApercevoir - $this->montant_reglement;
                                 RestauPosfactureClientEntete::find($this->idPosFClt)->update(['montant_recu'=>number_format($dejaRegle,0,',',''),'reste_a_percevoir'=>number_format($reste,0,',',''),
-                                                    'note'=>$this->commentaire,'etat'=>$etat,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                                                    'note'=>$this->commentaire,'etat'=>$etat,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
 
-                                RestauPosFactureClientLigne::where('societe',auth()->user()->societe)->where('id_facture_client_entete',$this->idPosFClt)->update(['etat'=>$etat,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                                RestauPosFactureClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_facture_client_entete',$this->idPosFClt)->update(['etat'=>$etat,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
 
                                 // Point fidelite
                                 if($this->activer_fidelite == 1){  
@@ -1504,11 +1504,11 @@ class PosRestaurant extends Component
                                         $nbrePts = number_format($this->montant_reglement / $this->montantPointBD,0,'','');
                                     }
                                     
-                                    $Tiers = Tier ::where('societe',auth()->user()->societe)->where('id',$this->client_id)->get();                            
+                                    $Tiers = Tier ::where('societe_id',auth()->user()->societe_id)->where('id',$this->client_id)->get();                            
                                     $this->pointsNbreBD = $Tiers[0]->nombre_point; 
 
                                     $nbrePtsTotal = $nbrePts + $this->pointsNbreBD;
-                                    Tier::where('societe',auth()->user()->societe)->where('id',$this->client_id)->update(['nombre_point'=>$nbrePtsTotal]);
+                                    Tier::where('societe_id',auth()->user()->societe_id)->where('id',$this->client_id)->update(['nombre_point'=>$nbrePtsTotal]);
                                 }
                                 
                                 $id_activite = $this->id_pos;
@@ -1596,19 +1596,19 @@ class PosRestaurant extends Component
             'commentaire'=>'max:250', 
             'montant_reglement'=>'required|numeric', 
         ]);  
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){      
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->eff_paie_restau;
             if($autoriser == 1){
                 // ceci verifie si une session est ouverte ou pas
-                $testSessions = SessionRestau::where('societe',auth()->user()->societe)->where('session_id',$this->ref_session_restau)->where('etat','En cours')->count();
+                $testSessions = SessionRestau::where('societe_id',auth()->user()->societe_id)->where('session_id',$this->ref_session_restau)->where('etat','En cours')->count();
                 if($testSessions > 0){ 
 
                     if(!empty($this->nom_client)){
                         if($this->resteApercevoir > 0){
 
-                            $tierclt = Tier::where('societe',auth()->user()->societe)->where('id',$this->client_id)->first(); 
+                            $tierclt = Tier::where('societe_id',auth()->user()->societe_id)->where('id',$this->client_id)->first(); 
                             $nom = $tierclt->nom;  
                             $code_tier =$tierclt->code_tier;
                             $soldeClient = $tierclt->solde;
@@ -1624,15 +1624,15 @@ class PosRestaurant extends Component
                                 if($this->montant_reglement <= $soldeClient){      
                             
                                     $soldeRestant = $soldeClient - $this->montant_reglement;  
-                                    Tier::where('societe',auth()->user()->societe)->where('id',$this->client_id)->update(['solde'=>$soldeRestant,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                                    Tier::where('societe_id',auth()->user()->societe_id)->where('id',$this->client_id)->update(['solde'=>$soldeRestant,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
 
                                     $credit = 0;
                                     $designation = 'Facturation client » '.$this->reference;
                                     SoldeTier::create(['id_tier'=>$this->client_id,'nom_tier'=>$nom,'code_tier'=>$code_tier,'raison_sociale'=>$raison_sociale,'designation'=>$designation,'debit'=>$this->montant_reglement,'credit'=>$credit,
-                                    'pays'=>$pays,'ville'=>$ville,'adresse'=>$adresse,'telephone'=>$telephone,'email'=>$email,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                                    'pays'=>$pays,'ville'=>$ville,'adresse'=>$adresse,'telephone'=>$telephone,'email'=>$email,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
 
                                     // Compte bancaire
-                                    $CompteBq = CompteBancaire::where('societe',auth()->user()->societe)->where('id',$this->compte_bancaire)->first();   
+                                    $CompteBq = CompteBancaire::where('societe_id',auth()->user()->societe_id)->where('id',$this->compte_bancaire)->first();   
                                     $nom_compte_bancaire = $CompteBq->nom_compte_bancaire;
 
                                     // Ecriture bancaire
@@ -1644,35 +1644,35 @@ class PosRestaurant extends Component
                                     $solde = 0;  
                                     $type_paiement = 'ReglementClientNonOk';  
                                     $statut = 'En cours';            
-                                    EcritureBancaire::create(['id_compte_bancaire'=>$this->compte_bancaire,'id_type_paiement'=>$this->compte_bancaire,'nom_compte_bancaire'=>$nom_compte_bancaire,'reference'=>$ref_ecritureBq,'description'=>$description,
+                                    $ecritureBanq = EcritureBancaire::create(['id_compte_bancaire'=>$this->compte_bancaire,'id_type_paiement'=>$this->compte_bancaire,'nom_compte_bancaire'=>$nom_compte_bancaire,'reference'=>$ref_ecritureBq,'description'=>$description,
                                                     'date_operation'=>$date_operation,'date_valeur'=>$date_valeur,'type_operation'=>$this->mode_reglement,'debit'=>$debit,'credit'=>number_format($this->resteApercevoir,0,',',''),'solde'=>$solde,
                                                     'type_paiement'=>$type_paiement,'id_facture_client_entete'=>$this->idPosFClt,'code_facture'=>$this->reference,'id_tiers'=>$this->client_id,'tiers'=>$this->nom_client,'statut'=>$statut,
-                                                    'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);                    
+                                                    'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);                    
 
                                     // ceci recupere le dernier enregistrement cree a l'instant
-                                    $dernier_id = EcritureBancaire::where('societe',auth()->user()->societe)->where('user_id',auth()->user()->id)->latest()->first()->id; 
+                                    $dernier_id = $ecritureBanq->id; 
 
                                     // ceci calcul le solde
-                                    $soldeCredit = EcritureBancaire::where('societe',auth()->user()->societe)->where('id_compte_bancaire',$this->compte_bancaire)->sum('credit');
-                                    $soldeDebit = EcritureBancaire::where('societe',auth()->user()->societe)->where('id_compte_bancaire',$this->compte_bancaire)->sum('debit');  
+                                    $soldeCredit = EcritureBancaire::where('societe_id',auth()->user()->societe_id)->where('id_compte_bancaire',$this->compte_bancaire)->sum('credit');
+                                    $soldeDebit = EcritureBancaire::where('societe_id',auth()->user()->societe_id)->where('id_compte_bancaire',$this->compte_bancaire)->sum('debit');  
                                     $solde = $soldeCredit - $soldeDebit;
-                                    CompteBancaire::where('societe',auth()->user()->societe)->where('id',$this->compte_bancaire)->update(['solde'=>$solde,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                                    CompteBancaire::where('societe_id',auth()->user()->societe_id)->where('id',$this->compte_bancaire)->update(['solde'=>$solde,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
 
                                     // Reglement 
                                     $refReglement = 'PAY'.date('ymd-His');
                                     Reglement::create(['ref_reglement'=>$refReglement,'id_facture_client_entete'=>$this->idPosFClt,'code_facture'=>$this->reference,'id_client'=>$this->client_id,'nom_client'=>$this->nom_client,'id_ecriture_bancaire'=>$dernier_id,'ecriture_bancaire'=>$ref_ecritureBq,
                                                     'mode_reglement'=>$this->mode_reglement,'compte_bancaire'=>$nom_compte_bancaire,'id_compte_bancaire'=>$this->compte_bancaire,'date_reglement'=>$date_operation,'id_session_pos'=>$this->id_pos,'ref_session_pos'=>$this->ref_pos,
-                                                    'commentaire'=>$this->commentaire,'montant_regler'=>number_format($this->resteApercevoir,0,',',''),'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                                                    'commentaire'=>$this->commentaire,'montant_regler'=>number_format($this->resteApercevoir,0,',',''),'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
 
-                                    $dejaRegler = Reglement::where('societe',auth()->user()->societe)->where('code_facture',$this->reference)->sum('montant_regler');                            
+                                    $dejaRegler = Reglement::where('societe_id',auth()->user()->societe_id)->where('code_facture',$this->reference)->sum('montant_regler');                            
 
                                     // Facture entete
                                     $etat ='Payée';
                                     $reste_a_percevoir = 0;
                                     RestauPosfactureClientEntete::find($this->idPosFClt)->update(['montant_recu'=>number_format($dejaRegler,0,',',''),'reste_a_percevoir'=>number_format($reste_a_percevoir,0,',',''),'mode_reglement'=>$this->mode_reglement,
-                                                        'note'=>$this->commentaire,'etat'=>$etat,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                                                        'note'=>$this->commentaire,'etat'=>$etat,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
 
-                                    RestauPosFactureClientLigne::where('societe',auth()->user()->societe)->where('id_facture_client_entete',$this->idPosFClt)->update(['etat'=>$etat,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                                    RestauPosFactureClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_facture_client_entete',$this->idPosFClt)->update(['etat'=>$etat,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
                                 
                                     // Point fidelite
                                     if($this->activer_fidelite == 1){  
@@ -1684,11 +1684,11 @@ class PosRestaurant extends Component
                                             $nbrePts = number_format($this->montant_reglement / $this->montantPointBD,0,'','');
                                         }
 
-                                        $Tiers = Tier ::where('societe',auth()->user()->societe)->where('id',$this->client_id)->get();                            
+                                        $Tiers = Tier ::where('societe_id',auth()->user()->societe_id)->where('id',$this->client_id)->get();                            
                                         $this->pointsNbreBD = $Tiers[0]->nombre_point; 
 
                                         $nbrePtsTotal = $nbrePts + $this->pointsNbreBD;
-                                        Tier::where('societe',auth()->user()->societe)->where('id',$this->client_id)->update(['nombre_point'=>$nbrePtsTotal]);
+                                        Tier::where('societe_id',auth()->user()->societe_id)->where('id',$this->client_id)->update(['nombre_point'=>$nbrePtsTotal]);
                                     }
 
                                     $id_activite = $this->id_pos;
@@ -1728,15 +1728,15 @@ class PosRestaurant extends Component
                                 if($this->montant_reglement <= $soldeClient){
 
                                     $soldeRestant = $soldeClient - $this->montant_reglement;  
-                                    Tier::where('societe',auth()->user()->societe)->where('id',$this->client_id)->update(['solde'=>$soldeRestant,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                                    Tier::where('societe_id',auth()->user()->societe_id)->where('id',$this->client_id)->update(['solde'=>$soldeRestant,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
 
                                     $credit = 0;
                                     $designation = 'Facturation client » '.$this->reference;
                                     SoldeTier::create(['id_tier'=>$this->client_id,'nom_tier'=>$nom,'code_tier'=>$code_tier,'raison_sociale'=>$raison_sociale,'designation'=>$designation,'debit'=>$this->montant_reglement,'credit'=>$credit,
-                                    'pays'=>$pays,'ville'=>$ville,'adresse'=>$adresse,'telephone'=>$telephone,'email'=>$email,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                                    'pays'=>$pays,'ville'=>$ville,'adresse'=>$adresse,'telephone'=>$telephone,'email'=>$email,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
 
                                     // Compte bancaire
-                                    $CompteBq = CompteBancaire::where('societe',auth()->user()->societe)->where('id',$this->compte_bancaire)->first();   
+                                    $CompteBq = CompteBancaire::where('societe_id',auth()->user()->societe_id)->where('id',$this->compte_bancaire)->first();   
                                     $nom_compte_bancaire = $CompteBq->nom_compte_bancaire;
 
                                     // Ecriture bancaire
@@ -1748,35 +1748,35 @@ class PosRestaurant extends Component
                                     $solde = 0;  
                                     $type_paiement = 'ReglementClientNonOk'; 
                                     $statut = 'En cours';              
-                                    EcritureBancaire::create(['id_compte_bancaire'=>$this->compte_bancaire,'id_type_paiement'=>$this->compte_bancaire,'nom_compte_bancaire'=>$nom_compte_bancaire,'reference'=>$ref_ecritureBq,'description'=>$description,
+                                    $ecritureBanq = EcritureBancaire::create(['id_compte_bancaire'=>$this->compte_bancaire,'id_type_paiement'=>$this->compte_bancaire,'nom_compte_bancaire'=>$nom_compte_bancaire,'reference'=>$ref_ecritureBq,'description'=>$description,
                                                     'date_operation'=>$date_operation,'date_valeur'=>$date_valeur,'type_operation'=>$this->mode_reglement,'debit'=>$debit,'credit'=>number_format($this->montant_reglement,0,',',''),'solde'=>$solde,
                                                     'type_paiement'=>$type_paiement,'id_facture_client_entete'=>$this->idPosFClt,'code_facture'=>$this->reference,'id_tiers'=>$this->client_id,'tiers'=>$this->nom_client,'statut'=>$statut,
-                                                    'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);                    
+                                                    'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);                    
                                     
                                     // ceci recupere le dernier enregistrement cree a l'instant
-                                    $dernier_id = EcritureBancaire::where('societe',auth()->user()->societe)->where('user_id',auth()->user()->id)->latest()->first()->id; 
+                                    $dernier_id = $ecritureBanq->id; 
 
                                     // ceci calcul le solde
-                                    $soldeCredit = EcritureBancaire::where('societe',auth()->user()->societe)->where('id_compte_bancaire',$this->compte_bancaire)->sum('credit');
-                                    $soldeDebit = EcritureBancaire::where('societe',auth()->user()->societe)->where('id_compte_bancaire',$this->compte_bancaire)->sum('debit');  
+                                    $soldeCredit = EcritureBancaire::where('societe_id',auth()->user()->societe_id)->where('id_compte_bancaire',$this->compte_bancaire)->sum('credit');
+                                    $soldeDebit = EcritureBancaire::where('societe_id',auth()->user()->societe_id)->where('id_compte_bancaire',$this->compte_bancaire)->sum('debit');  
                                     $solde = $soldeCredit - $soldeDebit;
-                                    CompteBancaire::where('societe',auth()->user()->societe)->where('id',$this->compte_bancaire)->update(['solde'=>$solde,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                                    CompteBancaire::where('societe_id',auth()->user()->societe_id)->where('id',$this->compte_bancaire)->update(['solde'=>$solde,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
                                     
                                     // Reglement 
                                     $refReglement = 'PAY'.date('ymd-His');
                                     Reglement::create(['ref_reglement'=>$refReglement,'id_facture_client_entete'=>$this->idPosFClt,'code_facture'=>$this->reference,'id_client'=>$this->client_id,'nom_client'=>$this->nom_client,'id_ecriture_bancaire'=>$dernier_id,'ecriture_bancaire'=>$ref_ecritureBq,
                                                     'mode_reglement'=>$this->mode_reglement,'compte_bancaire'=>$nom_compte_bancaire,'id_compte_bancaire'=>$this->compte_bancaire,'date_reglement'=>$date_operation,'id_session_pos'=>$this->id_pos,'ref_session_pos'=>$this->ref_pos,
-                                                    'commentaire'=>$this->commentaire,'montant_regler'=>number_format($this->montant_reglement,0,',',''),'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                                                    'commentaire'=>$this->commentaire,'montant_regler'=>number_format($this->montant_reglement,0,',',''),'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
                                                     
-                                    $dejaRegle = Reglement::where('societe',auth()->user()->societe)->where('code_facture',$this->reference)->sum('montant_regler');
+                                    $dejaRegle = Reglement::where('societe_id',auth()->user()->societe_id)->where('code_facture',$this->reference)->sum('montant_regler');
 
                                     // Facture entete
                                     $etat ='Commencée';
                                     $reste = $this->resteApercevoir - $this->montant_reglement;
                                     RestauPosfactureClientEntete::find($this->idPosFClt)->update(['montant_recu'=>number_format($dejaRegle,0,',',''),'reste_a_percevoir'=>number_format($reste,0,',',''),
-                                                        'note'=>$this->commentaire,'etat'=>$etat,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                                                        'note'=>$this->commentaire,'etat'=>$etat,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
 
-                                    RestauPosFactureClientLigne::where('societe',auth()->user()->societe)->where('id_facture_client_entete',$this->idPosFClt)->update(['etat'=>$etat,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                                    RestauPosFactureClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_facture_client_entete',$this->idPosFClt)->update(['etat'=>$etat,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
 
                                     // Point fidelite
                                     if($this->activer_fidelite == 1){  
@@ -1788,11 +1788,11 @@ class PosRestaurant extends Component
                                             $nbrePts = number_format($this->montant_reglement / $this->montantPointBD,0,'','');
                                         }
                                         
-                                        $Tiers = Tier ::where('societe',auth()->user()->societe)->where('id',$this->client_id)->get();                            
+                                        $Tiers = Tier ::where('societe_id',auth()->user()->societe_id)->where('id',$this->client_id)->get();                            
                                         $this->pointsNbreBD = $Tiers[0]->nombre_point; 
 
                                         $nbrePtsTotal = $nbrePts + $this->pointsNbreBD;
-                                        Tier::where('societe',auth()->user()->societe)->where('id',$this->client_id)->update(['nombre_point'=>$nbrePtsTotal]);
+                                        Tier::where('societe_id',auth()->user()->societe_id)->where('id',$this->client_id)->update(['nombre_point'=>$nbrePtsTotal]);
                                     }
                                     
                                     $id_activite = $this->id_pos;
@@ -1892,14 +1892,14 @@ class PosRestaurant extends Component
             // 'compte_bancaire'=>'required|numeric', //recupere id
             // 'montant_reglement'=>'required|numeric', 
         ]);  
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){      
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->eff_paie_restau;
             if($autoriser == 1){
                 // ceci verifie si une session est ouverte ou pas
-                // $testSessions = SessionRestau::where('societe',auth()->user()->societe)->where('user_id',auth()->user()->id)->where('etat','En cours')->count();                 
-                $testSessions = SessionRestau::where('societe',auth()->user()->societe)->where('session_id',$this->ref_session_restau)->where('etat','En cours')->count();
+                // $testSessions = SessionRestau::where('societe_id',auth()->user()->societe_id)->where('user_id',auth()->user()->id)->where('etat','En cours')->count();                 
+                $testSessions = SessionRestau::where('societe_id',auth()->user()->societe_id)->where('session_id',$this->ref_session_restau)->where('etat','En cours')->count();
                 if($testSessions > 0){ 
 
                     if(!empty($this->nom_client)){  
@@ -1915,9 +1915,9 @@ class PosRestaurant extends Component
                             $dejaRegle = 0;                        
                             $reste = $this->montantTTC;
                             RestauPosfactureClientEntete::find($this->idPosFClt)->update(['montant_recu'=>number_format($dejaRegle,0,',',''),'reste_a_percevoir'=>number_format($reste,0,',',''),
-                                                'note'=>$this->commentaire,'etat'=>$etat,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                                                'note'=>$this->commentaire,'etat'=>$etat,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
 
-                            RestauPosFactureClientLigne::where('societe',auth()->user()->societe)->where('id_facture_client_entete',$this->idPosFClt)->update(['etat'=>$etat,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+                            RestauPosFactureClientLigne::where('societe_id',auth()->user()->societe_id)->where('id_facture_client_entete',$this->idPosFClt)->update(['etat'=>$etat,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
                             
                             // appel la fonction NewCommande
                             $this->NewCommande();
@@ -1991,8 +1991,8 @@ class PosRestaurant extends Component
     } 
     public function effacer(int $id, int $id_cpteBq){         
         if($id){            
-            $MontantRegler = Reglement::where('societe',auth()->user()->societe)->where('id',$id)->sum('montant_regler');
-            $factClient = RestauPosfactureClientEntete::where('societe',auth()->user()->societe)->where('ref_table',$this->id_table_restau)->first();
+            $MontantRegler = Reglement::where('societe_id',auth()->user()->societe_id)->where('id',$id)->sum('montant_regler');
+            $factClient = RestauPosfactureClientEntete::where('societe_id',auth()->user()->societe_id)->where('ref_table',$this->id_table_restau)->first();
             $idfclt = $factClient->id;
             $montant_ttc = $factClient->montant_ttc;
             $reste_a_percevoir = $factClient->reste_a_percevoir;
@@ -2012,21 +2012,21 @@ class PosRestaurant extends Component
             }
             $reste = $reste_a_percevoir + $MontantRegler;
             RestauPosfactureClientEntete::find($idfclt)->update(['montant_recu'=>number_format($montantRecu_ok,0,',',''),'reste_a_percevoir'=>number_format($reste,0,',',''),
-            'etat'=>$etat,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+            'etat'=>$etat,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
             
-            RestauPosFactureClientLigne::where('societe',auth()->user()->societe)->where('ref_table',$this->id_table_restau)->update(['etat'=>$etat]);
+            RestauPosFactureClientLigne::where('societe_id',auth()->user()->societe_id)->where('ref_table',$this->id_table_restau)->update(['etat'=>$etat]);
 
-            $Regler = Reglement::where('societe',auth()->user()->societe)->where('id',$id)->first();
+            $Regler = Reglement::where('societe_id',auth()->user()->societe_id)->where('id',$id)->first();
             $id_regle = $Regler->id_ecriture_bancaire;
             
             Reglement::where('id',$id)->delete();
             EcritureBancaire::where('id',$id_regle)->delete();
 
             // ceci calcul le solde                    
-            $soldeCredit = EcritureBancaire::where('societe',auth()->user()->societe)->where('id_compte_bancaire',$id_cpteBq)->sum('credit');
-            $soldeDebit = EcritureBancaire::where('societe',auth()->user()->societe)->where('id_compte_bancaire',$id_cpteBq)->sum('debit');  
+            $soldeCredit = EcritureBancaire::where('societe_id',auth()->user()->societe_id)->where('id_compte_bancaire',$id_cpteBq)->sum('credit');
+            $soldeDebit = EcritureBancaire::where('societe_id',auth()->user()->societe_id)->where('id_compte_bancaire',$id_cpteBq)->sum('debit');  
             $solde = $soldeCredit - $soldeDebit;
-            CompteBancaire::where('societe',auth()->user()->societe)->where('id',$id_cpteBq)->update(['solde'=>$solde,'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
+            CompteBancaire::where('societe_id',auth()->user()->societe_id)->where('id',$id_cpteBq)->update(['solde'=>$solde,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);
 
             // Point fidelite
             if($this->activer_fidelite == 1){  
@@ -2038,15 +2038,15 @@ class PosRestaurant extends Component
                     $nbrePts = number_format($MontantRegler / $this->montantPointBD,0,'','');
                 }
                 
-                $Tiers = Tier ::where('societe',auth()->user()->societe)->where('id',$id_client)->get();                            
+                $Tiers = Tier ::where('societe_id',auth()->user()->societe_id)->where('id',$id_client)->get();                            
                 $pointsNbreBD = $Tiers[0]->nombre_point; 
 
                 $nbrePtsTotal = $pointsNbreBD - $nbrePts;
-                Tier::where('societe',auth()->user()->societe)->where('id',$id_client)->update(['nombre_point'=>$nbrePtsTotal]);
+                Tier::where('societe_id',auth()->user()->societe_id)->where('id',$id_client)->update(['nombre_point'=>$nbrePtsTotal]);
             }
 
-            // $sessions = SessionRestau::where('societe',auth()->user()->societe)->where('user_id',auth()->user()->id)->where('etat','En cours')->first(); 
-            $sessions = SessionRestau::where('societe',auth()->user()->societe)->where('session_id',$this->ref_session_restau)->where('etat','En cours')->first();
+            // $sessions = SessionRestau::where('societe_id',auth()->user()->societe_id)->where('user_id',auth()->user()->id)->where('etat','En cours')->first(); 
+            $sessions = SessionRestau::where('societe_id',auth()->user()->societe_id)->where('session_id',$this->ref_session_restau)->where('etat','En cours')->first();
             $this->id_pos = $sessions->id;
             $this->ref_pos = $sessions->session_id;
 
@@ -2069,18 +2069,18 @@ class PosRestaurant extends Component
     } 
     public function NewCommande(){
         // ceci verifie si une session est ouverte ou pas
-        // $testSessions = SessionRestau::where('societe',auth()->user()->societe)->where('user_id',auth()->user()->id)->where('etat','En cours')->count(); 
-        $testSessions = SessionRestau::where('societe',auth()->user()->societe)->where('session_id',$this->ref_session_restau)->where('etat','En cours')->count();
+        // $testSessions = SessionRestau::where('societe_id',auth()->user()->societe_id)->where('user_id',auth()->user()->id)->where('etat','En cours')->count(); 
+        $testSessions = SessionRestau::where('societe_id',auth()->user()->societe_id)->where('session_id',$this->ref_session_restau)->where('etat','En cours')->count();
         if($testSessions > 0){ 
                    
-            // $sessions = SessionRestau::where('societe',auth()->user()->societe)->where('user_id',auth()->user()->id)->where('etat','En cours')->first(); 
-            $sessions = SessionRestau::where('societe',auth()->user()->societe)->where('session_id',$this->ref_session_restau)->where('etat','En cours')->first();
+            // $sessions = SessionRestau::where('societe_id',auth()->user()->societe_id)->where('user_id',auth()->user()->id)->where('etat','En cours')->first(); 
+            $sessions = SessionRestau::where('societe_id',auth()->user()->societe_id)->where('session_id',$this->ref_session_restau)->where('etat','En cours')->first();
             $id_session_pos = $sessions->id;
             $ref_session_pos = $sessions->session_id;
-            RestauPosfactureClientEntete::where('societe',auth()->user()->societe)->where('ref_table',$this->id_table_restau)->update(['id_session_pos'=>$id_session_pos,'ref_session_pos'=>$ref_session_pos]);
+            RestauPosfactureClientEntete::where('societe_id',auth()->user()->societe_id)->where('ref_table',$this->id_table_restau)->update(['id_session_pos'=>$id_session_pos,'ref_session_pos'=>$ref_session_pos]);
                         
             // copier la table RestauPosfactureClientEntete dans factureClientEntete
-            $PosenteteFactClient = RestauPosfactureClientEntete::where('societe',auth()->user()->societe)->where('ref_table',$this->id_table_restau)->get(); 
+            $PosenteteFactClient = RestauPosfactureClientEntete::where('societe_id',auth()->user()->societe_id)->where('ref_table',$this->id_table_restau)->get(); 
             foreach($PosenteteFactClient as $PosenteteFactClients){
                 // creation et copie Facture Client Entete
                 factureClientEntete::create([
@@ -2107,13 +2107,14 @@ class PosRestaurant extends Component
                     'date_consommation'=>$PosenteteFactClients->date_consommation,
                     'adresse_livraison'=>$PosenteteFactClients->adresse_livraison,
                     'societe'=>auth()->user()->societe,
+                    'societe_id'=>auth()->user()->societe_id,
                     'nom_user'=>auth()->user()->name,
                     'user_id'=>auth()->user()->id]);
             }
         
-            $dernier_id = factureClientEntete::where('societe',auth()->user()->societe)->where('user_id',auth()->user()->id)->latest()->first()->id;
+            $dernier_id = factureClientEntete::where('societe_id',auth()->user()->societe_id)->where('user_id',auth()->user()->id)->latest()->first()->id;
 
-            $PosligneFactClient = RestauPosFactureClientLigne::where('societe',auth()->user()->societe)->where('ref_table',$this->id_table_restau)->get(); 
+            $PosligneFactClient = RestauPosFactureClientLigne::where('societe_id',auth()->user()->societe_id)->where('ref_table',$this->id_table_restau)->get(); 
             foreach($PosligneFactClient as $PosligneFactClients){
                 // creation et copie FactureClientLigne
                 factureClientLigne::create([ 
@@ -2147,34 +2148,35 @@ class PosRestaurant extends Component
                     'ref_session_pos'=>$PosligneFactClients->ref_session_pos,
                     'user_id'=>auth()->user()->id,
                     'nom_user'=>auth()->user()->name,
+                    'societe_id'=>auth()->user()->societe_id,
                     'societe'=>auth()->user()->societe]);
             }
 
-            $PosenteteFactClt = RestauPosfactureClientEntete::where('societe',auth()->user()->societe)->where('ref_table',$this->id_table_restau)->first(); 
+            $PosenteteFactClt = RestauPosfactureClientEntete::where('societe_id',auth()->user()->societe_id)->where('ref_table',$this->id_table_restau)->first(); 
             $code_facture = $PosenteteFactClt->code_facture;
 
-            Reglement::where('societe',auth()->user()->societe)->where('code_facture',$code_facture)->update(['id_facture_client_entete'=>$dernier_id]);
+            Reglement::where('societe_id',auth()->user()->societe_id)->where('code_facture',$code_facture)->update(['id_facture_client_entete'=>$dernier_id]);
             $type_paiement = 'ReglementClient';  
             $statut = 'Confirmer';  
-            EcritureBancaire::where('societe',auth()->user()->societe)->where('code_facture',$code_facture)->update(['id_facture_client_entete'=>$dernier_id,
+            EcritureBancaire::where('societe_id',auth()->user()->societe_id)->where('code_facture',$code_facture)->update(['id_facture_client_entete'=>$dernier_id,
             'type_paiement'=>$type_paiement,'statut'=>$statut]);            
             
             // Mise a jour solde_cloture_theorique dans Session Pos
-            $montant_recus = Reglement::where('societe',auth()->user()->societe)->where('id_session_pos',$id_session_pos)->sum('montant_regler'); 
-            $solde_initial = SessionRestau::where('societe',auth()->user()->societe)->where('id',$id_session_pos)->sum('solde_initial'); 
+            $montant_recus = Reglement::where('societe_id',auth()->user()->societe_id)->where('id_session_pos',$id_session_pos)->sum('montant_regler'); 
+            $solde_initial = SessionRestau::where('societe_id',auth()->user()->societe_id)->where('id',$id_session_pos)->sum('solde_initial'); 
             $solde_final = $montant_recus + $solde_initial;
-            SessionRestau::where('societe',auth()->user()->societe)->where('id',$id_session_pos)->update(['solde_cloture_theorique'=>$solde_final]);
+            SessionRestau::where('societe_id',auth()->user()->societe_id)->where('id',$id_session_pos)->update(['solde_cloture_theorique'=>$solde_final]);
 
             // *** Tres imoptant: Update table factureClientEntete avec montant_recu pour etre sur ***
-            $montant_recuPosenteteFactClient = RestauPosfactureClientEntete::where('societe',auth()->user()->societe)->where('user_id',auth()->user()->id)->sum('montant_recu');
-            factureClientEntete::where('societe',auth()->user()->societe)->where('id',$dernier_id)->update(['montant_recu'=>$montant_recuPosenteteFactClient]);
+            $montant_recuPosenteteFactClient = RestauPosfactureClientEntete::where('societe_id',auth()->user()->societe_id)->where('user_id',auth()->user()->id)->sum('montant_recu');
+            factureClientEntete::where('societe_id',auth()->user()->societe_id)->where('id',$dernier_id)->update(['montant_recu'=>$montant_recuPosenteteFactClient]);
 
              // Suppression
-            RestauPosfactureClientEntete::where('societe',auth()->user()->societe)->where('ref_table',$this->id_table_restau)->delete(); 
-            RestauPosFactureClientLigne::where('societe',auth()->user()->societe)->where('ref_table',$this->id_table_restau)->delete();
+            RestauPosfactureClientEntete::where('societe_id',auth()->user()->societe_id)->where('ref_table',$this->id_table_restau)->delete(); 
+            RestauPosFactureClientLigne::where('societe_id',auth()->user()->societe_id)->where('ref_table',$this->id_table_restau)->delete();
              
-            RestauCommandeAttenteEntete::where('societe',auth()->user()->societe)->where('ref_table',$this->id_table_restau)->delete(); 
-            RestauCommandeAttenteLigne::where('societe',auth()->user()->societe)->where('ref_table',$this->id_table_restau)->delete();
+            RestauCommandeAttenteEntete::where('societe_id',auth()->user()->societe_id)->where('ref_table',$this->id_table_restau)->delete(); 
+            RestauCommandeAttenteLigne::where('societe_id',auth()->user()->societe_id)->where('ref_table',$this->id_table_restau)->delete();
             // Suppression Fin 
 
             $utiliser = 'Non';                                
@@ -2214,7 +2216,7 @@ class PosRestaurant extends Component
         }  
     }
     public function affiChoixConso(){
-        $clients = RestauPosfactureClientEntete::where('societe',auth()->user()->societe)->where('ref_table',$this->id_table_restau)->limit(1)->get();        
+        $clients = RestauPosfactureClientEntete::where('societe_id',auth()->user()->societe_id)->where('ref_table',$this->id_table_restau)->limit(1)->get();        
         $this->lieu_conso = $clients[0]->lieu_consommation;
         $this->date_conso = $clients[0]->date_consommation;
         $this->adresse_livraison = $clients[0]->adresse_livraison;
@@ -2239,17 +2241,17 @@ class PosRestaurant extends Component
             ]); 
         }
         
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){      
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->pv;
             if($autoriser == 1){  
                 if($this->lieu_conso == 'Livraison'){           
-                    RestauPosfactureClientEntete::where('societe',auth()->user()->societe)->where('ref_table',$this->id_table_restau)->update(['lieu_consommation'=>$this->lieu_conso,'date_consommation'=>date('Y-m-d H:i', strtotime($this->date_conso)),'adresse_livraison'=>$this->adresse_livraison]);
+                    RestauPosfactureClientEntete::where('societe_id',auth()->user()->societe_id)->where('ref_table',$this->id_table_restau)->update(['lieu_consommation'=>$this->lieu_conso,'date_consommation'=>date('Y-m-d H:i', strtotime($this->date_conso)),'adresse_livraison'=>$this->adresse_livraison]);
                 }
                 else{
                     $adresse_livraison = '';
-                    RestauPosfactureClientEntete::where('societe',auth()->user()->societe)->where('ref_table',$this->id_table_restau)->update(['lieu_consommation'=>$this->lieu_conso,'date_consommation'=>date('Y-m-d H:i', strtotime($this->date_conso)),'adresse_livraison'=>$adresse_livraison]);
+                    RestauPosfactureClientEntete::where('societe_id',auth()->user()->societe_id)->where('ref_table',$this->id_table_restau)->update(['lieu_consommation'=>$this->lieu_conso,'date_consommation'=>date('Y-m-d H:i', strtotime($this->date_conso)),'adresse_livraison'=>$adresse_livraison]);
                 }
                 
                 $this->dispatch('alert',                    
@@ -2260,8 +2262,8 @@ class PosRestaurant extends Component
                     showConfirmButton: false,
                     position:'top-end',
                 );   
-                // $sessions = SessionRestau::where('societe',auth()->user()->societe)->where('user_id',auth()->user()->id)->where('etat','En cours')->first();
-                $sessions = SessionRestau::where('societe',auth()->user()->societe)->where('session_id',$this->ref_session_restau)->where('etat','En cours')->first(); 
+                // $sessions = SessionRestau::where('societe_id',auth()->user()->societe_id)->where('user_id',auth()->user()->id)->where('etat','En cours')->first();
+                $sessions = SessionRestau::where('societe_id',auth()->user()->societe_id)->where('session_id',$this->ref_session_restau)->where('etat','En cours')->first(); 
                 $id_pos = $sessions->id;
                 $ref_pos = $sessions->session_id; 
                 
@@ -2293,12 +2295,12 @@ class PosRestaurant extends Component
     } 
     // public function attente(int $idx, string $statuts){
     public function Commander(){
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){ 
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->passe_cmd_restau;
             if($autoriser == 1){
-                $test = RestauPosfactureClientEntete ::where('societe',auth()->user()->societe)->where('ref_table',$this->id_table_restau)->count();
+                $test = RestauPosfactureClientEntete ::where('societe_id',auth()->user()->societe_id)->where('ref_table',$this->id_table_restau)->count();
                 if($test > 0){   
                     $ici = TableRestau::where('reference',$this->id_table_restau)->first();                                
                     $statut = $ici->statut; 
@@ -2308,9 +2310,9 @@ class PosRestaurant extends Component
                     TableRestau::where('reference',$this->id_table_restau)->update(['statut'=>$statut]);                       
                                     
                     // Supprimer et recreer simplement pour tout mettre a jour                       
-                    RestauCommandeAttenteEntete::where('societe',auth()->user()->societe)->where('ref_table',$this->id_table_restau)->delete();
+                    RestauCommandeAttenteEntete::where('societe_id',auth()->user()->societe_id)->where('ref_table',$this->id_table_restau)->delete();
                     // copier la table RestauPosfactureClientEntete dans RestauCommandeAttenteEntete
-                    $PosenteteFactClient = RestauPosfactureClientEntete::where('societe',auth()->user()->societe)->where('ref_table',$this->id_table_restau)->get(); 
+                    $PosenteteFactClient = RestauPosfactureClientEntete::where('societe_id',auth()->user()->societe_id)->where('ref_table',$this->id_table_restau)->get(); 
                     foreach($PosenteteFactClient as $PosenteteFactClients){
                         // creation et copie Facture Client Entete
                         RestauCommandeAttenteEntete::create([
@@ -2340,13 +2342,14 @@ class PosRestaurant extends Component
                             'date_consommation'=>$PosenteteFactClients->date_consommation,
                             'adresse_livraison'=>$PosenteteFactClients->adresse_livraison,
                             'societe'=>auth()->user()->societe,
+                            'societe_id'=>auth()->user()->societe_id,
                             'nom_user'=>auth()->user()->name,
                             'user_id'=>auth()->user()->id]);
                     }                        
                     
                     // Supprimer et recreer simplement pour tout mettre a jour
-                    RestauCommandeAttenteLigne::where('societe',auth()->user()->societe)->where('ref_table',$this->id_table_restau)->delete();
-                    $PosligneFactClient = RestauPosFactureClientLigne::where('societe',auth()->user()->societe)->where('ref_table',$this->id_table_restau)->get(); 
+                    RestauCommandeAttenteLigne::where('societe_id',auth()->user()->societe_id)->where('ref_table',$this->id_table_restau)->delete();
+                    $PosligneFactClient = RestauPosFactureClientLigne::where('societe_id',auth()->user()->societe_id)->where('ref_table',$this->id_table_restau)->get(); 
                     foreach($PosligneFactClient as $PosligneFactClients){
                         // creation et copie RestauCommandeAttenteLigne
                         RestauCommandeAttenteLigne::create([ 
@@ -2382,10 +2385,11 @@ class PosRestaurant extends Component
                             'etat'=>$PosligneFactClients->etat,
                             'user_id'=>auth()->user()->id,
                             'nom_user'=>auth()->user()->name,
+                            'societe_id'=>auth()->user()->societe_id,
                             'societe'=>auth()->user()->societe]);
                     }               
 
-                    $utiliateur = RestauCommandeAttenteEntete ::where('societe',auth()->user()->societe)->where('ref_table',$this->id_table_restau)->limit(1)->get();  
+                    $utiliateur = RestauCommandeAttenteEntete ::where('societe_id',auth()->user()->societe_id)->where('ref_table',$this->id_table_restau)->limit(1)->get();  
                     $nomUtilisateur = $utiliateur[0]->nom_user; 
                     $lieu_consommation = $utiliateur[0]->lieu_consommation; 
                     $date_consommation = $utiliateur[0]->date_consommation; 
@@ -2394,8 +2398,8 @@ class PosRestaurant extends Component
                     TableRestau::where('reference',$this->id_table_restau)->update(['nom_user'=>$nomUtilisateur,'non_caissiere'=>auth()->user()->name,
                                     'lieu_consommation'=>$lieu_consommation,'date_consommation'=>$date_consommation,'adresse_livraison'=>$adresse_livraison,]); 
                 
-                    // $sessions = SessionRestau::where('societe',auth()->user()->societe)->where('user_id',auth()->user()->id)->where('etat','En cours')->first(); 
-                    $sessions = SessionRestau::where('societe',auth()->user()->societe)->where('session_id',$this->ref_session_restau)->where('etat','En cours')->first();
+                    // $sessions = SessionRestau::where('societe_id',auth()->user()->societe_id)->where('user_id',auth()->user()->id)->where('etat','En cours')->first(); 
+                    $sessions = SessionRestau::where('societe_id',auth()->user()->societe_id)->where('session_id',$this->ref_session_restau)->where('etat','En cours')->first();
                     $id_pos = $sessions->id;
                     $ref_pos = $sessions->session_id; 
 

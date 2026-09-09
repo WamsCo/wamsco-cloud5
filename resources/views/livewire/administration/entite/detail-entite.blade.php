@@ -395,6 +395,7 @@
                                                                                     <th class="fond_entete_table text-center">Site web</th> 
                                                                                     <th class="fond_entete_table text-center">Commercial charge</th> 
                                                                                     <th class="fond_entete_table">Condition vente</th> 
+                                                                                    <th class="fond_entete_table">Slug</th>
                                                                                     <th class="fond_entete_table">Modif</th>
                                                                                 </tr>
                                                                             </thead>                                       
@@ -414,6 +415,7 @@
                                                                                     <td class="fw-semibold text-center">{{$entits->site_web}}</td>
                                                                                     <td class="fw-bold text-center text-bleu">{{$entits->commercial_charge}}</td>
                                                                                     <td class="fw-semibold">{{$entits->condition_vente}}</td>
+                                                                                    <td class="fw-semibold text-bleu">{{$entits->slug}}</td>
                                                                                     <td class="fw-semibold">{{date('d-m-Y H:i:s', strtotime($entits->updated_at))}}</td>
                                                                                 </tr> 
                                                                                 @endforeach 

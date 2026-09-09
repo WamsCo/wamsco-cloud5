@@ -29,9 +29,9 @@ class Parametres extends Component
     public $auteur; 
 
     public function mount(){ 
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->configurer;
             if($autoriser == 0){
                 alert()->error('Oups Désolé', 'Vous n\'êtes pas autorisé à ouvrir cette page !!!')->position('center')->autoClose(5000)->background('#fff')->width('460px')->padding('5px');
@@ -46,7 +46,7 @@ class Parametres extends Component
     public function render()
     {
         $dateJour = date('Y-m-d');            
-        $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get();
+        $entite_mod = Entite::where('id',auth()->user()->societe_id)->get();
         $jourValid = $entite_mod[0]->validite_mod; 
         $mod_administration = $entite_mod[0]->mod_administration; 
         $soldeClient = $entite_mod[0]->solde;
@@ -59,22 +59,22 @@ class Parametres extends Component
                 $title_fils = 'Configuration';
                 $lien = 'config';
                 $dateJour = date('Y-m-d');
-                $entite_mod = Entite::where('enseigne',auth()->user()->societe)->get(); 
+                $entite_mod = Entite::where('id',auth()->user()->societe_id)->get(); 
                 $jourValid = $entite_mod[0]->validite_mod; 
                 // ceci pour trouver le nombre de jour restant avant expiration
                 $nbjoursRestant = round((strtotime($jourValid) - strtotime($dateJour))/(60*60*24));  
 
-                $listEntrepot = Entrepot::where('societe',auth()->user()->societe)->where('active',1)->orderBy('nom','asc')->get(); 
-                $stock = Stock::where('societe',auth()->user()->societe)->where('etat',1)->get();
+                $listEntrepot = Entrepot::where('societe_id',auth()->user()->societe_id)->where('active',1)->orderBy('nom','asc')->get(); 
+                $stock = Stock::where('societe_id',auth()->user()->societe_id)->where('etat',1)->get();
                 
                 $page = 'Parametre'; // Pour evenement lie
-                $log = LogActivityModel::where('user_societe',auth()->user()->societe)->where('page', $page)->limit(50)->orderBy('id','desc')->get();
+                $log = LogActivityModel::where('societe_id',auth()->user()->societe_id)->where('page', $page)->limit(50)->orderBy('id','desc')->get();
                 $logCount = $log->count();
 
-                $test_vide = Parametre ::where('societe',auth()->user()->societe)->count();
+                $test_vide = Parametre ::where('societe_id',auth()->user()->societe_id)->count();
                 if($test_vide > 0){
                     
-                    $config = Parametre::where('societe',auth()->user()->societe)->limit(1)->get();
+                    $config = Parametre::where('societe_id',auth()->user()->societe_id)->limit(1)->get();
                     $this->entrepot = $config[0]->id_entrepot_pv;
                     $this->entrepot_restau = $config[0]->id_entrepot_restau;                    
                     $this->entrepot_client = $config[0]->id_entrepot_fctclt;
@@ -107,7 +107,7 @@ class Parametres extends Component
                     ->select('id_entrepot')
                     ->groupBy('id_entrepot')
                     ->havingRaw('COUNT(DISTINCT id_produit) > 0')
-                    ->where('societe',auth()->user()->societe)
+                    ->where('societe_id',auth()->user()->societe_id)
                     ->pluck('id_entrepot'); // Récupère seulement les IDs des produits
 
                 // Ensuite, joignez cette liste pour sommer les quantités
@@ -158,24 +158,26 @@ class Parametres extends Component
             'activer_ecran_cuisine'=>'required|numeric',                     
             'envoi_mail'=>'required|numeric',                     
          ]);        
-        $test = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->count();
+        $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
-            $role = Role::where('societe',auth()->user()->societe)->where('nom',auth()->user()->type_user)->get();
+            $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->configurer;
             if($autoriser == 1){    
                    
-                    $test_vide = Parametre ::where('societe',auth()->user()->societe)->count();
+                    $test_vide = Parametre ::where('societe_id',auth()->user()->societe_id)->count();
                     if($test_vide > 0){
-                        Parametre::where('societe',auth()->user()->societe)->update(['id_entrepot_pv'=>$this->entrepot,'id_entrepot_restau'=>$this->entrepot_restau,'id_entrepot_fctclt'=>$this->entrepot_client,'id_entrepot_fctfourni'=>$this->entrepot_fournisseur,
+                        Parametre::where('societe_id',auth()->user()->societe_id)->update(['id_entrepot_pv'=>$this->entrepot,'id_entrepot_restau'=>$this->entrepot_restau,'id_entrepot_fctclt'=>$this->entrepot_client,'id_entrepot_fctfourni'=>$this->entrepot_fournisseur,
                         'activer_fidelite'=>$this->activer_fidelite,'activer_ecran_cuisine'=>$this->activer_ecran_cuisine,'envoi_mail'=>$this->envoi_mail,
-                        'nom_user_modif'=>auth()->user()->name,'user_id_modif'=>auth()->user()->id]);   
-                        Entite::where('enseigne',auth()->user()->societe)->update(['activer_fidelite'=>$this->activer_fidelite]);                   
+                        'nom_user_modif'=>auth()->user()->name,'user_id_modif'=>auth()->user()->id]);  
+
+                        Entite::where('id',auth()->user()->societe_id)->update(['activer_fidelite'=>$this->activer_fidelite]);                   
                     } 
                     else{
                         Parametre::create(['id_entrepot_pv'=>$this->entrepot,'id_entrepot_restau'=>$this->entrepot_restau,'id_entrepot_fctclt'=>$this->entrepot_client,'id_entrepot_fctfourni'=>$this->entrepot_fournisseur,
                         'activer_fidelite'=>$this->activer_fidelite,'activer_ecran_cuisine'=>$this->activer_ecran_cuisine,'envoi_mail'=>$this->envoi_mail,
-                        'societe'=>auth()->user()->societe,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);  
-                        Entite::where('enseigne',auth()->user()->societe)->update(['activer_fidelite'=>$this->activer_fidelite]);
+                        'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id]);  
+                        
+                        Entite::where('id',auth()->user()->societe_id)->update(['activer_fidelite'=>$this->activer_fidelite]);
                     }                   
                    
                     $id_activite = 0; 

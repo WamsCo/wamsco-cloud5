@@ -422,7 +422,7 @@
                                                                                                                         <div>
                                                                                                                             <a href="detail_user?id={{$sous_taches->id_utilisateur}}&active=12&champ=1-1" wire:navigate class="pointer">
                                                                                                                                 <strong class="me-1">
-                                                                                                                                    <label for="nombre_paquets" class="fw-bold col-form-labelk pointer">{{Str::limit($sous_taches->utilisateur, 32)}}pp</label>
+                                                                                                                                    <label for="nombre_paquets" class="fw-bold col-form-labelk pointer">{{Str::limit($sous_taches->utilisateur, 32)}}</label>
                                                                                                                                 </strong>
                                                                                                                             </a>
                                                                                                                         </div>
