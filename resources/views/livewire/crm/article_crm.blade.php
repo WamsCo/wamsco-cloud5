@@ -23,8 +23,7 @@
                                                         </tr>                                        
                                                     @endforeach
                                                     <tr>                                         
-                                                        {{-- <td class="pointer fw-semibold text-danger" wire:click="ajouterTier({{$record->id}})"><i class="fas fa-user-plus"></i> Créer client</td>   --}}
-                                                        <td class="pointer fw-semibold text-danger"><a href="nouveau_tiers?active=3&champ=3-1" target="_blank" class="text-danger"><i class="fas fa-user-plus"></i> Créer client</a></td>  
+                                                        <td class="pointer fw-semibold text-danger"><a href="listing-tiers?active=3&champ=3-2" target="_blank" class="text-danger"><i class="fas fa-user-plus"></i> Créer client</a></td>  
                                                     </tr> 
                                                 @endif                               
                                             </tbody>                                        

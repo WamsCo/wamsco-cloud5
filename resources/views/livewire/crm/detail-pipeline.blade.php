@@ -102,13 +102,13 @@
                                                     <div class="row mb-1">
                                                         <label for="probabilite" class="form-label fw-semibold text-muted">Probabilité succès</label>
                                                         <div class="">                                                        
-                                                            <select id="probabilite" wire:model="probabilite" class="form-control form-select fw-bold text-bleu bordure @error('probabilite') is-invalid @enderror" id="probabilite">
+                                                            <select id="probabilite" wire:model="probabilite" class="form-control form-select fw-bold text-bleu bordurek @error('probabilite') is-invalid @enderror" id="probabilite">
                                                                 <option value=""></option>
-                                                                <option value="10 %">10 %</option>
-                                                                <option value="25 %">25 %</option>
-                                                                <option value="50 %">50 %</option>
-                                                                <option value="75">75 %</option>
-                                                                <option value="100 %">100 %</option>                               
+                                                                <option value="10 %">Probabilité » 10 %</option>
+                                                                <option value="25 %">Probabilité » 25 %</option>
+                                                                <option value="50 %">Probabilité » 50 %</option>
+                                                                <option value="75">Probabilité » 75 %</option>
+                                                                <option value="100 %">Probabilité » 100 %</option>                               
                                                             </select> 
                                                         </div>
                                                         <div class="d-flex justify-content-start">
@@ -118,16 +118,25 @@
                                                     <div class="row mb-1">
                                                         <label for="date_cloture" class="form-label fw-semibold text-muted">Date clôture</label>
                                                         <div class="">
-                                                            <input type="date" wire:model="date_cloture" class="form-control bordure text-danger @error('date_cloture') is-invalid @enderror" id="date_cloture">
+                                                            <input type="date" wire:model="date_cloture" class="form-control bordurek text-danger @error('date_cloture') is-invalid @enderror" id="date_cloture">
                                                         </div>
                                                         <div class="d-flex justify-content-start">
                                                             @error('date_cloture') <span class="text-danger">{{ $message }}</span> @enderror 
                                                         </div>
-                                                    </div>                                                       
+                                                    </div> 
+                                                    <div class="row mb-1">
+                                                        <label for="secteur_activite" class="form-label fw-semibold text-muted">Secteur d'activité</label>
+                                                        <div class="">
+                                                            <input type="text" wire:model="secteur_activite" placeholder="Ex: Restaurant" class="form-control bordurek text-vert @error('secteur_activite') is-invalid @enderror" id="secteur_activite">
+                                                        </div>
+                                                        <div class="d-flex justify-content-start">
+                                                            @error('secteur_activite') <span class="text-danger">{{ $message }}</span> @enderror 
+                                                        </div>
+                                                    </div>                                                         
                                                     <div class="row mb-1">
                                                         <label for="client" class="form-label fw-semibold text-muted">Contact</label>
                                                         <div class="">    
-                                                            <input type="search" name="client" wire:model.live="client" wire:keyup="searchResult" placeholder="Commencez à écrire... A-Z ou 0-9" class="form-control bordure @error('client') is-invalid @enderror" id="client"/>
+                                                            <input type="search" name="client" wire:model.live="client" wire:keyup="searchResult" placeholder="Commencez à écrire... A-Z ou 0-9" class="form-control bordurek @error('client') is-invalid @enderror" id="client"/>
                                                             <div class="bloc_search_client" style="position: absolute;">                       
                                                                 @if($showdiv)
                                                                     @if($recordCount > 0)
@@ -156,7 +165,7 @@
                                                     <div class="row mb-1">
                                                         <label for="poste_contact" class="form-label fw-semibold text-muted">Poste</label>
                                                         <div class="">
-                                                            <input type="text" wire:model="poste_contact" placeholder="Ex: Comptable" class="form-control bordure text-wamsco @error('poste_contact') is-invalid @enderror" id="poste_contact">
+                                                            <input type="text" wire:model="poste_contact" placeholder="Ex: Comptable" class="form-control bordurek text-wamsco @error('poste_contact') is-invalid @enderror" id="poste_contact">
                                                         </div>
                                                         <div class="d-flex justify-content-start">
                                                             @error('poste_contact') <span class="text-danger">{{ $message }}</span> @enderror 
@@ -165,7 +174,7 @@
                                                     <div class="row mb-1">
                                                         <label for="telephone_contact" class="form-label fw-semibold text-muted">Téléphone</label>
                                                         <div class="">
-                                                            <input type="text" wire:model="telephone_contact" class="form-control bordure @error('telephone_contact') is-invalid @enderror" id="telephone_contact">
+                                                            <input type="text" wire:model="telephone_contact" class="form-control bordurek @error('telephone_contact') is-invalid @enderror" id="telephone_contact">
                                                         </div>
                                                         <div class="d-flex justify-content-start">
                                                             @error('telephone_contact') <span class="text-danger">{{ $message }}</span> @enderror 
@@ -174,7 +183,7 @@
                                                     <div class="row mb-1">
                                                         <label for="email_contact" class="form-label fw-semibold text-muted">E-mail</label>
                                                         <div class="">
-                                                            <input type="email" wire:model="email_contact"  class="form-control bordure @error('email_contact') is-invalid @enderror" id="email_contact">
+                                                            <input type="email" wire:model="email_contact"  class="form-control bordurek @error('email_contact') is-invalid @enderror" id="email_contact">
                                                         </div>
                                                         <div class="d-flex justify-content-start">
                                                             @error('email_contact') <span class="text-danger">{{ $message }}</span> @enderror 
@@ -183,7 +192,7 @@
                                                     <div class="row mb-1">
                                                         <label for="vendeur" class="form-label fw-semibold text-muted">Vendeur</label>
                                                         <div class="">                                                        
-                                                            <select id="vendeur" wire:model="vendeur" class="form-control form-select bordure @error('vendeur') is-invalid @enderror">
+                                                            <select id="vendeur" wire:model="vendeur" class="form-control form-select bordurek @error('vendeur') is-invalid @enderror">
                                                                 <option value=""></option>	
                                                                 @foreach($user as $users)
                                                                     <option value="{{$users->id}}">{{$users->name}}</option>
@@ -197,7 +206,7 @@
                                                     <div class="row mb-1">
                                                         <label for="evolution" class="form-label fw-semibold text-muted">Étapes</label>
                                                         <div class="">                                                        
-                                                            <select id="evolution" wire:model="evolution" class="form-control fw-bold text-vert form-select bordure @error('evolution') is-invalid @enderror">
+                                                            <select id="evolution" wire:model="evolution" class="form-control fw-bold text-vert form-select bordurek @error('evolution') is-invalid @enderror">
                                                                 <option value=""></option>	
                                                                 @foreach($etape as $etapes)
                                                                     <option value="{{$etapes->id}}">{{$etapes->nom_etape}}</option>
@@ -211,7 +220,7 @@
                                                     <div class="row mb-1">
                                                         <label for="priorite" class="form-label fw-semibold text-muted">Priorité</label>
                                                         <div class="">                                                        
-                                                            <select id="priorite" wire:model="priorite" class="form-control form-select fw-bold text-primary bordure @error('priorite') is-invalid @enderror" id="priorite">
+                                                            <select id="priorite" wire:model="priorite" class="form-control form-select fw-bold text-primary bordurek @error('priorite') is-invalid @enderror" id="priorite">
                                                                 <option value=""></option>	
                                                                 <option value="Faible">Faible</option>	
                                                                 <option value="Haute">Haute</option>
@@ -238,7 +247,7 @@
                                                                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">                               
                                                                             <div class="row mb-4">
                                                                                 <div class="col-lg-12 col-md-12 col-sm-12">                                                        
-                                                                                    <textarea rows="7" wire:model="note" class="form-control px-0 bordure @error('note') is-invalid @enderror" id="note" placeholder="Ajouter une note..."></textarea>
+                                                                                    <textarea rows="7" wire:model="note" class="form-control px-0 bordurek @error('note') is-invalid @enderror" id="note" placeholder="Ajouter une note..."></textarea>
                                                                                 </div>
                                                                                 <div class="d-flex justify-content-start">
                                                                                     @error('note') <span class="text-danger">{{ $message }}</span> @enderror 
@@ -255,7 +264,7 @@
                                                                                 <label for="nom_societe" class="form-label fw-semibold text-muted">Nom société</label>
                                                                                 <div class="">
                                                                                     <div class="d-flex align-items-center">
-                                                                                        <input type="text" wire:model="nom_societe" placeholder="Ex: WamsCo Sarl" class="form-control bordure text-bleu @error('nom_societe') is-invalid @enderror" id="nom_societe"> 
+                                                                                        <input type="text" wire:model="nom_societe" placeholder="Ex: WamsCo Sarl" class="form-control bordurek text-bleu @error('nom_societe') is-invalid @enderror" id="nom_societe"> 
                                                                                     </div>
                                                                                 </div>
                                                                                 <div class="d-flex justify-content-start">
@@ -265,7 +274,7 @@
                                                                             <div class="row mb-1">
                                                                                 <label for="adresse_societe" class="form-label fw-semibold text-muted">Adresse</label>
                                                                                 <div class="">
-                                                                                    <input type="text" wire:model="adresse_societe" placeholder="Ex: Rue po" class="form-control bordure text-wamsco @error('adresse_societe') is-invalid @enderror" id="adresse_societe">
+                                                                                    <input type="text" wire:model="adresse_societe" placeholder="Ex: Rue po" class="form-control bordurek text-wamsco @error('adresse_societe') is-invalid @enderror" id="adresse_societe">
                                                                                 </div>
                                                                                 <div class="d-flex justify-content-start">
                                                                                     @error('adresse_societe') <span class="text-danger">{{ $message }}</span> @enderror 
@@ -274,7 +283,7 @@
                                                                             <div class="row mb-1">
                                                                                 <label for="ville" class="form-label fw-semibold text-muted">Ville</label>
                                                                                 <div class="">
-                                                                                    <input type="text" wire:model="ville" placeholder="Ex: Douala" class="form-control bordure text-wamsco @error('ville') is-invalid @enderror" id="ville">
+                                                                                    <input type="text" wire:model="ville" placeholder="Ex: Douala" class="form-control bordurek text-wamsco @error('ville') is-invalid @enderror" id="ville">
                                                                                 </div>
                                                                                 <div class="d-flex justify-content-start">
                                                                                     @error('ville') <span class="text-danger">{{ $message }}</span> @enderror 
@@ -283,7 +292,7 @@
                                                                             <div class="row mb-1">
                                                                                 <label for="pays" class="form-label fw-semibold text-muted">Pays</label>
                                                                                 <div class="">                                                        
-                                                                                    <select name="pays" wire:model="pays" class="form-control form-select bordure @error('pays') is-invalid @enderror" style="color: #6b6b6b;">
+                                                                                    <select name="pays" wire:model="pays" class="form-control form-select bordurek @error('pays') is-invalid @enderror" style="color: #6b6b6b;">
                                                                                         <option value="" selected="" disabled="">Pays</option>
                                                                                         <option value="Afghanistan">Afghanistan</option>
                                                                                         <option value="Åland Islands">Åland Islands</option>
@@ -543,7 +552,7 @@
                                                                             <div class="row mb-1">
                                                                                 <label for="langue" class="form-label fw-semibold text-muted">Langue</label>
                                                                                 <div class="">                                                        
-                                                                                    <select id="langue" wire:model="langue" class="form-control form-select bordure text-wamsco w-75 @error('langue') is-invalid @enderror">
+                                                                                    <select id="langue" wire:model="langue" class="form-control form-select bordurek text-wamsco w-75 @error('langue') is-invalid @enderror">
                                                                                         <option value=""></option>
                                                                                         <option value="Français">Français</option>
                                                                                         <option value="Anglais">Anglais</option>
@@ -555,20 +564,11 @@
                                                                             </div>
                                                                         </div>
                                                                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                                                            <div class="w_horizontal_separator mt-2 mb-2 text-bleu text-uppercase fw-bolder small">Autres Informations</div> 
-                                                                            <div class="row mb-1">
-                                                                                <label for="secteur_activite" class="form-label fw-semibold text-muted">Secteur d'activité</label>
-                                                                                <div class="">
-                                                                                    <input type="text" wire:model="secteur_activite" placeholder="Ex: Restaurant" class="form-control bordure text-vert @error('secteur_activite') is-invalid @enderror" id="secteur_activite">
-                                                                                </div>
-                                                                                <div class="d-flex justify-content-start">
-                                                                                    @error('secteur_activite') <span class="text-danger">{{ $message }}</span> @enderror 
-                                                                                </div>
-                                                                            </div>                                                                    
+                                                                            <div class="w_horizontal_separator mt-2 mb-2 text-bleu text-uppercase fw-bolder small">Autres Informations</div>                                                                                                                                              
                                                                             <div class="row mb-1">
                                                                                 <label for="site_web" class="form-label fw-semibold text-muted">Site Web</label>
                                                                                 <div class="">
-                                                                                    <input type="text" wire:model="site_web" placeholder="Ex: www.wamsco-cloud.net" class="form-control bordure text-wamsco @error('site_web') is-invalid @enderror" id="site_web">
+                                                                                    <input type="text" wire:model="site_web" placeholder="Ex: www.wamsco-cloud.net" class="form-control bordurek text-wamsco @error('site_web') is-invalid @enderror" id="site_web">
                                                                                 </div>
                                                                                 <div class="d-flex justify-content-start">
                                                                                     @error('site_web') <span class="text-danger">{{ $message }}</span> @enderror 
@@ -577,7 +577,7 @@
                                                                             <div class="row mb-1">
                                                                                 <label for="recommande_par" class="form-label fw-semibold text-muted">Recommandé par</label>
                                                                                 <div class="">
-                                                                                    <input type="text" wire:model="recommande_par" placeholder="Ex: John Doe" class="form-control bordure text-wamsco @error('recommande_par') is-invalid @enderror" id="recommande_par">
+                                                                                    <input type="text" wire:model="recommande_par" placeholder="Ex: John Doe" class="form-control bordurek text-wamsco @error('recommande_par') is-invalid @enderror" id="recommande_par">
                                                                                 </div>
                                                                                 <div class="d-flex justify-content-start">
                                                                                     @error('recommande_par') <span class="text-danger">{{ $message }}</span> @enderror 
@@ -586,7 +586,7 @@
                                                                             <div class="row mb-1">
                                                                                 <label for="telephone_recommande_par" class="form-label fw-semibold text-muted">Téléphone</label>
                                                                                 <div class="">
-                                                                                    <input type="text" wire:model="telephone_recommande_par" placeholder="" class="form-control bordure text-wamsco @error('telephone_recommande_par') is-invalid @enderror" id="telephone_recommande_par">
+                                                                                    <input type="text" wire:model="telephone_recommande_par" placeholder="" class="form-control bordurek text-wamsco @error('telephone_recommande_par') is-invalid @enderror" id="telephone_recommande_par">
                                                                                 </div>
                                                                                 <div class="d-flex justify-content-start">
                                                                                     @error('telephone_recommande_par') <span class="text-danger">{{ $message }}</span> @enderror 
@@ -595,12 +595,15 @@
                                                                             <div class="row mb-1">
                                                                                 <label for="source" class="form-label fw-semibold text-muted">Source</label>
                                                                                 <div class="">                                                        
-                                                                                    <select id="source" wire:model="source" class="form-control form-select fw-semibold text-bleu bordure @error('source') is-invalid @enderror" id="source">
+                                                                                    <select id="source" wire:model="source" class="form-control form-select fw-semibold text-bleu bordurek @error('source') is-invalid @enderror" id="source">
                                                                                         <option value=""></option>	
                                                                                         <option value="Site web">Site web</option>
                                                                                         <option value="WhatsApp">WhatsApp</option>
                                                                                         <option value="Facebook">Facebook</option>                               
+                                                                                        <option value="TikTok">TikTok</option>                               
+                                                                                        <option value="Instagram">Instagram</option>                               
                                                                                         <option value="Google">Google</option>                               
+                                                                                        <option value="Google Maps">Google Maps</option>                               
                                                                                         <option value="Email">Email</option>
                                                                                         <option value="Commercial">Commercial</option>
                                                                                         <option value="Partenaire">Partenaire</option>                               
@@ -983,7 +986,7 @@
                                                                         <div class="row mb-2">
                                                                             <label for="type_activite" class="form-label fw-semibold text-muted">Type</label>
                                                                             <div class="">                                                        
-                                                                                <select id="type_activite" wire:model="type_activite" class="form-control form-select bordure w-100 @error('type_activite') is-invalid @enderror">
+                                                                                <select id="type_activite" wire:model="type_activite" class="form-control form-select fw-bold bordure w-100 @error('type_activite') is-invalid @enderror">
                                                                                     <option value=""></option>	
                                                                                     <option value="Appel">Appel</option>	
                                                                                     <option value="Email">Email</option>	
@@ -999,7 +1002,7 @@
                                                                         <div class="row mb-2">
                                                                             <label for="sujet" class="form-label fw-semibold text-muted">Sujet</label>
                                                                             <div class="">
-                                                                                <input type="text" wire:model="sujet" placeholder="" class="form-control bordure text-wamsco w-100 @error('sujet') is-invalid @enderror" id="sujet">
+                                                                                <input type="text" wire:model="sujet" placeholder="" class="form-control bordurek text-wamsco w-100 @error('sujet') is-invalid @enderror" id="sujet">
                                                                             </div>
                                                                             <div class="d-flex justify-content-start">
                                                                                 @error('sujet') <span class="text-danger">{{ $message }}</span> @enderror 
@@ -1008,7 +1011,7 @@
                                                                         <div class="row mb-2">
                                                                             <label for="date_echeance" class="form-label fw-semibold text-muted">Date échéance</label>
                                                                             <div class="">
-                                                                                <input type="datetime-local" wire:model="date_echeance" class="form-control bordure text-vert w-100 @error('date_echeance') is-invalid @enderror" id="date_echeance">
+                                                                                <input type="datetime-local" wire:model="date_echeance" class="form-control bordurek text-vert w-100 @error('date_echeance') is-invalid @enderror" id="date_echeance">
                                                                             </div>
                                                                             <div class="d-flex justify-content-start">
                                                                                 @error('date_echeance') <span class="text-danger">{{ $message }}</span> @enderror 

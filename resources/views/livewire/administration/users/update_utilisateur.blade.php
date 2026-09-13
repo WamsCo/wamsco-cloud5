@@ -365,7 +365,7 @@
                                         <select id="societe" wire:model.live="societe" class="form-control form-select bordure w-75 @error('societe') is-invalid @enderror">
                                             <option value=""></option>
                                             @foreach ($entite as $entites )
-                                                <option value="{{$entites->enseigne}}">{{$entites->enseigne}}</option> 
+                                                <option value="{{$entites->id}}">{{$entites->enseigne}}</option> 
                                             @endforeach 
                                         </select> 
                                     </div>

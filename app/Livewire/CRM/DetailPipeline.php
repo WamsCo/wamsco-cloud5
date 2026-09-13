@@ -282,7 +282,7 @@ class DetailPipeline extends Component
             'langue'=>'nullable|max:255', 
             'telephone_recommande_par'=>'nullable|max:255', 
             'source'=>'nullable|max:255',
-            'secteur_activite'=>'nullable|max:255',                         
+            'secteur_activite'=>'required|max:255',                         
             'poste_contact'=>'nullable|max:255', 
             'site_web'=>'nullable|max:255', 
             'recommande_par'=>'nullable|max:255', 

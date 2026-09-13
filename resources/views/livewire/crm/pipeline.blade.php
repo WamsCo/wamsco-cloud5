@@ -81,6 +81,9 @@
                                                                 <div class="card-body card-pipeline py-2">
                                                                     <span class="fw-bold fs-5">{{$task->nom_opportunite}}</span> <br/>
                                                                     <div class="w_field_widget fw-semibold">
+                                                                        <span class="badge badge-dark" title="Secteur d'activité » {{$task->secteur_activite}}">{{Str::limit($task->secteur_activite,42)}}</span>
+                                                                    </div>
+                                                                    <div class="w_field_widget fw-semibold">
                                                                         <i class="fa fa-money-bill text-bleu"></i> <span>{{number_format($task->montant_attendu,0,',',' ')}} {{$this->devise}}</span>
                                                                     </div>
                                                                     <div class="d-flex">

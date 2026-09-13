@@ -125,6 +125,7 @@
                                                             <option value=""></option>
                                                             <option value="Masculin">Masculin</option>												 
                                                             <option value="Feminin">Feminin</option>
+                                                            <option value="Entreprise">Entreprise</option>
                                                         </select> 
                                                     </div>
                                                     <div class="d-flex justify-content-start">

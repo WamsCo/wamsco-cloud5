@@ -76,7 +76,8 @@ class DetailUtilisateur extends Component
     public $password; 
     public $password_confirmation;
     public $date_valide;
-    public $etat = 1;
+    public $etat = 1;    
+    public $enseigne; 
     public $societe; 
     public $societe_id;
     public $salarie; 
@@ -175,7 +176,7 @@ class DetailUtilisateur extends Component
                 $departe = Departement :: where('societe_id',auth()->user()->societe_id)->orderBy('nom_departement','asc')->get();  
                 $posteTravail = Poste_travail :: where('societe_id',auth()->user()->societe_id)->orderBy('nom_poste','asc')->get(); 
                 if(auth()->user()->societe == "Administration"){
-                    $privillege = Role::where('societe_id', $this->societe_id)->orderBy('nom','asc')->get(); // ceci affiche en fonction de la societe choisie
+                    $privillege = Role::where('societe_id', $this->societe)->orderBy('nom','asc')->get(); // ceci affiche en fonction de la societe choisie
                 }
                 else{ 
                     $privillege = Role::where('societe_id',auth()->user()->societe_id)->orderBy('nom','asc')->get();
@@ -367,7 +368,8 @@ class DetailUtilisateur extends Component
         $this->password_test = $user->password;
         $this->date_valide = $user->date_valide;
         $this->note_interne = $user->note_interne;
-        $this->societe = $user->societe;
+        $this->enseigne = $user->societe;
+        $this->societe = $user->societe_id;
         $this->societe_id = $user->societe_id;
         $this->salarie = $user->salarie;
         $this->sexe = $user->sexe;
@@ -418,7 +420,8 @@ class DetailUtilisateur extends Component
         // suggerer un matricle si vide
         if(empty($this->matricule)){           
             $date = date('ymd-Hi');            
-            $societe = substr($this->societe,0,1);
+            // $societe = substr($this->enseigne,0,3);
+            $societe = strtoupper(substr($this->enseigne, 0, 3));  // strtoupper() mettre en majuscule
             $this->matricule = 'M-'.$societe.$date;  
         }
         if(empty($this->salaire)){            
@@ -496,11 +499,12 @@ class DetailUtilisateur extends Component
                     ]);  
                     if(auth()->user()->societe == "Administration"){ 
                                                                  
-                        if($this->id){ 
-                            $verification = Entite ::where('enseigne',$this->societe)->count(); 
+                        if($this->id){  
+                            $verification = Entite ::where('id',$this->societe)->count(); 
                             if($verification > 0){
-                                $entiteEnseigne = Entite ::where('enseigne',$this->societe)->get(); 
+                                $entiteEnseigne = Entite ::where('id',$this->societe)->get(); 
                                 $societe_id = $entiteEnseigne[0]->id;   
+                                $nom_societe = $entiteEnseigne[0]->enseigne;   
                                 $societe_mere = $entiteEnseigne[0]->societe_mere;   
                                 $societe_mere_id = $entiteEnseigne[0]->societe_mere_id;   
                             }
@@ -537,7 +541,7 @@ class DetailUtilisateur extends Component
                             } 
 
                             Utilisateur::find($this->id)->update(['titre'=>$this->titre,'name'=>$this->nom,'telephone'=>$this->telephone,'salarie'=>$this->salarie,'sexe'=>$this->sexe,'nationalite'=>$this->nationalite,
-                                        'societe'=>$this->societe,'societe_id'=>$societe_id,'societe_mere'=>$societe_mere,'societe_mere_id'=>$societe_mere_id,'type_user'=>$this->role,'date_valide'=>$this->date_valide,'matricule'=>$this->matricule,'etat'=>$this->etat,
+                                        'societe'=>$nom_societe,'societe_id'=>$societe_id,'societe_mere'=>$societe_mere,'societe_mere_id'=>$societe_mere_id,'type_user'=>$this->role,'date_valide'=>$this->date_valide,'matricule'=>$this->matricule,'etat'=>$this->etat,
                                         'cni'=>$this->cni,'passeport'=>$this->passeport,'niu'=>$this->niu,'date_naissance'=>$this->date_naissance,'lieu_naissance'=>$this->lieu_naissance,'etat_civil'=>$this->etat_civil,
                                         'nbre_enfant'=>$this->nbre_enfant,'nom_conjoint'=>$this->nom_conjoint,'date_nais_conjoint'=>$this->date_nais_conjoint,'persone_contact_urgence'=>$this->persone_contact_urgence,
                                         'telephone_urgence'=>$this->telephone_urgence,'departement'=>$nomDepart,'departement_id'=>$this->departement,'poste_travail'=>$nomPostes,'poste_travail_id'=>$this->poste_travail,
@@ -784,9 +788,10 @@ class DetailUtilisateur extends Component
                                                   
                             if($this->id){  
 
-                                $entiteEnseigne = Entite ::where('enseigne',$this->societe)->get(); 
+                                $entiteEnseigne = Entite ::where('id',$this->societe)->get(); 
                                 $societe_mere = $entiteEnseigne[0]->societe_mere; 
                                 $societe_id = $entiteEnseigne[0]->societe_id;   
+                                $nom_societe = $entiteEnseigne[0]->enseigne; 
                                 $societe_mere_id = $entiteEnseigne[0]->societe_mere_id;
 
                                 // recuperer le nom du Departement via son id 
@@ -818,7 +823,7 @@ class DetailUtilisateur extends Component
                                 }                                 
 
                                 Utilisateur::find($this->id)->update(['titre'=>$this->titre,'name'=>$this->nom,'telephone'=>$this->telephone,'password'=>bcrypt($this->password),'salarie'=>$this->salarie,'sexe'=>$this->sexe,'nationalite'=>$this->nationalite,
-                                        'societe'=>$this->societe,'societe_id'=>$societe_id,'societe_mere'=>$societe_mere,'societe_mere_id'=>$societe_mere_id,'type_user'=>$this->role,'date_valide'=>$this->date_valide,'matricule'=>$this->matricule,'etat'=>$this->etat,
+                                        'societe'=>$nom_societe,'societe_id'=>$societe_id,'societe_mere'=>$societe_mere,'societe_mere_id'=>$societe_mere_id,'type_user'=>$this->role,'date_valide'=>$this->date_valide,'matricule'=>$this->matricule,'etat'=>$this->etat,
                                         'cni'=>$this->cni,'passeport'=>$this->passeport,'niu'=>$this->niu,'date_naissance'=>$this->date_naissance,'lieu_naissance'=>$this->lieu_naissance,'etat_civil'=>$this->etat_civil,
                                         'nbre_enfant'=>$this->nbre_enfant,'nom_conjoint'=>$this->nom_conjoint,'date_nais_conjoint'=>$this->date_nais_conjoint,'persone_contact_urgence'=>$this->persone_contact_urgence,
                                         'telephone_urgence'=>$this->telephone_urgence,'departement'=>$nomDepart,'departement_id'=>$this->departement,'poste_travail'=>$nomPostes,'poste_travail_id'=>$this->poste_travail,

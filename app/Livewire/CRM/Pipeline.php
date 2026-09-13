@@ -36,6 +36,9 @@ class Pipeline extends Component
     public $priorite = 'Faible';
     public $evolution;
     public $nom_societe; 
+    public $ville;    
+    public $pays;
+    public $adresse_societe;     
     
     public $profils; 
     public $type_user; 
@@ -169,6 +172,10 @@ class Pipeline extends Component
         $this->showdiv = false;
         $this->nom_opportunite = 'Opportunité de '.$this->client;        
         $this->nom_societe = $record->raison_sociale;
+        $this->ville = $record->ville;
+        $this->adresse_societe = $record->adresse;
+        $this->pays = $record->pays;
+        
     }
     public function store(){        
         $this->validate([
@@ -197,9 +204,9 @@ class Pipeline extends Component
                         $date_cloture = date('Y-m-d', strtotime('2 month'));                  
 
                         $position = 0;
-                        $opportu = Opportunite :: create(['client'=>$this->client,'id_client'=>$this->ids_client,'nom_opportunite'=>$this->nom_opportunite,'email_contact'=>$this->email_contact,'nom_societe'=>$this->nom_societe,
-                        'telephone_contact'=>$this->telephone_contact,'montant_attendu'=>$this->montant_attendu,'etape'=>$nom_etape,'id_etape'=>$this->evolution,'step'=>$this->evolution,'position'=>$position,'priorite'=>$this->priorite,
-                        'date_cloture'=>$date_cloture,'pays'=>'Cameroon','langue'=>'Français','vendeur'=>auth()->user()->id,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->email,'user_id'=>auth()->user()->id]);
+                        $opportu = Opportunite :: create(['client'=>$this->client,'id_client'=>$this->ids_client,'nom_opportunite'=>$this->nom_opportunite,'email_contact'=>$this->email_contact,'nom_societe'=>$this->nom_societe,'adresse_societe'=>$this->adresse_societe,
+                        'telephone_contact'=>$this->telephone_contact,'montant_attendu'=>$this->montant_attendu,'etape'=>$nom_etape,'id_etape'=>$this->evolution,'step'=>$this->evolution,'position'=>$position,'priorite'=>$this->priorite,'ville'=>$this->ville,
+                        'date_cloture'=>$date_cloture,'pays'=>$this->pays,'langue'=>'Français','vendeur'=>auth()->user()->id,'societe'=>auth()->user()->societe,'societe_id'=>auth()->user()->societe_id,'nom_user'=>auth()->user()->email,'user_id'=>auth()->user()->id]);
                         
                         // ceci recupere le dernier enregistrement cree a l'instant
                         $dernier_id = $opportu->id;
