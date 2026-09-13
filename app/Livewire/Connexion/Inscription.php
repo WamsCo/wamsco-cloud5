@@ -317,7 +317,7 @@ class Inscription extends Component
                         'lien'=>'http://wamsco-cloud.net/connexion?email='.$email.'&user='.$name.'&active=ok&champ=1-1',
                         'logo'=>'https://wamsco-cloud.net/storage/'.$logo,
                     ];  
-                    // Mail::to($email)->send(new ConfirmationMail($body)); 
+                    Mail::to($email)->send(new ConfirmationMail($body)); 
                     // ********** Fin envoi email ************** 
 
                     flash ('M./Mme <strong>'.$this->nom_utilisateur.'</strong>, votre inscription a été effectuée avec succès. Merci de consulter votre boîte mail pour confirmer!')->success();

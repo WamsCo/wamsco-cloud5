@@ -89,10 +89,42 @@
                                 </div>
                                 <div class="col-sm-4 col-lg-3 mb-4">
                                     <div class="cardor border-0 bg-white-500 text-white">
+                                        <a href="{{asset('')}}" wire:navigate class="bloc_mod" title="Opération qui consiste à compter et vérifier les produits disponibles en stock afin de connaître les quantités réellement présentes.">
+                                            <div class="bloc_img_text">
+                                                <div class="part_img">
+                                                    <img src="storage/img_module/inventaire.jpg" alt="Inventaire" class="img_mod">
+                                                </div>
+                                                <div class="part_text">
+                                                    <h5 class="card-title taille_titre_mod"><i class="fa fa-cubes"></i> Inventaire</h5>
+                                                    <p class="truncate_wamsco mb-1">Opération qui consiste à compter et vérifier les produits disponibles en stock afin de connaître les quantités réellement présentes.</p>
+                                                    {{-- <p class="card-text fw-bold badge bg-green mt-2">Activer</p> --}}
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </div>                    
+                                </div> 
+                                <div class="col-sm-4 col-lg-3 mb-4">
+                                    <div class="cardor border-0 bg-white-500 text-white">
+                                        <a href="{{asset('#')}}" wire:navigate class="bloc_mod" title="Opération qui consiste à déplacer des produits d’un stock, magasin ou dépôt vers un autre.">
+                                            <div class="bloc_img_text">
+                                                <div class="part_img">
+                                                    <img src="storage/img_module/transfert.jpg" alt="" class="img_mod">
+                                                </div>
+                                                <div class="part_text">
+                                                    <h5 class="card-title taille_titre_mod"><i class="fa fa-refresh fa-spin"></i> Transfert</h5>
+                                                    <p class="truncate_wamsco mb-1">Opération qui consiste à déplacer des produits d’un stock, magasin ou dépôt vers un autre.</p>
+                                                    {{-- <p class="card-text fw-bold badge bg-green mt-2">Activer</p> --}}
+                                                </div>
+                                            </div>
+                                        </a>                                        
+                                    </div>                    
+                                </div>  
+                                <div class="col-sm-4 col-lg-3 mb-4">
+                                    <div class="cardor border-0 bg-white-500 text-white">
                                         <a href="{{asset('#')}}" wire:navigate class="bloc_mod" title="Système de vente conviviale, performant et intuitif pour tous type de commerce.">
                                             <div class="bloc_img_text">
                                                 <div class="part_img">
-                                                    <img src="storage/img_module/1.png" alt="" class="img_mod">
+                                                    <img src="storage/img_module/1.png" alt="Point Vente" class="img_mod">
                                                 </div>
                                                 <div class="part_text2">
                                                     <h5 class="card-title taille_titre_mod"><i class="fa fa-cash-register"></i> Point Vente</h5>
@@ -166,13 +198,45 @@
                                             </div>
                                         </a>
                                     </div>                    
-                                </div>                    
+                                </div> 
+                                <div class="col-sm-4 col-lg-3 mb-4">
+                                    <div class="cardor border-0 bg-white-500 text-white">
+                                        <a href="{{asset('#')}}" wire:navigate class="bloc_mod" title="Opération qui consiste à préparer et envoyer des produits à un client ou à une autre destination.">
+                                            <div class="bloc_img_text">
+                                                <div class="part_img">
+                                                    <img src="storage/img_module/expedition.jpg" alt="Expédition" class="img_mod">
+                                                </div>
+                                                <div class="part_text">
+                                                    <h5 class="card-title taille_titre_mod"><i class="fa fa-arrows-alt"></i> Expédition</h5>
+                                                    <p class="truncate_wamsco mb-1">Opération qui consiste à préparer et envoyer des produits à un client ou à une autre destination.</p>
+                                                    {{-- <p class="card-text fw-bold badge bg-green mt-2">Activer</p> --}}
+                                                </div>
+                                            </div>
+                                        </a>                                        
+                                    </div>                    
+                                </div> 
+                                <div class="col-sm-4 col-lg-3 mb-4">
+                                    <div class="cardor border-0 bg-white-500 text-white">
+                                        <a href="{{asset('#')}}" wire:navigate class="bloc_mod" title="Opération qui consiste à enregistrer et contrôler les produits reçus afin de les ajouter au stock.">
+                                            <div class="bloc_img_text">
+                                                <div class="part_img">
+                                                    <img src="storage/img_module/reception.jpg" alt="Réception" class="img_mod">
+                                                </div>
+                                                <div class="part_text">
+                                                    <h5 class="card-title taille_titre_mod"><i class="fa fa-repeat"></i> Réception</h5>
+                                                    <p class="truncate_wamsco mb-1">Opération qui consiste à enregistrer et contrôler les produits reçus afin de les ajouter au stock.</p>
+                                                    {{-- <p class="card-text fw-bold badge bg-green mt-2">Activer</p> --}}
+                                                </div>
+                                            </div>
+                                        </a>                                        
+                                    </div>                    
+                                </div>                        
                                 <div class="col-sm-4 col-lg-3 mb-4">
                                     <div class="cardor border-0 bg-white-500 text-white">
                                         <a href="{{asset('#')}}" wire:navigate class="bloc_mod" title="Ensemble des opérations de trésorerie courante gérées directement par l'entreprise (Finances, comptes, écritures, virement)">
                                             <div class="bloc_img_text">
                                                 <div class="part_img">
-                                                    <img src="storage/img_module/7.png" alt="" class="img_mod">
+                                                    <img src="storage/img_module/7.png" alt="Banque/Caisse" class="img_mod">
                                                 </div>
                                                 <div class="part_text2">
                                                     <h5 class="card-title taille_titre_mod"><i class="fa fa-credit-card"></i> Banque/Caisse</h5>
@@ -207,7 +271,7 @@
                                                     <img src="storage/img_module/ticket.jpg" alt="" class="img_mod">
                                                 </div>
                                                 <div class="part_text2">
-                                                    <h5 class="card-title taille_titre_mod"><i class="fa fa-shapes"></i> Ticket</h5>
+                                                    <h5 class="card-title taille_titre_mod"><i class="fa fa-ticket"></i> Ticket</h5>
                                                     <p class="truncate_wamsco mb-1">Le ticket est un enregistrement formel et numéroté d'une demande ou d'un problème qu'un client ou un employé soumet à une équipe de support (service après-vente, assistance technique, etc.).</p>
                                                     {{-- <p class="card-text fw-bold badge bg-green mt-2">Activer</p> --}}
                                                 </div>
@@ -223,7 +287,7 @@
                                                     <img src="storage/img_module/taches.png" alt="" class="img_mod">
                                                 </div>
                                                 <div class="part_text2">
-                                                    <h5 class="card-title taille_titre_mod"><i class="fa fa-shapes"></i> Gestion Tâches</h5>
+                                                    <h5 class="card-title taille_titre_mod"><i class="fa fa-tasks"></i> Gestion Tâches</h5>
                                                     <p class="truncate_wamsco mb-1">La gestion des tâches est le processus qui consiste à identifier, suivre et exécuter le travail nécessaire pour atteindre un objectif.</p>
                                                     {{-- <p class="card-text fw-bold badge bg-green mt-2">Activer</p> --}}
                                                 </div>
