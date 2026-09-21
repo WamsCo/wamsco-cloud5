@@ -378,9 +378,12 @@
                                 <label for="role" class="col-lg-3 col-md-3 col-sm-3 fw-bold col-form-label">Rôle</label>
                                 <div class="col-lg-9 col-md-9 col-sm-9">                                                        
                                     <select id="role" wire:model="role" class="form-control form-select bordure w-75 @error('role') is-invalid @enderror">
-                                        <option value="{{$role}}">{{$role}}</option>                                                    
-                                        @foreach($privillege as $privilleges) 
-                                            <option value="{{$privilleges->nom}}"><span class="text-danger">{{$privilleges->nom}}</span></option>																												      
+                                        {{-- <option value=""></option> --}}
+                                        <option value="{{$role}}">{{$role}}</option>
+                                        @foreach($privillege as $privilleges)
+                                            @if($role != $privilleges->nom)                                                                                  
+                                                <option value="{{$privilleges->nom}}"><span class="text-danger">{{$privilleges->nom}} » {{Str::limit($privilleges->description,22)}}</span></option>
+                                            @endif																												      
                                         @endforeach
                                     </select> 
                                 </div>

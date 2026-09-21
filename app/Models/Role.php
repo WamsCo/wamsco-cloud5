@@ -31,7 +31,7 @@ class Role extends Model
                            'consulter_depart_poste','creer_depart_poste','modifier_depart_poste','supprimer_depart_poste','configurer',
                            'liste_nomencla','creer_nomencla','modifier_nomencla','supprimer_nomencla','liste_ordre_fab','creer_ordre_fab','modifier_ordre_fab',
                            'supprimer_ordre_fab','ajouter_composant','supprimer_composant',
-                           'consulter_opportunite','creer_opportunite','detail_opportunite','modifier_opportunite','supprimer_opportunite',                           
+                           'consulter_opportunite','creer_opportunite','detail_opportunite','modifier_opportunite','assigner_opportunite','supprimer_opportunite',                           
                            'consulter_etape','creer_etape','modifier_etape','supprimer_etape', 
                            'consulter_ticket','creer_ticket','modifier_ticket','supprimer_ticket',                            
                            'consulter_tache','creer_tache','detail_tache','modifier_tache','supprimer_tache', 

@@ -295,15 +295,19 @@
                                                                                                 </div>
                                                                                                 <div class="form-check form-switch mb-3">
                                                                                                     <input class="form-check-input" type="checkbox" id="detoppo"  wire:model="detail_opportunite">
-                                                                                                    <label class="form-check-label" for="detoppo">Voir les détails opportunité</label>
+                                                                                                    <label class="form-check-label" for="detoppo">Voir détails opportunité</label>
                                                                                                 </div>                                                                      
                                                                                                 <div class="form-check form-switch mb-3">
                                                                                                     <input class="form-check-input" type="checkbox" id="modoppo"  wire:model="modifier_opportunite">
                                                                                                     <label class="form-check-label" for="modoppo">Modifier une opportunité</label>
                                                                                                 </div>
                                                                                                 <div class="form-check form-switch mb-3">
+                                                                                                    <input class="form-check-input" type="checkbox" id="assigoppo"  wire:model="assigner_opportunite">
+                                                                                                    <label class="form-check-label" for="assigoppo">Assigner une opportunité</label>
+                                                                                                </div>
+                                                                                                <div class="form-check form-switch mb-3">
                                                                                                     <input class="form-check-input" type="checkbox" id="supoppo"  wire:model="supprimer_opportunite">
-                                                                                                    <label class="form-check-label" for="supoppo">Supprimer une opportunité</label>
+                                                                                                    <label class="form-check-label" for="supoppo">Supprimer opportunité</label>
                                                                                                 </div>                                                                    
                                                                                             </div>                                                                    
                                                                                             <div class="titre_role">Etape CRM</div>

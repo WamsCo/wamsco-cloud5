@@ -4,6 +4,7 @@ namespace App\Livewire\CRM;
 
 use Livewire\Component;
 use Livewire\Attributes\Validate; 
+Use Carbon\Carbon;
 use App\Helpers\LogActivity;
 use App\Models\LogActivity as LogActivityModel;
 use Livewire\WithPagination;
@@ -15,6 +16,7 @@ use App\Models\Entite;
 use App\Models\DeviseTva;
 use App\Models\Etape;
 use App\Models\Opportunite;
+use App\Models\Note;
 
 class Pipeline extends Component
 {
@@ -44,6 +46,17 @@ class Pipeline extends Component
     public $type_user; 
     public $nom_vendeur; 
     public $phone_vendeur; 
+
+    public $date_debut; 
+    public $date_fin;
+    public $start;
+    public $end;
+    
+    public $query;
+    public $parSec; 
+    public $parCap; 
+    public $parUser;   
+    public $parSource;   
     
      public function resetinputFields(){
         $this->client = '';
@@ -68,7 +81,8 @@ class Pipeline extends Component
             alert()->error('Oups Désolé', 'Désolé, vous n\'avez pas de privillège, veuillez contacter un administrateur!')->position('center')->autoClose(5000)->background('#fff')->width('460px')->padding('5px');
             $this->redirect('/bienvenue', navigate: true);
         }
-               
+        $this->date_debut = date('Y-m-d', strtotime('-1 year'));  // ceci pour affiche toutes les sessions en permanance sur 1 mois par defaut
+        $this->date_fin = date('Y-m-d');  
     }
     public function render(){
     
@@ -89,21 +103,61 @@ class Pipeline extends Component
                 $choix = request('choix');
                 $dateJour = date('Y-m-d');             
 
-                $etape = Etape :: where('societe_id',auth()->user()->societe_id)->orderBy('id','asc')->get(); 
+                $etape = Etape :: where('societe_id',auth()->user()->societe_id)->orderBy('id','asc')->get();                 
 
-                // if(auth()->user()->societe == "Administration" && auth()->user()->type_user == "Administrateur"){ 
+                $this->start = Carbon::parse($this->date_debut)->startOfDay(); //2016-09-29 00:00:00.000000
+                $this->end = Carbon::parse($this->date_fin)->endOfDay();     // 2016-09-29 23:59:59.000000
+
                 if(auth()->user()->type_user == "Administrateur"){ 
 
-                    $opportuniter = Opportunite :: where('societe_id',auth()->user()->societe_id)->orderBy('step')->orderBy('position')->get()->groupBy('step');
+                    $query = Opportunite::where('societe_id', auth()->user()->societe_id);
+                    if (!empty($this->query)) {
+                        $query->where('ville', 'like', '%' . $this->query . '%');
+                    }
+                    if (!empty($this->parSec)) {
+                        $query->where('secteur_activite', 'like', '%' . $this->parSec . '%');
+                    }
+                    if (!empty($this->parCap)) {
+                        $query->where('campagne', 'like', '%' . $this->parCap . '%');
+                    }
+                    if (!empty($this->parSource)) {
+                        $query->where('source', $this->parSource);
+                    }
+                    if (!empty($this->parUser)) {
+                        $query->where('vendeur', $this->parUser);
+                    }
+                    $query->whereBetween('created_at', [$this->start, $this->end]);
+                    // Tri + regroupement par étape
+                    $opportuniter = $query->orderBy('step')->orderBy('position')->get()->groupBy('step');  
                 }
                 else{
 
-                    $opportuniter = Opportunite::where('societe_id',auth()->user()->societe_id)->where('vendeur', auth()->user()->id)->orderBy('step')->orderBy('position')->get()->groupBy('step');
+                    $query = Opportunite::where('societe_id', auth()->user()->societe_id)->where('vendeur', auth()->user()->id);
+                    if (!empty($this->query)) {
+                        $query->where('ville', 'like', '%' . $this->query . '%');
+                    }
+                    if (!empty($this->parSec)) {
+                        $query->where('secteur_activite', 'like', '%' . $this->parSec . '%');
+                    }
+                    if (!empty($this->parCap)) {
+                        $query->where('campagne', 'like', '%' . $this->parCap . '%');
+                    }
+                    if (!empty($this->parSource)) {
+                        $query->where('source', $this->parSource);
+                    }
+                    if (!empty($this->parUser)) {
+                        $query->where('vendeur', $this->parUser);
+                    }
+                    $query->whereBetween('created_at', [$this->start, $this->end]);
+                    // Tri + regroupement par étape
+                    $opportuniter = $query->orderBy('step')->orderBy('position')->get()->groupBy('step');  
                 } 
 
                 $opportuniterCount = $opportuniter->count();
 
                 $user = Utilisateur::where('societe_id',auth()->user()->societe_id)->orderBy('name','asc')->get(); 
+                $note = Note::where('societe_id',auth()->user()->societe_id)->get(); 
+                $utilisat = Utilisateur::where('societe_id',auth()->user()->societe_id)->orderBy('name','asc')->get(); 
 
                 $deviseTva = DeviseTva :: where('societe_id',auth()->user()->societe_id)->limit(1)->orderBy('id','asc')->count();             
                 if($deviseTva == 0){
@@ -118,7 +172,7 @@ class Pipeline extends Component
                 $jourValid = $entite_mod[0]->validite_mod; 
                 // ceci pour trouver le nombre de jour restant avant expiration
                 $nbjoursRestant = round((strtotime($jourValid) - strtotime($dateJour))/(60*60*24));           
-                    return view('livewire.crm.pipeline',compact('title_fils','module','lien','dateJour','etape','opportuniter','opportuniterCount','user'))->layout('components.layouts.app',compact('title','active','champ','choix','entite_mod','dateJour','soldeClient','nbjoursRestant'));
+                    return view('livewire.crm.pipeline',compact('title_fils','module','lien','dateJour','etape','opportuniter','opportuniterCount','user','note','utilisat'))->layout('components.layouts.app',compact('title','active','champ','choix','entite_mod','dateJour','soldeClient','nbjoursRestant'));
             }
             else{
                 $title = 'Bienvenue'; 
@@ -278,22 +332,94 @@ class Pipeline extends Component
 
         if(auth()->user()->type_user == "Administrateur"){ 
 
-            return Opportunite :: where('societe_id',auth()->user()->societe_id)->where('id_etape', $id_etape)->sum('montant_attendu'); 
+            $query = Opportunite::where('societe_id', auth()->user()->societe_id)->where('id_etape', $id_etape);
+            if (!empty($this->query)) {
+                $query->where('ville', 'like', '%' . $this->query . '%');
+            }
+            if (!empty($this->parSec)) {
+                $query->where('secteur_activite', 'like', '%' . $this->parSec . '%');
+            }
+            if (!empty($this->parCap)) {
+                $query->where('campagne', 'like', '%' . $this->parCap . '%');
+            }
+            if (!empty($this->parSource)) {
+                $query->where('source', $this->parSource);
+            }
+            if (!empty($this->parUser)) {
+                $query->where('vendeur', $this->parUser);
+            }
+            $query->whereBetween('created_at', [$this->start, $this->end]);
+            return $query->sum('montant_attendu');
+            // return Opportunite :: where('societe_id',auth()->user()->societe_id)->where('id_etape', $id_etape)->sum('montant_attendu'); 
         }
         else{
 
-            return Opportunite :: where('societe_id',auth()->user()->societe_id)->where('vendeur', auth()->user()->id)->where('id_etape', $id_etape)->sum('montant_attendu'); 
+            $query = Opportunite::where('societe_id', auth()->user()->societe_id)->where('vendeur', auth()->user()->id)->where('id_etape', $id_etape);
+            if (!empty($this->query)) {
+                $query->where('ville', 'like', '%' . $this->query . '%');
+            }
+            if (!empty($this->parSec)) {
+                $query->where('secteur_activite', 'like', '%' . $this->parSec . '%');
+            }
+            if (!empty($this->parCap)) {
+                $query->where('campagne', 'like', '%' . $this->parCap . '%');
+            }
+            if (!empty($this->parSource)) {
+                $query->where('source', $this->parSource);
+            }
+            if (!empty($this->parUser)) {
+                $query->where('vendeur', $this->parUser);
+            }
+            $query->whereBetween('created_at', [$this->start, $this->end]);
+            return $query->sum('montant_attendu');
+            // return Opportunite :: where('societe_id',auth()->user()->societe_id)->where('vendeur', auth()->user()->id)->where('id_etape', $id_etape)->sum('montant_attendu'); 
         }            
     }
     public function getTotalParOpportunite(int $id_etape){
 
         if(auth()->user()->type_user == "Administrateur"){ 
-
-            return Opportunite :: where('societe_id',auth()->user()->societe_id)->where('id_etape', $id_etape)->count();  
+            
+            $query = Opportunite::where('societe_id', auth()->user()->societe_id)->where('id_etape', $id_etape);
+            if (!empty($this->query)) {
+                $query->where('ville', 'like', '%' . $this->query . '%');
+            }
+            if (!empty($this->parSec)) {
+                $query->where('secteur_activite', 'like', '%' . $this->parSec . '%');
+            }
+            if (!empty($this->parCap)) {
+                $query->where('campagne', 'like', '%' . $this->parCap . '%');
+            }
+            if (!empty($this->parSource)) {
+                $query->where('source', $this->parSource);
+            }
+            if (!empty($this->parUser)) {
+                $query->where('vendeur', $this->parUser);
+            }
+            $query->whereBetween('created_at', [$this->start, $this->end]);
+            return $query->count();
+            // return Opportunite :: where('societe_id',auth()->user()->societe_id)->where('id_etape', $id_etape)->count();  
         }
         else{
 
-            return Opportunite :: where('societe_id',auth()->user()->societe_id)->where('vendeur', auth()->user()->id)->where('id_etape', $id_etape)->count(); 
+            $query = Opportunite::where('societe_id', auth()->user()->societe_id)->where('vendeur', auth()->user()->id)->where('id_etape', $id_etape);
+            if (!empty($this->query)) {
+                $query->where('ville', 'like', '%' . $this->query . '%');
+            }
+            if (!empty($this->parSec)) {
+                $query->where('secteur_activite', 'like', '%' . $this->parSec . '%');
+            }
+            if (!empty($this->parCap)) {
+                $query->where('campagne', 'like', '%' . $this->parCap . '%');
+            }
+            if (!empty($this->parSource)) {
+                $query->where('source', $this->parSource);
+            }
+            if (!empty($this->parUser)) {
+                $query->where('vendeur', $this->parUser);
+            }
+            $query->whereBetween('created_at', [$this->start, $this->end]);
+            return $query->count();
+            // return Opportunite :: where('societe_id',auth()->user()->societe_id)->where('vendeur', auth()->user()->id)->where('id_etape', $id_etape)->count(); 
         }            
     }      
     public function moveTask($taskId, $newEtape, $newPosition){    

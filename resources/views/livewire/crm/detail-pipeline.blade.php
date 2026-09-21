@@ -49,27 +49,16 @@
                                                         </div>
                                                     </div>                                                    
                                                 </div>
-                                                {{-- <img class="img_detail_prod rounded-circle border" width="70" height="70" src="{{ asset('storage/default/user_man.png')}}" data-bs-toggle="modal" data-bs-target="#imagetierModal"/>
-                                                <h3 class="mt-3 mb-1">{{ $tiers->nom }}</h3>
-                                                <div class="text-success fw-bold">{{ $tiers->type_tiers }}</div>
-                                                <span class="text-success fw-semibold">@if($tiers->code_tier)<i class="fas fa-user-circle text-bleu"></i> <span class="text-bleu fw-semibold" title="Code {{$tiers->type_tiers}}">» {{$tiers->code_tier}}</span>@endif</span>
-                                                <div class="text-muted">
-                                                    @if($tiers->etat == 1)
-                                                        <span class="badge bg-success py-0" title="Activer">Activer</span>
-                                                    @else
-                                                        <span class="badge bg-danger py-0" title="Désactiver">Désactiver </span>
-                                                    @endif
-                                                </div> --}}
                                             </div>
                                             <hr class="my-2">
                                             <div class="d-flex gap-1 mb-1">
                                                 {{-- <button href="#" wire:click.prevent="edit({{$tiers->id}})" data-bs-toggle="modal" data-bs-target="#soldeTiersModal" title="Cliquez pour recharger le compte client" data-toggle="tooltip" class="btn btn-sm btn-white text-danger flex-fill fw-semibold ms-auto"><i class="fas fa-file-invoice-dollar"></i> Recharge</button> --}}
                                                 <button href="{{asset('pipeline_tiers?active=3&champ=3-3&choix=1')}}" wire:navigate class="btn btn-sm btn-outline-success flex-fill fw-semibold ms-auto"><i class="fa fa-close"></i> Fermer</button>
                                                 <button href="#" wire:click.prevent="update()" title="Cliquez pour modifier" data-toggle="tooltip" class="btn btn-sm btn-outline-secondary flex-fill fw-semibold ms-auto"><i class="fa fa-pen"></i> Modifier</button>
-                                                @if($confirmer === $tiers->id)                                                               
-                                                    <button wire:click.prevent="supprimer({{$tiers->id}})" class="btn btn-sm btn-outline-danger bg-danger text-white blink" style="font-size:11px;"  title="Cliquez pour confirmer la suppression" data-bs-toggle="tooltip" data-bs-placement="top"><i class="fa fa-trash"> Confirmer ?</i></button>
+                                                @if($confirmer === $this->ids)                                                               
+                                                    <button wire:click.prevent="supprimer({{$this->ids}})" class="btn btn-sm btn-outline-danger bg-danger text-white blink" style="font-size:11px;"  title="Cliquez pour confirmer la suppression" data-bs-toggle="tooltip" data-bs-placement="top"><i class="fa fa-trash"> Confirmer ?</i></button>
                                                 @else
-                                                    <button wire:click.prevent="confirmerDelete({{$tiers->id}})" class="btn btn-sm btn-outline-muted" title="Cliquez pour supprimer" data-bs-toggle="tooltip" data-bs-placement="top"><i class="fa fa-trash"></i></button>
+                                                    <button wire:click.prevent="confirmerDelete({{$this->ids}})" class="btn btn-sm btn-outline-muted" title="Cliquez pour supprimer" data-bs-toggle="tooltip" data-bs-placement="top"><i class="fa fa-trash"></i></button>
                                                 @endif 
                                             </div>
                                             <div class="d-flex align-items-center justify-content-between gap-1 mb-3"> 
@@ -103,12 +92,9 @@
                                                         <label for="probabilite" class="form-label fw-semibold text-muted">Probabilité succès</label>
                                                         <div class="">                                                        
                                                             <select id="probabilite" wire:model="probabilite" class="form-control form-select fw-bold text-bleu bordurek @error('probabilite') is-invalid @enderror" id="probabilite">
-                                                                <option value=""></option>
-                                                                <option value="10 %">Probabilité » 10 %</option>
-                                                                <option value="25 %">Probabilité » 25 %</option>
-                                                                <option value="50 %">Probabilité » 50 %</option>
-                                                                <option value="75">Probabilité » 75 %</option>
-                                                                <option value="100 %">Probabilité » 100 %</option>                               
+                                                                @for($i = 0; $i <= 100; $i += 10)
+                                                                    <option value="{{$i}}%">Probabilité succès » {{$i}}%</option>
+                                                                @endfor                                                                                       
                                                             </select> 
                                                         </div>
                                                         <div class="d-flex justify-content-start">
@@ -190,9 +176,9 @@
                                                         </div>
                                                     </div>
                                                     <div class="row mb-1">
-                                                        <label for="vendeur" class="form-label fw-semibold text-muted">Vendeur</label>
+                                                        <label for="vendeur" class="form-label fw-semibold text-muted">Assigner à (vendeur)</label>
                                                         <div class="">                                                        
-                                                            <select id="vendeur" wire:model="vendeur" class="form-control form-select bordurek @error('vendeur') is-invalid @enderror">
+                                                            <select id="vendeur" wire:model="vendeur" class="form-control form-select text-danger bordurek @error('vendeur') is-invalid @enderror">
                                                                 <option value=""></option>	
                                                                 @foreach($user as $users)
                                                                     <option value="{{$users->id}}">{{$users->name}}</option>
@@ -223,6 +209,7 @@
                                                             <select id="priorite" wire:model="priorite" class="form-control form-select fw-bold text-primary bordurek @error('priorite') is-invalid @enderror" id="priorite">
                                                                 <option value=""></option>	
                                                                 <option value="Faible">Faible</option>	
+                                                                <option value="Moyenne">Moyenne</option>
                                                                 <option value="Haute">Haute</option>
                                                                 <option value="Très élevé">Très élevé</option>                               
                                                             </select> 
@@ -593,9 +580,18 @@
                                                                                 </div>
                                                                             </div>
                                                                             <div class="row mb-1">
+                                                                                <label for="campagne" class="form-label fw-semibold text-muted">Campagne</label>
+                                                                                <div class="">
+                                                                                    <input type="text" wire:model="campagne" placeholder="Ex. Campagne Facebook septembre" class="form-control bordurek text-wamsco @error('campagne') is-invalid @enderror" id="campagne">
+                                                                                </div>
+                                                                                <div class="d-flex justify-content-start">
+                                                                                    @error('campagne') <span class="text-danger">{{ $message }}</span> @enderror 
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="row mb-1">
                                                                                 <label for="source" class="form-label fw-semibold text-muted">Source</label>
                                                                                 <div class="">                                                        
-                                                                                    <select id="source" wire:model="source" class="form-control form-select fw-semibold text-bleu bordurek @error('source') is-invalid @enderror" id="source">
+                                                                                    <select wire:model="source" class="form-control form-select fw-semibold text-bleu bordurek @error('source') is-invalid @enderror" id="source">
                                                                                         <option value=""></option>	
                                                                                         <option value="Site web">Site web</option>
                                                                                         <option value="WhatsApp">WhatsApp</option>
@@ -621,7 +617,7 @@
                                                     </div>                                         
                                                 </div>
                                             </div>
-                                            <div class="w_horizontal_separator mt-4 mb-2 text-bleu text-uppercase fw-bolder small">Details tier</div>
+                                            {{-- <div class="w_horizontal_separator mt-4 mb-2 text-bleu text-uppercase fw-bolder small">Details tier</div>
                                             <div class="table-responsive">
                                                 <table class="table table-borderless text-nowrap m-0">
                                                     <tr>
@@ -679,7 +675,7 @@
                                                         </tr>
                                                     @endif
                                                 </table>
-                                            </div>
+                                            </div> --}}
                                         </div>
                                     </div>
                                 </div>
@@ -895,12 +891,12 @@
                                                                                         @endif
                                                                                     </div>
                                                                                     <div class="text-secondary mt-1" style="font-size: 13px;">
-                                                                                        <span class="fw-semibold text-muted" style="font-size: 13px;">
+                                                                                        <span class="fw-semibold text-muted pb-3" style="font-size: 13px;">
                                                                                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width: 12px; height: 12px; color:#8a2be2;">
                                                                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 20.25c4.97 0 9-3.694 9-8.25s-4.03-8.25-9-8.25S3 7.444 3 12c0 2.104.859 4.023 2.273 5.48.432.447.74 1.04.586 1.641a4.483 4.483 0 01-.923 1.785A5.969 5.969 0 006 21c1.282 0 2.47-.402 3.445-1.069.5-.34 1.148-.285 1.64.107A8.38 8.38 0 0012 20.25z" />
                                                                                             </svg> 
                                                                                             {{$planifiers->sujet}}
-                                                                                        </span><br>
+                                                                                        </span>
                                                                                         <span style="white-space: pre-line;">
                                                                                             {{ $planifiers->commentaire }}
                                                                                         </span>
@@ -908,7 +904,7 @@
                                                                                 </div>
                                                                                 <div class="d-flex align-items-center gap-3">
                                                                                     @if($planifiers->statut == "Terminer")
-                                                                                        <span class="text-muted text-nowrap" style="font-size: 11px;">{{\Carbon\Carbon::parse($planifiers->updated_at)->locale('fr')->translatedFormat('j F Y \à H:i')}}</span>
+                                                                                        <span class="text-muted text-nowrap fw-semibold" style="font-size: 11px;">{{\Carbon\Carbon::parse($planifiers->updated_at)->locale('fr')->translatedFormat('j F Y \à H:i')}}</span>
                                                                                     @else
                                                                                         @php
                                                                                             $dateEcheance = \Carbon\Carbon::parse($planifiers->date_echeance);
@@ -919,7 +915,7 @@
                                                                                         @if($joursDifference < 0)
                                                                                             <span class="badge bg-danger">Retard {{ abs($joursDifference) }} {{ abs($joursDifference) > 1 ? 'jours' : 'jour' }}</span>
                                                                                         @elseif($joursDifference == 0)
-                                                                                            <span class="badge bg-warning text-dark">Aujourd'hui à {{ $dateEcheance->format('H:i') }}</span>
+                                                                                            <span class="badge bg-warning">Aujourd'hui à {{ $dateEcheance->format('H:i') }}</span>
                                                                                         @elseif($joursDifference == 1)
                                                                                             <span class="badge bg-info">Demain à {{ $dateEcheance->format('H:i') }}</span>
                                                                                         @elseif($joursDifference <= 7)
@@ -939,14 +935,49 @@
                                                                             </div>
                                                                             @if($ouvrir === $planifiers->id)
                                                                                 <div class="d-flexf align-items-center justify-content-between px-2 py-2">
+                                                                                    <div class="row mb-2">
+                                                                                        <label for="type_activites" class="form-label fw-semibold text-muted">Type</label>
+                                                                                        <div class="">                                                        
+                                                                                            <select id="type_activites" wire:model="type_activites" class="form-control form-select fw-bold bordurek w-100 @error('type_activites') is-invalid @enderror">
+                                                                                                <option value=""></option>	
+                                                                                                <option value="Appel">Appel</option>	
+                                                                                                <option value="Email">Email</option>	
+                                                                                                <option value="Note">Note</option>	
+                                                                                                <option value="WhatsApp">WhatsApp</option>	
+                                                                                                <option value="Tâche">Tâche</option>                                                                                    
+                                                                                                <option value="Rendez-vous">Rendez-vous</option>	
+                                                                                            </select> 
+                                                                                        </div>
+                                                                                        <div class="d-flex justify-content-start">
+                                                                                            @error('type_activites') <span class="text-danger">{{ $message }}</span> @enderror 
+                                                                                        </div>
+                                                                                    </div>
+                                                                                    <div class="row mb-2">
+                                                                                        <label for="sujets" class="form-label fw-semibold text-muted">Sujet</label>
+                                                                                        <div class="">
+                                                                                            <input type="text" wire:model="sujets" placeholder="Sujet" class="form-control bordurek text-bleu w-100 @error('sujets') is-invalid @enderror" id="sujets">
+                                                                                        </div>
+                                                                                        <div class="d-flex justify-content-start">
+                                                                                            @error('sujets') <span class="text-danger">{{ $message }}</span> @enderror 
+                                                                                        </div>
+                                                                                    </div>
+                                                                                    <div class="row mb-2">
+                                                                                        <label for="date_echeance" class="form-label fw-semibold text-muted">Date échéance</label>
+                                                                                        <div class="">
+                                                                                            <input type="datetime-local" wire:model="date_echeances" class="form-control bordurek text-vert w-100 @error('date_echeance') is-invalid @enderror" id="date_echeance">
+                                                                                        </div>
+                                                                                        <div class="d-flex justify-content-start">
+                                                                                            @error('date_echeance') <span class="text-danger">{{ $message }}</span> @enderror 
+                                                                                        </div>
+                                                                                    </div>
                                                                                     <div class="row mb-1">
-                                                                                        <div class="col-sm-11">
-                                                                                            <textarea rows="4" wire:model="commentaires" class="form-control text-bleu w-100 @error('commentaires') is-invalid @enderror" id="commentaires" placeholder="Enregistrer un commentaire 😊"></textarea>
+                                                                                        <div class="col-sm-12">
+                                                                                            <textarea rows="5" wire:model="commentaires" class="form-control text-bleu w-100 @error('commentaires') is-invalid @enderror" id="commentaires" placeholder="Enregistrer un commentaire 😊"></textarea>
                                                                                         </div>
                                                                                         <div class="d-flex justify-content-start">
                                                                                             @error('commentaires') <span class="text-danger">{{ $message }}</span> @enderror 
                                                                                         </div>
-                                                                                    </div>
+                                                                                    </div>                                                                                      
                                                                                     <div class="text-start"> 
                                                                                         <button class="btn btn-xs btn-secondary fw-bold" wire:click.prevent="modifierNote()" title="Cliquez pour modifier" data-toggle="tooltip"><i class="fa fa-pencil"></i> Modifier</button>
                                                                                         <button class="btn btn-xs btn-danger fw-bold" wire:click.prevent="onDataOuvrir()" title="Cliquez pour fermer" data-toggle="tooltip"><i class="fa fa-close"></i></button>
@@ -991,8 +1022,9 @@
                                                                                     <option value="Appel">Appel</option>	
                                                                                     <option value="Email">Email</option>	
                                                                                     <option value="Note">Note</option>	
-                                                                                    <option value="Rendez-vous">Rendez-vous</option>	
+                                                                                    <option value="WhatsApp">WhatsApp</option>	
                                                                                     <option value="Tâche">Tâche</option>                                                                                    
+                                                                                    <option value="Rendez-vous">Rendez-vous</option>	
                                                                                 </select> 
                                                                             </div>
                                                                             <div class="d-flex justify-content-start">
@@ -1029,7 +1061,7 @@
                                                                         <button href="#" wire:click.prevent="saveActivite()" title="Cliquez pour Enregistrer" data-toggle="tooltip" class="btn btn-md btn-wamsco w-100"><i class="fas fa-save"></i> Enregistrer</button>
                                                                     </div>
                                                                 </div>
-                                                            </div>
+                                                            </div>                                                            
                                                         </div>
                                                     </div>
                                                 </div>

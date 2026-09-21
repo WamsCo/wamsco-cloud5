@@ -59,7 +59,7 @@ class NouveauRole extends Component
     public $liste_nomencla, $creer_nomencla, $modifier_nomencla, $supprimer_nomencla, $liste_ordre_fab, $creer_ordre_fab, $modifier_ordre_fab, $supprimer_ordre_fab, 
     $ajouter_composant, $supprimer_composant;
     // CRM
-    public $consulter_opportunite, $creer_opportunite, $detail_opportunite, $modifier_opportunite, $supprimer_opportunite;                          
+    public $consulter_opportunite, $creer_opportunite, $detail_opportunite, $modifier_opportunite, $assigner_opportunite, $supprimer_opportunite;                          
     public $consulter_etape, $creer_etape, $modifier_etape, $supprimer_etape;
     // Ticket
     public $consulter_ticket, $creer_ticket, $modifier_ticket, $supprimer_ticket;
@@ -172,10 +172,10 @@ class NouveauRole extends Component
             return view('livewire.bienvenue',compact('dateJour','entite_mod'))->layout('components.layouts.app',compact('title','module','title_fils','lien','active','champ','choix','entite_mod','dateJour','soldeClient','nbjoursRestant'));          
         }
     }
-    public function store(){
+    public function store(){ 
         
-        $this->validate([            
-            'nom'=>'required', 
+        $this->validate([    
+            'nom' => 'required|unique:roles,nom,NULL,id,societe_id,'.auth()->user()->societe_id,        
             // 'description'=>'required',
             // 'nom_user'=>'required',
             // 'user_id'=>'required',            
@@ -298,6 +298,7 @@ class NouveauRole extends Component
             // 'creer_opportunite'=>'required', 
             // 'detail_opportunite'=>'required', 
             // 'modifier_opportunite'=>'required', 
+            // 'assigner_opportunite'=>'required',             
             // 'supprimer_opportunite'=>'required', 
             // 'consulter_etape'=>'required', 
             // 'creer_etape'=>'required', 
@@ -340,8 +341,19 @@ class NouveauRole extends Component
         if($test > 0){
             $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->creer_role;
-            if($autoriser == 1){                
-                $role = Role::create(['nom'=>$this->nom,'societe'=>$this->societe,'description'=>$this->description,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id,
+            if($autoriser == 1){  
+            
+                if(auth()->user()->societe == "Administration"){ 
+                    $entit = Entite::where('enseigne',$this->societe)->where('active',1)->orderBy('enseigne','asc')->first();
+                    $societe = $entit->enseigne;
+                    $societe_id = $entit->id;
+                }
+                else{
+                    $societe = auth()->user()->societe;
+                    $societe_id = auth()->user()->societe_id;
+                }            
+                
+                $role = Role::create(['nom'=>$this->nom,'societe'=>$societe,'societe_id'=>$societe_id,'description'=>$this->description,'nom_user'=>auth()->user()->name,'user_id'=>auth()->user()->id,
                            'consulter_tier'=>$this->consulter_tier,'creer_tier'=>$this->creer_tier,'modifier_tier'=>$this->modifier_tier, 'supprimer_tier'=>$this->supprimer_tier,
                            'consulter_produit'=>$this->consulter_produit,'creer_produit'=>$this->creer_produit,'modifier_produit'=>$this->modifier_produit,'supprimer_produit'=>$this->supprimer_produit,
                            'consulter_categorie'=>$this->consulter_categorie,'creer_categorie'=>$this->creer_categorie,'modifier_categorie'=>$this->modifier_categorie,'supprimer_categorie'=>$this->supprimer_categorie,
@@ -364,7 +376,7 @@ class NouveauRole extends Component
                            'consulter_depart_poste'=>$this->consulter_depart_poste,'creer_depart_poste'=>$this->creer_depart_poste,'modifier_depart_poste'=>$this->modifier_depart_poste,'supprimer_depart_poste'=>$this->supprimer_depart_poste,'configurer'=>$this->configurer,
                            'liste_nomencla'=>$this->liste_nomencla,'creer_nomencla'=>$this->creer_nomencla,'modifier_nomencla'=>$this->modifier_nomencla,'supprimer_nomencla'=>$this->supprimer_nomencla,'liste_ordre_fab'=>$this->liste_ordre_fab,
                            'creer_ordre_fab'=>$this->creer_ordre_fab,'modifier_ordre_fab'=>$this->modifier_ordre_fab,'supprimer_ordre_fab'=>$this->supprimer_ordre_fab,'ajouter_composant'=>$this->ajouter_composant,'supprimer_composant'=>$this->supprimer_composant,
-                           'consulter_opportunite'=>$this->consulter_opportunite,'creer_opportunite'=>$this->creer_opportunite,'detail_opportunite'=>$this->detail_opportunite,'modifier_opportunite'=>$this->modifier_opportunite,'supprimer_opportunite'=>$this->supprimer_opportunite,
+                           'consulter_opportunite'=>$this->consulter_opportunite,'creer_opportunite'=>$this->creer_opportunite,'detail_opportunite'=>$this->detail_opportunite,'modifier_opportunite'=>$this->modifier_opportunite,'assigner_opportunite'=>$this->assigner_opportunite,'supprimer_opportunite'=>$this->supprimer_opportunite,
                            'consulter_etape'=>$this->consulter_etape,'creer_etape'=>$this->creer_etape,'modifier_etape'=>$this->modifier_etape,'supprimer_etape'=>$this->supprimer_etape,
                            'consulter_ticket'=>$this->consulter_ticket,'creer_ticket'=>$this->creer_ticket,'modifier_ticket'=>$this->modifier_ticket,'supprimer_ticket'=>$this->supprimer_ticket,
                            'consulter_tache'=>$this->consulter_tache,'creer_tache'=>$this->creer_tache,'detail_tache'=>$this->detail_tache,'modifier_tache'=>$this->modifier_tache,'supprimer_tache'=>$this->supprimer_tache,
@@ -392,6 +404,7 @@ class NouveauRole extends Component
                     $rol = Role::find($dernier_id);
                     $new_rol = $rol->replicate();
                     $new_rol->societe = $liste_entites->enseigne;
+                    $new_rol->societe_id = $liste_entites->id;
                     $new_rol->nom_user = auth()->user()->name;
                     $new_rol->user_id = auth()->user()->id;                    
                     $new_rol->save();                        

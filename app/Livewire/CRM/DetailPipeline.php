@@ -56,7 +56,8 @@ class DetailPipeline extends Component
     public $poste_contact; 
     public $site_web; 
     public $recommande_par; 
-    public $telephone_recommande_par; 
+    public $telephone_recommande_par;     
+    public $campagne; 
     public $source; 
     public $secteur_activite; 
     
@@ -71,10 +72,15 @@ class DetailPipeline extends Component
 
     public $type_activite; 
     public $sujet; 
-    public $sujets; // juste pour afficher
     public $date_echeance; 
-    public $commentaire; 
+    public $commentaire;
+
+    // Modifier    
+    public $type_activites; 
     public $commentaires; 
+    public $sujets; // juste pour afficher
+    public $date_echeances;
+    // Fin Modifier
     
     public $date_created_at; 
     public $date_updated_at;     
@@ -83,7 +89,7 @@ class DetailPipeline extends Component
     public $FactMarge; 
     public $FactReste_a_percevoir; 
     
-
+    public $assigner; // pour le role assigner
 
     public function onDataOuverture(){
         $this->reset('ouverture');
@@ -105,6 +111,7 @@ class DetailPipeline extends Component
         if($test > 0){
             $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->detail_opportunite;
+            $this->assigner = $role[0]->assigner_opportunite;            
             if($autoriser == 0){
                 toast()->error('Oups Désolé', 'Vous n\'êtes pas autorisé à ouvrir cette page!')->position('top-end')->autoClose(5000)->background('#fff')->width('460px')->padding('5px');
                 $this->redirect('/bienvenue', navigate: true);
@@ -163,7 +170,8 @@ class DetailPipeline extends Component
                     $this->poste_contact = $opportuniter->poste_contact;                
                     $this->site_web = $opportuniter->site_web;                
                     $this->recommande_par = $opportuniter->recommande_par;                
-                    $this->telephone_recommande_par = $opportuniter->telephone_recommande_par; 
+                    $this->telephone_recommande_par = $opportuniter->telephone_recommande_par;                     
+                    $this->campagne = $opportuniter->campagne;  
                     $this->source = $opportuniter->source;  
                     $this->secteur_activite = $opportuniter->secteur_activite;  
                     $this->date_created_at = $opportuniter->created_at;  
@@ -179,8 +187,8 @@ class DetailPipeline extends Component
 
                 $tier = Tier::where('societe_id',auth()->user()->societe_id)->where('id',$this->ids_client)->get(); 
                 $etape = Etape :: where('societe_id',auth()->user()->societe_id)->orderBy('id','asc')->get();
-                
-                if(auth()->user()->societe == "Administration" && auth()->user()->type_user == "Administrateur"){ 
+
+                if($this->assigner == 1){ // donner le role assigner
                     
                     $user = Utilisateur::where('societe_id',auth()->user()->societe_id)->orderBy('name','asc')->get();
                 }
@@ -280,7 +288,8 @@ class DetailPipeline extends Component
             'ville'=>'nullable|max:255', 
             'pays'=>'nullable|max:255', 
             'langue'=>'nullable|max:255', 
-            'telephone_recommande_par'=>'nullable|max:255', 
+            'telephone_recommande_par'=>'nullable|max:255',
+            'campagne'=>'nullable|max:255',
             'source'=>'nullable|max:255',
             'secteur_activite'=>'required|max:255',                         
             'poste_contact'=>'nullable|max:255', 
@@ -306,11 +315,11 @@ class DetailPipeline extends Component
                         Opportunite :: find($this->ids)->update(['client'=>$this->client,'id_client'=>$this->ids_client,'nom_opportunite'=>$this->nom_opportunite,'email_contact'=>$this->email_contact,
                         'telephone_contact'=>$this->telephone_contact,'montant_attendu'=>$this->montant_attendu,'etape'=>$nom_etape,'id_etape'=>$this->evolution,'step'=>$this->evolution,'position'=>$position,'priorite'=>$this->priorite,'vendeur'=>$this->vendeur,'probabilite'=>$this->probabilite,
                         'note'=>$this->note,'date_cloture'=>$this->date_cloture,'nom_societe'=>$this->nom_societe,'adresse_societe'=>$this->adresse_societe,'ville'=>$this->ville,'pays'=>$this->pays,
-                        'langue'=>$this->langue,'telephone_recommande_par'=>$this->telephone_recommande_par,'source'=>$this->source,'secteur_activite'=>$this->secteur_activite,'poste_contact'=>$this->poste_contact,'site_web'=>$this->site_web,'recommande_par'=>$this->recommande_par,]);   // pas de 'nom_user et 'user_id' ici  
+                        'langue'=>$this->langue,'telephone_recommande_par'=>$this->telephone_recommande_par,'campagne'=>$this->campagne,'source'=>$this->source,'secteur_activite'=>$this->secteur_activite,'poste_contact'=>$this->poste_contact,'site_web'=>$this->site_web,'recommande_par'=>$this->recommande_par,]);   // pas de 'nom_user et 'user_id' ici  
                         
                         $id_activite = $this->ids;   
                         $page = 'Opportunite';    
-                        LogActivity::addToLog('Opportunité » <strong> '.$this->nom_opportunite.' </strong> modifiée', $id_activite, $page); 
+                        LogActivity::addToLog('Opportunité » '.$this->nom_opportunite.' modifiée', $id_activite, $page); 
                         $this->dispatch('alert',                    
                             title:'Opportunité ('.$this->nom_opportunite.') modifiée!',
                             timer:5000,
@@ -462,7 +471,7 @@ class DetailPipeline extends Component
             $autoriser = $role[0]->supprimer_opportunite;
             if($autoriser == 1){   
                 if($id){  
-                                 
+                               
                     Opportunite::where('id',$id)->delete();                    
                     $id_activite = $id;
                     $page = 'Opportunite';
@@ -724,14 +733,18 @@ class DetailPipeline extends Component
     public function ModifNote(int $id){
         $this->ouvrir = $id;
         $noteActivite = Note::where('societe_id',auth()->user()->societe_id)->where('id',$id)->first();
-        $this->id_act = $noteActivite->id;
-        $this->type_activite = $noteActivite->type_activite;
-        $this->sujets = $noteActivite->sujet;
+        $this->id_act = $noteActivite->id;       
+        $this->type_activites = $noteActivite->type_activite;
+        $this->sujets = $noteActivite->sujet; 
+        $this->date_echeances = $noteActivite->date_echeance;
         $this->commentaires = $noteActivite->commentaire;
     }
     public function modifierNote(){
         $this->validate([
-            'commentaires'=>'required|max:255',            
+            'type_activites'=>'required|max:55',
+            'sujets'=>'required|max:255',
+            'date_echeances'=>'required|date',           
+            'commentaires'=>'required|string|max:5000', 
         ]);
         $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){
@@ -739,7 +752,7 @@ class DetailPipeline extends Component
             $autoriser = $role[0]->modifier_opportunite; 
             if($autoriser == 1){ 
                      
-                Note::find($this->id_act)->update(['commentaire'=>$this->commentaires]);
+                Note::find($this->id_act)->update(['type_activite'=>$this->type_activites,'sujet'=>$this->sujets,'date_echeance'=>$this->date_echeances,'commentaire'=>$this->commentaires]);
                 
                 $id_activite = $this->ids;
                 $page = 'Opportunite';
@@ -782,7 +795,7 @@ class DetailPipeline extends Component
             'type_activite'=>'required|max:55',
             'sujet'=>'required|max:255',
             'date_echeance'=>'required|date',
-            'commentaire' => 'nullable|string|max:255',          
+            'commentaire' => 'nullable|string|max:5000',          
         ]);    
         $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
         if($test > 0){      

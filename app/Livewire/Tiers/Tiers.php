@@ -87,7 +87,7 @@ class Tiers extends Component
     }    
     public function mount(){  
         $test = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->count();
-        if($test > 0){
+        if($test > 0){ 
             $role = Role::where('societe_id',auth()->user()->societe_id)->where('nom',auth()->user()->type_user)->get();
             $autoriser = $role[0]->consulter_tier;
             if($autoriser == 0){

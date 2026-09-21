@@ -60,7 +60,7 @@ class DetailRole extends Component
     public $liste_nomencla, $creer_nomencla, $modifier_nomencla, $supprimer_nomencla, $liste_ordre_fab, $creer_ordre_fab, $modifier_ordre_fab, $supprimer_ordre_fab, 
     $ajouter_composant, $supprimer_composant;
     // CRM
-    public $consulter_opportunite, $creer_opportunite, $detail_opportunite, $modifier_opportunite, $supprimer_opportunite;                          
+    public $consulter_opportunite, $creer_opportunite, $detail_opportunite, $modifier_opportunite, $assigner_opportunite, $supprimer_opportunite;                          
     public $consulter_etape, $creer_etape, $modifier_etape, $supprimer_etape;
     // Ticket
     public $consulter_ticket, $creer_ticket, $modifier_ticket, $supprimer_ticket;
@@ -683,6 +683,10 @@ class DetailRole extends Component
                 if($modifier_opportunite == 1){
                     $this->modifier_opportunite = true;
                 }  
+                $assigner_opportunite = $role->assigner_opportunite;
+                if($assigner_opportunite == 1){
+                    $this->assigner_opportunite = true;
+                }                  
                 $supprimer_opportunite = $role->supprimer_opportunite;
                 if($supprimer_opportunite == 1){
                     $this->supprimer_opportunite = true;
@@ -883,7 +887,7 @@ class DetailRole extends Component
             if($autoriser == 1){   
                 if($id){ 
 
-                    if($nom_role == 'Administrateur' || $nom_role == 'Super-admin'){ dd('ok1');
+                    if($nom_role == 'Administrateur' || $nom_role == 'Super-admin'){ 
                         $this->dispatch('alert',                    
                             title:'Vous ne pouvez pas supprimer ce rôle!',
                             timer:3000,
@@ -893,7 +897,7 @@ class DetailRole extends Component
                             position:'top-end',
                         );   
                     }
-                    else{  //dd($id);
+                    else{  
                         Role::where('id',$id)->delete();  
                         $page = 'Role';
                         LogActivityModel::where('id_activite',$id)->where('page',$page)->delete();
@@ -1061,6 +1065,7 @@ class DetailRole extends Component
             // 'creer_opportunite'=>'required', 
             // 'detail_opportunite'=>'required', 
             // 'modifier_opportunite'=>'required', 
+            // 'assigner_opportunite'=>'required', 
             // 'supprimer_opportunite'=>'required', 
             // 'consulter_etape'=>'required', 
             // 'creer_etape'=>'required', 
@@ -1128,7 +1133,7 @@ class DetailRole extends Component
                            'consulter_depart_poste'=>$this->consulter_depart_poste,'creer_depart_poste'=>$this->creer_depart_poste,'modifier_depart_poste'=>$this->modifier_depart_poste,'supprimer_depart_poste'=>$this->supprimer_depart_poste,'configurer'=>$this->configurer,
                            'liste_nomencla'=>$this->liste_nomencla,'creer_nomencla'=>$this->creer_nomencla,'modifier_nomencla'=>$this->modifier_nomencla,'supprimer_nomencla'=>$this->supprimer_nomencla,'liste_ordre_fab'=>$this->liste_ordre_fab,
                            'creer_ordre_fab'=>$this->creer_ordre_fab,'modifier_ordre_fab'=>$this->modifier_ordre_fab,'supprimer_ordre_fab'=>$this->supprimer_ordre_fab,'ajouter_composant'=>$this->ajouter_composant,'supprimer_composant'=>$this->supprimer_composant,
-                           'consulter_opportunite'=>$this->consulter_opportunite,'creer_opportunite'=>$this->creer_opportunite,'detail_opportunite'=>$this->detail_opportunite,'modifier_opportunite'=>$this->modifier_opportunite,'supprimer_opportunite'=>$this->supprimer_opportunite,
+                           'consulter_opportunite'=>$this->consulter_opportunite,'creer_opportunite'=>$this->creer_opportunite,'detail_opportunite'=>$this->detail_opportunite,'modifier_opportunite'=>$this->modifier_opportunite,'assigner_opportunite'=>$this->assigner_opportunite,'supprimer_opportunite'=>$this->supprimer_opportunite,
                            'consulter_etape'=>$this->consulter_etape,'creer_etape'=>$this->creer_etape,'modifier_etape'=>$this->modifier_etape,'supprimer_etape'=>$this->supprimer_etape,
                            'consulter_ticket'=>$this->consulter_ticket,'creer_ticket'=>$this->creer_ticket,'modifier_ticket'=>$this->modifier_ticket,'supprimer_ticket'=>$this->supprimer_ticket,
                            'consulter_tache'=>$this->consulter_tache,'creer_tache'=>$this->creer_tache,'detail_tache'=>$this->detail_tache,'modifier_tache'=>$this->modifier_tache,'supprimer_tache'=>$this->supprimer_tache,
