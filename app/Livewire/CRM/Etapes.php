@@ -174,7 +174,7 @@ class Etapes extends Component
             );
         }   
     }
-    public function edit($id){
+    public function edit($id){ 
         $etape  = Etape::where('id',$id)->first();
         $this->ids = $etape->id;
         $this->nom_etape = $etape->nom_etape;
@@ -293,11 +293,12 @@ class Etapes extends Component
             );  
         }   
     }
-    public function getTotalParOpportunite(int $id_etape){
+    public function getTotalParOpportunite(int $id_etape){ 
 
         if(auth()->user()->type_user == "Administrateur"){ 
 
             return Opportunite :: where('societe_id',auth()->user()->societe_id)->where('id_etape', $id_etape)->count();  
+
         }
         else{
 

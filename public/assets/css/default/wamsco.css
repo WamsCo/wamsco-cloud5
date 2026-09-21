@@ -1271,6 +1271,7 @@ button:not(:hover, .o-mail-ChatWindow-header .o-mail-ActionList-group:focus-visi
 .dropzone.over {
     border-color: #0d6efd !important;
     box-shadow: 0 0 0 3px rgba(13,110,253, .2);
+    transition: all 0.2s ease;
 }
 .dropzone {
     border: 0px dashed var(--app-component-border-color)!important;
@@ -1285,7 +1286,45 @@ button:not(:hover, .o-mail-ChatWindow-header .o-mail-ActionList-group:focus-visi
     min-height: 50vh;
     overflow:auto;
 }
+/* Opportunité actuellement déplacée */
+.w_kanban_record.dragging {
+    opacity: 0.5;
+    cursor: grabbing !important;
+}
 
+/********* pour etape ***************/
+.etape-card {
+    transition: all 0.2s ease;
+    cursor: grab;
+}
+
+/* Étape actuellement déplacée */
+.etape-card.dragging {
+    opacity: 0.5;
+    cursor: grabbing;
+}
+
+/* Étape ciblée pendant le déplacement */
+.etape-card.over-etape {
+    border: 2px dashed #fe4f51 !important;
+    transform: scale(1.01);
+}
+/* Animation après déplacement */
+.w_kanban_record.moved {
+    animation: movedCard 0.3s ease;
+}
+
+@keyframes movedCard {
+    0% {
+        transform: scale(0.95);
+        opacity: 0.5;
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
 
 /*************** Fin  Glisser-deposer *********************/
 /* FIN CRM */

@@ -186,7 +186,7 @@ class DetailPipeline extends Component
                 $this->FactReste_a_percevoir = $fact->sum('reste_a_percevoir');
 
                 $tier = Tier::where('societe_id',auth()->user()->societe_id)->where('id',$this->ids_client)->get(); 
-                $etape = Etape :: where('societe_id',auth()->user()->societe_id)->orderBy('id','asc')->get();
+                $etape = Etape :: where('societe_id',auth()->user()->societe_id)->orderBy('position','asc')->get(); 
 
                 if($this->assigner == 1){ // donner le role assigner
                     

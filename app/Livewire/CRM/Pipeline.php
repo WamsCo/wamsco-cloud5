@@ -103,7 +103,7 @@ class Pipeline extends Component
                 $choix = request('choix');
                 $dateJour = date('Y-m-d');             
 
-                $etape = Etape :: where('societe_id',auth()->user()->societe_id)->orderBy('id','asc')->get();                 
+                $etape = Etape :: where('societe_id',auth()->user()->societe_id)->orderBy('position','asc')->get();                
 
                 $this->start = Carbon::parse($this->date_debut)->startOfDay(); //2016-09-29 00:00:00.000000
                 $this->end = Carbon::parse($this->date_fin)->endOfDay();     // 2016-09-29 23:59:59.000000
@@ -445,5 +445,66 @@ class Pipeline extends Component
     }
     public function voirDetail(int $id){
         $this->redirect('/detail_pipeline?id='.$id.'&active=3&champ=3-3&choix=1', navigate: true);
+    }
+
+    // Pour glisser et deposer Etape   
+    public function moveEtape($etapeId, $newPosition)
+    {
+        $societeId = auth()->user()->societe_id;
+
+        $etape = Etape::where('id', $etapeId)->where('societe_id', $societeId)->first();
+
+        if (!$etape) {
+            return;
+        }
+
+        /*
+        * Toutes les étapes de la société
+        * dans leur ordre actuel.
+        */
+        $etapes = Etape::where('societe_id', $societeId)->orderBy('position')->orderBy('id')->get();
+
+        /*
+        * Retirer l'étape déplacée de la collection
+        */
+        $etapes = $etapes->reject(function ($item) use ($etapeId) {
+                return $item->id == $etapeId;
+            })->values();
+
+        /*
+        * Sécuriser la nouvelle position
+        */
+        $newPosition = max(0, min($newPosition,$etapes->count()));
+
+        /*
+        * Insérer l'étape à sa nouvelle position
+        */
+        $etapes->splice($newPosition, 0,[$etape]);
+
+        /*
+        * Réécrire TOUTES les positions.
+        *
+        * Cela évite les doublons :
+        *
+        * 1
+        * 2
+        * 2
+        * 4
+        *
+        * et garantit toujours :
+        *
+        * 1
+        * 2
+        * 3
+        * 4
+        */
+        foreach ($etapes as $index => $item) {
+            Etape::where('id', $item->id)->where('societe_id', $societeId)->update(['position' => $index + 1]);
+        }
+
+        /*
+        * Recharger le composant Livewire
+        */
+        $this->etape = Etape::where('societe_id', $societeId)->orderBy('position')->get();
     }
 }

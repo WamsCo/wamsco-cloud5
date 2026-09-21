@@ -94,119 +94,128 @@
                                     <main class="w_contenu position-relative custom-scrollk px-0" style="height: calc(100vh - 194px); overflow-y: auto;">
                                         <div class="w_kanban_renderer w_renderer d-flex user-select-none w_kanban_grouped align-content-stretch gap-1">                                            
                                             @foreach($etape as $etapes)
-                                            <div class="w_kanban_group w_group_draggable">
-                                                <div class="w_kanban_header top-0 z-1 py-0 pt-print-0">
-                                                    @php                                                                       
-                                                        $nombre = $this->getTotalParOpportunite($etapes->id);                                                                 
-                                                        $total_montant = $this->getTotalParEtape($etapes->id); 
-                                                    @endphp
-                                                    <div class="w_kanban_header_title position-relative d-flex lh-lg">
-                                                        <div class="flex-grow-1 min-w-0 mw-100 gap-1 d-flex fs-4 fw-bold align-top text-900">
-                                                            <span class="text-truncate" title="Etape » {{$etapes->nom_etape}}"><span class="fs-6 text-bleu" title="Nombre opportunité(s) » {{$nombre}}">{{$nombre}} » </span>{{$etapes->nom_etape}}</span>
-                                                        </div>
-                                                        <div class="w_group_config d-print-none d-flex">
-                                                            <button class="btn px-2 py-0 o-dropdown dropdown-toggle dropdown" tabindex="-1" aria-expanded="false"><i class="fa fa-gear opacity-50 opacity-100-hover" role="img" aria-label="Paramètres" title="Paramètres"></i>
-                                                            </button>
-                                                        </div>
-                                                        <button class="w_kanban_quick_add d-print-none btn pe-2 me-n2" wire:click.prevent="opportuniter({{$etapes->id}})" data-bs-toggle="modal" data-bs-target="#creerOppotuniteModal">
-                                                            <i class="fa fa-plus opacity-75 fw-bold" role="img" aria-label="Ajout rapide" title="Ajout rapide"></i>
-                                                        </button>
-                                                    </div>                                                    
-                                                    <div class="w_kanban_counter position-relative d-flex align-items-center justify-content-between mb-2">
-                                                        <div class="w_column_progress progress bg-300 w-50">
-                                                            <div class="cursor-pointer bg-success" aria-valuemin="0" aria-label="Barre de progression" data-tooltip-delay="0" style="width: {{$nombre}}%;" aria-valuemax="1" aria-valuenow="1" data-tooltip="1 Autre"></div>
-                                                        </div>
-                                                        <div class="ms-auto"></div>                                                                
-                                                        <div class="w_animated_number ms-2 text-900 text-nowrap cursor-default" data-tooltip="Revenu attendu"><b>{{number_format($total_montant,0,',',' ')}} {{$this->devise}}</b></div>
-                                                    </div>
-                                                    <!-- ZONE DE DROP -->
-                                                    <div class="dropzone min-vh-50 p-0 border rounded bg-white ecran_pipeline" ondrop="dropHandler(event, {{ $etapes->id }})" ondragover="dragOver(event)" ondragleave="dragLeave(event)">
-                                                        @foreach ($opportuniter[$etapes->id] ?? [] as $task)                                                                
-                                                            <div class="card rounded-0 p-0 shadow-sm slide-in w_kanban_record d-flex cursor-pointer @if($etapes->opacite == "Oui") opacity-50 @endif @if($dateJour > $task->date_cloture) bg-danger_opportunite @endif" wire:click.prevent="voirDetail({{$task->id}})" draggable="true" ondragstart="dragStart(event, {{ $task->id }})" ondragend="dragEnd(event)" wire:key="task-{{ $task->id }}" style="cursor: grab;">
-                                                                <div class="card-body card-pipeline py-2">
-                                                                    <span class="fw-bold fs-5">{{$task->nom_opportunite}}</span> <br/>
-                                                                    <div class="w_field_widget fw-semibold">
-                                                                        <span class="badge badge-dark" title="Secteur d'activité » {{$task->secteur_activite}}">{{Str::limit($task->secteur_activite,42)}}</span> <span class="badge badge-success" title="Ville société » {{$task->ville}}">{{Str::limit($task->ville,32)}}</span> <span class="badge badge-info" title="Probabilité succès » {{$task->probabilite}}">{{$task->probabilite}}</span>
-                                                                    </div>
-                                                                    <div class="w_field_widget fw-semibold">
-                                                                        <i class="fa fa-money-bill text-bleu"></i> <span>{{number_format($task->montant_attendu,0,',',' ')}} {{$this->devise}}</span>
-                                                                    </div>                                                                   
-                                                                    <div class="d-flex">
-                                                                        <span class="text-truncate fw-bold"><i class="fa fa-user-circle text-danger"></i> {{$task->client}}</span>
-                                                                    </div>
-                                                                    <div class="d-flex">
-                                                                        <span class="text-truncate"><i class="fa fa-phone text-danger"></i> {{$task->telephone_contact}}</span>
-                                                                    </div>
-                                                                    @if($task->email_contact)
-                                                                        <div class="d-flex">
-                                                                            <span class="text-truncate"><i class="fa fa-envelope text-danger"></i> {{$task->email_contact}}</span>
-                                                                        </div>
-                                                                    @endif  
-                                                                    @if($task->campagne)
-                                                                        <div class="d-flex">
-                                                                            <span class="" title="Campagne » {{$task->campagne}}"><i class="fa fa-bullhorn text-danger"></i> {{Str::limit($task->campagne,36)}}</span>
-                                                                        </div>
-                                                                    @endif 
-                                                                    <footer class="pt-1">  
-                                                                        @php
-                                                                            foreach($user as $users){
-                                                                                if($task->vendeur == $users->id){                                                                                    
-                                                                                    $profils = $users->profil;
-                                                                                    $nom_vendeur = $users->name;
-                                                                                    $phone_vendeur = $users->telephone;
-                                                                                    $type_user = $users->type_user;                                                                                
-                                                                                }
-                                                                            } 
-                                                                            // ceci Fait la meme chose en mieux que le foreach($user as $users) ...
-                                                                             $noteTask = $note->where('opportunite_id', $task->id)->where('statut','!=','Terminer')->sortByDesc('created_at')->first(); // le dernier
-                                                                        @endphp
-                                                                        <div class="d-flex" title="Type d'activité planifiée">
-                                                                            <span class="">
-                                                                                @if($noteTask?->type_activite == "Note")
-                                                                                    <i class="fa fa-commenting" style="color: #198754;"></i>                       
-                                                                                @elseif($noteTask?->type_activite == "Appel")
-                                                                                    <i class="fa fa-phone" style="color: #198754;"></i>                                                                                    
-                                                                                @elseif($noteTask?->type_activite == "Email")
-                                                                                    <i class="fa fa-envelope" style="color: #198754;"></i>                                                                            
-                                                                                @elseif($noteTask?->type_activite == "Rendez-vous")
-                                                                                    <i class="fa fa-calendar" style="color: #198754;"></i>    
-                                                                                @elseif($noteTask?->type_activite == "Tâche")
-                                                                                    <i class="fa fa-tasks" style="color: #198754;"></i>                                                                            
-                                                                                @else
-                                                                                    <i class="fa fa-edit text-danger"></i>
-                                                                                @endif
-                                                                            </span>
-                                                                            <div class="">
-                                                                                <span class="fw-bold text-dangerk" style="color: #198754;">&nbsp;{{$noteTask->type_activite ?? '' }}</span> » 
-                                                                                <span class="fw-semibold text-bleu">
-                                                                                    @if($noteTask)
-                                                                                      <span title="{{$noteTask->sujet}}">{{Str::limit($noteTask->sujet,72)}}</span>
-                                                                                    @else
-                                                                                        <span class="blink">Aucune activité</span>
-                                                                                    @endif
-                                                                                </span>
-                                                                            </div>
-                                                                        </div>                                                                                                                                          
-                                                                        <div class="ms-auto d-flex justify-content-between align-items-center">
-                                                                            <div class="fw-semibold"><i class="fa fa-calendar-alt text-bleu"></i> {{date('d-m-Y H:i:s', strtotime($task->created_at))}}</div>
-                                                                            <div class="d-flex">
-                                                                                <span class="badge @if($task->priorite == "Très élevé") badge-danger blink @elseif($task->priorite == "Haute") badge-warning text-black @elseif($task->priorite == "Moyenne") badge-success @else badge-info @endif py-0"><i class="fa fa-battery-half"></i> {{$task->priorite}}</span>
-                                                                            </div>                                                                        
-                                                                            <div class="image_user">                                                                           
-                                                                                @if($profils != null)
-                                                                                    <img class="rounded-circle" src="storage/{{$profils}}" title="{{$type_user}} » {{$nom_vendeur}} @if($phone_vendeur)» {{$phone_vendeur}} @endif" alt="Profil"/>
-                                                                                @else
-                                                                                    <img class="rounded-circle" src="storage/default/user_man.png" title="{{$type_user}} » {{$nom_vendeur}} @if($phone_vendeur)» {{$phone_vendeur}} @endif" alt="Profil"/>
-                                                                                @endif
-                                                                            </div>
-                                                                        </div>
-                                                                    </footer>
+                                                <div class="etape-card" wire:key="etape-{{ $etapes->id }}"
+                                                    data-etape-id="{{ $etapes->id }}" draggable="true"
+                                                    ondragstart="dragStartEtape(event, {{ $etapes->id }})"
+                                                    ondragend="dragEndEtape(event)"
+                                                    ondragover="dragOverEtape(event)"
+                                                    ondragleave="dragLeaveEtape(event)"
+                                                    ondrop="dropEtape(event)"
+                                                    >
+                                                    <div class="w_kanban_group w_group_draggable etape-column">
+                                                        <div class="w_kanban_header top-0 z-1 py-0 pt-print-0">
+                                                            @php                                                                       
+                                                                $nombre = $this->getTotalParOpportunite($etapes->id);                                                                 
+                                                                $total_montant = $this->getTotalParEtape($etapes->id); 
+                                                            @endphp
+                                                            <div class="w_kanban_header_title position-relative d-flex lh-lg">
+                                                                <div class="flex-grow-1 min-w-0 mw-100 gap-1 d-flex fs-4 fw-bold align-top text-900">
+                                                                    <span class="text-truncate" title="Etape » {{$etapes->nom_etape}}"><span class="fs-6 text-bleu" title="Nombre opportunité(s) » {{$nombre}}">{{$nombre}} » </span>{{$etapes->nom_etape}}</span>
                                                                 </div>
+                                                                <div class="w_group_config d-print-none d-flex">
+                                                                    <button class="btn px-2 py-0 o-dropdown dropdown-toggle dropdown" tabindex="-1" aria-expanded="false"><i class="fa fa-gear opacity-50 opacity-100-hover" role="img" aria-label="Paramètres" title="Paramètres"></i>
+                                                                    </button>
+                                                                </div>
+                                                                <button class="w_kanban_quick_add d-print-none btn pe-2 me-n2" wire:click.prevent="opportuniter({{$etapes->id}})" data-bs-toggle="modal" data-bs-target="#creerOppotuniteModal">
+                                                                    <i class="fa fa-plus opacity-75 fw-bold" role="img" aria-label="Ajout rapide" title="Ajout rapide"></i>
+                                                                </button>
+                                                            </div>                                                    
+                                                            <div class="w_kanban_counter position-relative d-flex align-items-center justify-content-between mb-2">
+                                                                <div class="w_column_progress progress bg-300 w-50">
+                                                                    <div class="cursor-pointer bg-success" aria-valuemin="0" aria-label="Barre de progression" data-tooltip-delay="0" style="width: {{$nombre}}%;" aria-valuemax="1" aria-valuenow="1" data-tooltip="1 Autre"></div>
+                                                                </div>
+                                                                <div class="ms-auto"></div>                                                                
+                                                                <div class="w_animated_number ms-2 text-900 text-nowrap cursor-default" data-tooltip="Revenu attendu"><b>{{number_format($total_montant,0,',',' ')}} {{$this->devise}}</b></div>
                                                             </div>
-                                                        @endforeach
+                                                            <!-- ZONE DE DROP -->
+                                                            <div class="dropzone min-vh-50 p-0 border rounded bg-white ecran_pipeline" ondrop="dropHandler(event, {{ $etapes->id }})" ondragover="dragOver(event)" ondragleave="dragLeave(event)">
+                                                                @foreach ($opportuniter[$etapes->id] ?? [] as $task)                                                                
+                                                                    <div class="card rounded-0 p-0 shadow-sm slide-in w_kanban_record d-flex cursor-pointer @if($etapes->opacite == "Oui") opacity-50 @endif @if($dateJour > $task->date_cloture) bg-danger_opportunite @endif" wire:click.prevent="voirDetail({{$task->id}})" draggable="true" ondragstart="dragStart(event, {{ $task->id }})" ondragend="dragEnd(event)" wire:key="task-{{ $task->id }}" style="cursor: grab;">
+                                                                        <div class="card-body card-pipeline py-2">
+                                                                            <span class="fw-bold fs-5">{{$task->nom_opportunite}}</span> <br/>
+                                                                            <div class="w_field_widget fw-semibold">
+                                                                                <span class="badge badge-dark" title="Secteur d'activité » {{$task->secteur_activite}}">{{Str::limit($task->secteur_activite,42)}}</span> <span class="badge badge-success" title="Ville société » {{$task->ville}}">{{Str::limit($task->ville,32)}}</span> <span class="badge badge-info" title="Probabilité succès » {{$task->probabilite}}">{{$task->probabilite}}</span>
+                                                                            </div>
+                                                                            <div class="w_field_widget fw-semibold">
+                                                                                <i class="fa fa-money-bill text-bleu"></i> <span>{{number_format($task->montant_attendu,0,',',' ')}} {{$this->devise}}</span>
+                                                                            </div>                                                                   
+                                                                            <div class="d-flex">
+                                                                                <span class="text-truncate fw-bold"><i class="fa fa-user-circle text-danger"></i> {{$task->client}}</span>
+                                                                            </div>
+                                                                            <div class="d-flex">
+                                                                                <span class="text-truncate"><i class="fa fa-phone text-danger"></i> {{$task->telephone_contact}}</span>
+                                                                            </div>
+                                                                            @if($task->email_contact)
+                                                                                <div class="d-flex">
+                                                                                    <span class="text-truncate"><i class="fa fa-envelope text-danger"></i> {{$task->email_contact}}</span>
+                                                                                </div>
+                                                                            @endif  
+                                                                            @if($task->campagne)
+                                                                                <div class="d-flex">
+                                                                                    <span class="" title="Campagne » {{$task->campagne}}"><i class="fa fa-bullhorn text-danger"></i> {{Str::limit($task->campagne,36)}}</span>
+                                                                                </div>
+                                                                            @endif 
+                                                                            <footer class="pt-1">  
+                                                                                @php
+                                                                                    foreach($user as $users){
+                                                                                        if($task->vendeur == $users->id){                                                                                    
+                                                                                            $profils = $users->profil;
+                                                                                            $nom_vendeur = $users->name;
+                                                                                            $phone_vendeur = $users->telephone;
+                                                                                            $type_user = $users->type_user;                                                                                
+                                                                                        }
+                                                                                    } 
+                                                                                    // ceci Fait la meme chose en mieux que le foreach($user as $users) ...
+                                                                                    $noteTask = $note->where('opportunite_id', $task->id)->where('statut','!=','Terminer')->sortByDesc('created_at')->first(); // le dernier
+                                                                                @endphp
+                                                                                <div class="d-flex" title="Type d'activité planifiée">
+                                                                                    <span class="">
+                                                                                        @if($noteTask?->type_activite == "Note")
+                                                                                            <i class="fa fa-commenting" style="color: #198754;"></i>                       
+                                                                                        @elseif($noteTask?->type_activite == "Appel")
+                                                                                            <i class="fa fa-phone" style="color: #198754;"></i>                                                                                    
+                                                                                        @elseif($noteTask?->type_activite == "Email")
+                                                                                            <i class="fa fa-envelope" style="color: #198754;"></i>                                                                            
+                                                                                        @elseif($noteTask?->type_activite == "Rendez-vous")
+                                                                                            <i class="fa fa-calendar" style="color: #198754;"></i>    
+                                                                                        @elseif($noteTask?->type_activite == "Tâche")
+                                                                                            <i class="fa fa-tasks" style="color: #198754;"></i>                                                                            
+                                                                                        @else
+                                                                                            <i class="fa fa-edit text-danger"></i>
+                                                                                        @endif
+                                                                                    </span>
+                                                                                    <div class="">
+                                                                                        <span class="fw-bold text-dangerk" style="color: #198754;">&nbsp;{{$noteTask->type_activite ?? '' }}</span> » 
+                                                                                        <span class="fw-semibold text-bleu">
+                                                                                            @if($noteTask)
+                                                                                            <span title="{{$noteTask->sujet}}">{{Str::limit($noteTask->sujet,72)}}</span>
+                                                                                            @else
+                                                                                                <span class="blink">Aucune activité</span>
+                                                                                            @endif
+                                                                                        </span>
+                                                                                    </div>
+                                                                                </div>                                                                                                                                          
+                                                                                <div class="ms-auto d-flex justify-content-between align-items-center">
+                                                                                    <div class="fw-semibold"><i class="fa fa-calendar-alt text-bleu"></i> {{date('d-m-Y H:i:s', strtotime($task->created_at))}}</div>
+                                                                                    <div class="d-flex">
+                                                                                        <span class="badge @if($task->priorite == "Très élevé") badge-danger blink @elseif($task->priorite == "Haute") badge-warning text-black @elseif($task->priorite == "Moyenne") badge-success @else badge-info @endif py-0"><i class="fa fa-battery-half"></i> {{$task->priorite}}</span>
+                                                                                    </div>                                                                        
+                                                                                    <div class="image_user">                                                                           
+                                                                                        @if($profils != null)
+                                                                                            <img class="rounded-circle" src="storage/{{$profils}}" title="{{$type_user}} » {{$nom_vendeur}} @if($phone_vendeur)» {{$phone_vendeur}} @endif" alt="Profil"/>
+                                                                                        @else
+                                                                                            <img class="rounded-circle" src="storage/default/user_man.png" title="{{$type_user}} » {{$nom_vendeur}} @if($phone_vendeur)» {{$phone_vendeur}} @endif" alt="Profil"/>
+                                                                                        @endif
+                                                                                    </div>
+                                                                                </div>
+                                                                            </footer>
+                                                                        </div>
+                                                                    </div>
+                                                                @endforeach
+                                                            </div>
+                                                        </div>                                                    
                                                     </div>
                                                 </div>
-                                            </div>                                                
                                             @endforeach                                                                                     
                                         </div>                                        
                                     </main>
@@ -219,40 +228,340 @@
         </div>
     </div>    
     {{-- Modal --}}
-    @include('livewire.crm.article_crm') 
+    @include('livewire.crm.article_crm')    
+
     <script>
+        /* ======= DRAG & DROP DES OPPORTUNITÉS ======= */
         let draggedTask = null;
         function dragStart(event, id) {
+
+            // Empêche le drag de remonter vers .etape-card
+            event.stopPropagation();
+
             draggedTask = id;
-            event.target.classList.add('dragging');
+
+            event.dataTransfer.effectAllowed = 'move';
+
+            event.dataTransfer.setData(
+                'text/plain',
+                'task-' + id
+            );
+
+            event.currentTarget.classList.add('dragging');
         }
         function dragEnd(event) {
-            event.target.classList.remove('dragging');
+
+            event.stopPropagation();
+
+            event.currentTarget.classList.remove('dragging');
+
+            draggedTask = null;
+
+            document
+                .querySelectorAll('.dropzone')
+                .forEach(el => {
+                    el.classList.remove('over');
+                });
         }
         function dragOver(event) {
+
             event.preventDefault();
-            event.target.closest(".dropzone")?.classList.add('over');
+            event.stopPropagation();
+
+            const dropzone = event.target.closest('.dropzone');
+
+            if (!dropzone) {
+                return;
+            }
+
+            dropzone.classList.add('over');
         }
         function dragLeave(event) {
-            event.target.closest(".dropzone")?.classList.remove('over');
+
+            event.stopPropagation();
+
+            const dropzone = event.target.closest('.dropzone');
+
+            if (!dropzone) {
+                return;
+            }
+
+            /*
+            * Ne retire pas immédiatement la classe si on entre
+            * dans un élément enfant de la dropzone.
+            */
+            if (
+                event.relatedTarget &&
+                dropzone.contains(event.relatedTarget)
+            ) {
+                return;
+            }
+
+            dropzone.classList.remove('over');
         }
         function dropHandler(event, newEtape) {
-            event.preventDefault();
 
-            const dropzone = event.target.closest(".dropzone");
+            event.preventDefault();
+            event.stopPropagation();
+
+            if (!draggedTask) {
+                return;
+            }
+
+            const dropzone = event.target.closest('.dropzone');
+
+            if (!dropzone) {
+                return;
+            }
+
             dropzone.classList.remove('over');
 
-            const cards = [...dropzone.querySelectorAll('.card')];
+            /*
+            * Toutes les cartes de cette colonne
+            */
+            const cards = [
+                ...dropzone.querySelectorAll(
+                    ':scope > .card'
+                )
+            ];
+
+            /*
+            * Carte située sous la souris
+            */
             const targetCard = event.target.closest('.card');
-            let newPosition = cards.indexOf(targetCard);
-            if (newPosition < 0) newPosition = cards.length;
 
-            @this.call('moveTask', draggedTask, newEtape, newPosition);
+            let newPosition;
 
-            setTimeout(() => {
-                const moved = dropzone.querySelector(`.card[wire\\:key="task-${draggedTask}"]`);
-                if (moved) moved.classList.add('moved');
-            }, 60);
+            if (!targetCard || !dropzone.contains(targetCard)) {
+
+                /*
+                * Déposé dans une zone vide :
+                * on met l'opportunité à la fin.
+                */
+                newPosition = cards.length;
+
+            } 
+            else {
+
+                const targetIndex = cards.indexOf(targetCard);
+
+                newPosition = targetIndex;
+
+                /*
+                * Si la souris est dans la moitié basse
+                * de la carte, placer après.
+                */
+                const rect = targetCard.getBoundingClientRect();
+
+                if (
+                    event.clientY >
+                    rect.top + rect.height / 2
+                ) {
+                    newPosition = targetIndex + 1;
+                }
+            }
+
+            @this.call(
+                'moveTask',
+                draggedTask,
+                newEtape,
+                newPosition
+            );
+
+            draggedTask = null;
+        }
+
+        /* ======== DRAG & DROP DES ÉTAPES ========== */  
+        let draggedEtape = null;
+        function dragStartEtape(event, id) {
+
+            /*
+            * Si le drag vient d'une opportunité,
+            * NE PAS démarrer le drag d'une étape.
+            */
+            if (
+                event.target.closest('.w_kanban_record')
+            ) {
+                event.stopPropagation();
+                return;
+            }
+
+            event.stopPropagation();
+
+            draggedEtape = id;
+
+            event.dataTransfer.effectAllowed = 'move';
+
+            event.dataTransfer.setData(
+                'text/plain',
+                'etape-' + id
+            );
+
+            event.currentTarget.classList.add('dragging');
+        }
+        function dragEndEtape(event) {
+
+            event.stopPropagation();
+
+            event.currentTarget.classList.remove('dragging');
+
+            draggedEtape = null;
+
+            document
+                .querySelectorAll('.etape-column')
+                .forEach(el => {
+                    el.classList.remove('over-etape');
+                });
+        }
+        function dragOverEtape(event) {
+
+            event.preventDefault();
+            event.stopPropagation();
+
+            /*
+            * Si on déplace une opportunité,
+            * ne pas traiter comme déplacement d'étape.
+            */
+            if (
+                event.dataTransfer.types.includes('text/plain') &&
+                event.dataTransfer.getData('text/plain').startsWith('task-')
+            ) {
+                return;
+            }
+
+            const etapeCard = event.target.closest('.etape-card');
+
+            if (!etapeCard) {
+                return;
+            }
+
+            etapeCard.classList.add('over-etape');
+        }
+        function dragLeaveEtape(event) {
+
+            event.stopPropagation();
+
+            const etapeCard = event.target.closest('.etape-card');
+
+            if (!etapeCard) {
+                return;
+            }
+
+            if (
+                event.relatedTarget &&
+                etapeCard.contains(event.relatedTarget)
+            ) {
+                return;
+            }
+
+            etapeCard.classList.remove('over-etape');
+        }
+        function dropEtape(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            /*
+            * Aucun élément étape en cours de déplacement
+            */
+            if (!draggedEtape) {
+                return;
+            }
+
+            /*
+            * Vérification supplémentaire :
+            * on ne traite jamais une opportunité comme une étape.
+            */
+            const data = event.dataTransfer.getData('text/plain');
+
+            if (
+                data &&
+                data.startsWith('task-')
+            ) {
+                return;
+            }
+
+            const draggedColumn = document.querySelector(
+                `.etape-card[data-etape-id="${draggedEtape}"]`
+            );
+
+            const targetColumn = event.target.closest(
+                '.etape-card'
+            );
+
+            if (!draggedColumn || !targetColumn) {
+                return;
+            }
+
+            /*
+            * Impossible de déposer une étape sur elle-même
+            */
+            if (
+                draggedColumn === targetColumn
+            ) {
+                return;
+            }
+
+            const container = targetColumn.parentElement;
+
+            const columns = [
+                ...container.querySelectorAll(
+                    ':scope > .etape-card'
+                )
+            ];
+
+            let targetIndex = columns.indexOf(
+                targetColumn
+            );
+
+            if (targetIndex < 0) {
+                return;
+            }
+
+            /*
+            * Déterminer si on dépose avant ou après
+            */
+            const rect = targetColumn.getBoundingClientRect();
+
+            const mouseX = event.clientX;
+
+            let newPosition = targetIndex;
+
+            if (
+                mouseX >
+                rect.left + rect.width / 2
+            ) {
+                newPosition++;
+            }
+
+            /*
+            * IMPORTANT :
+            * Si l'étape déplacée se trouve avant la cible,
+            * la suppression visuelle de l'élément décale l'index.
+            */
+            const draggedIndex = columns.indexOf(
+                draggedColumn
+            );
+
+            if (
+                draggedIndex < newPosition
+            ) {
+                newPosition--;
+            }
+
+            /*
+            * Position minimum
+            */
+            if (newPosition < 0) {
+                newPosition = 0;
+            }
+
+            @this.call(
+                'moveEtape',
+                draggedEtape,
+                newPosition
+            );
+
+            draggedEtape = null;
         }
     </script>
+
 </div>

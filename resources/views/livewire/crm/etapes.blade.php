@@ -200,7 +200,7 @@
                                                                                 @php                                                                       
                                                                                     $nombre = $this->getTotalParOpportunite($etapes->id);                                                                 
                                                                                 @endphp
-                                                                                <strong class="text-bleu title_color truncate_ok" title="{{$etapes->nom_etape}}"><i class="fa fa-chart-pie"></i> {{Str::limit($etapes->nom_etape, 22)}} (<span class="text-danger" title="{{$nombre}} Opportunité(s)">{{$nombre}}</span>)</strong>
+                                                                                <strong class="text-bleu title_color truncate_ok" title="{{$etapes->nom_etape}}"><i class="fa fa-chart-pie"></i> {{Str::limit($etapes->nom_etape, 22)}} (<span class="text-danger" title="{{$nombre}} Opportunité(s) associée(s)">{{$nombre}}</span>)</strong>
                                                                             </div>                                        
                                                                             <div class="col-md-4 col-sm-4 col-xs-4 mt-2 mb-2">                                                
                                                                                 <span class="description_cat" title="{{$etapes->description}}">{{Str::limit($etapes->description, 16)}}</span>                        
